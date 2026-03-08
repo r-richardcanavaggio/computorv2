@@ -21,7 +21,14 @@ SRCS_FILES =	main.cpp \
 				Interpreter.cpp \
 				Lexer.cpp \
 \
-				Types/Complex.cpp \
+				Types/Complex/Complex_core.cpp \
+				Types/Complex/Complex_free_ops.cpp \
+				Types/Complex/Complex_io.cpp \
+				Types/Complex/Complex_ops_addsub.cpp \
+				Types/Complex/Complex_ops_divmod.cpp \
+				Types/Complex/Complex_ops_mul.cpp \
+				Types/Complex/Complex_pow.cpp \
+\
 				Types/Real.cpp \
 				Types/Polynomial/Polynomial_core.cpp \
 				Types/Polynomial/Polynomial_eval.cpp \

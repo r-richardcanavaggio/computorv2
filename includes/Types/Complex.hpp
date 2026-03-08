@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/14 18:27:58 by rrichard          #+#    #+#             */
-/*   Updated: 2026/03/06 17:59:49 by rrichard         ###   ########.fr       */
+/*   Updated: 2026/03/08 11:36:20 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,13 @@ class Complex
 		~Complex() = default;
 		
 		Complex		conj() const;
+		Real		abs() const;
 		Real		getReal() const;
-		void		setReal( Real );
 		Real		getImag() const;
+		void		setReal( Real );
 		void		setImag( Real );
+
 		Complex		pow( int ) const;
-		Real		mod() const;
 		
 		Complex		operator+( const Complex& ) const noexcept;
 		Complex&	operator+=( const Complex& ) noexcept;
