@@ -10,7 +10,7 @@ VarType	BinaryOpVisitor::operator()( const Real& a, const Real& b ) const
 		case OpKind::MUL: return (a * b);
 		case OpKind::DIV: return (a / b);
 		case OpKind::MOD: return (a % b);
-		case OpKind::POW: return (maths::pow(a, static_cast<int>(b.getReal())));
+		case OpKind::POW: return (maths::pow(a, static_cast<int>(b)));
 		default:
 			throw std::runtime_error("Unknown operator");
 	}
@@ -118,6 +118,7 @@ VarType BinaryOpVisitor::operator()( const Complex& z, const Real& b ) const
 		case OpKind::SUB: return (z - b);
 		case OpKind::MUL: return (z * b);
 		case OpKind::DIV: return (z / b);
+		case OpKind::POW: return (z.pow(static_cast<int>(b)));
 		default:
 			throw std::runtime_error("Unknown operator");
 	}

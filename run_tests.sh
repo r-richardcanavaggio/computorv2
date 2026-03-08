@@ -1,26 +1,57 @@
 #!/bin/bash
 
-# Couleurs pour faire joli dans le terminal
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-echo "🛠️  Compilation en cours..."
+echo -e "${YELLOW}🛠️  Compilation...${NC}"
 make > /dev/null
 
-echo "🧪 Lancement des tests..."
-# On donne input.txt à ton programme et on sauvegarde le résultat dans actual.txt
-./computorv2 < tests/input.txt > tests/actual.txt
+mkdir -p tests/actual # Dossier temporaire pour les résultats
 
-# On compare le résultat obtenu avec le résultat attendu
-diff -u tests/expected.txt tests/actual.txt > tests/diff.log
+TOTAL=0
+PASSED=0
 
-# Si diff ne trouve aucune différence, il renvoie 0
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ TOUS LES TESTS PASSENT !${NC}"
-    rm tests/actual.txt tests/diff.log
+echo -e "${YELLOW}🧪 Lancement de la suite de tests...${NC}"
+
+# On boucle sur tous les fichiers dans tests/inputs/
+for input_file in tests/inputs/*.txt; do
+    # On extrait le nom du fichier (ex: 01_basics.txt)
+    base_name=$(basename "$input_file")
+    
+    expected_file="tests/expected/$base_name"
+    actual_file="tests/actual/$base_name"
+
+    # Si le fichier expected n'existe pas encore, on prévient et on passe
+    if [ ! -f "$expected_file" ]; then
+        echo -e "${YELLOW}⚠️  Ignoré : $base_name (Pas de fichier expected correspondant)${NC}"
+        continue
+    fi
+
+    TOTAL=$((TOTAL + 1))
+
+    # On lance le programme. 
+    # Le '2>&1' redirige les erreurs (stderr) vers la sortie normale (stdout) 
+    # pour pouvoir tester les messages d'erreur de ton try/catch !
+    ./computorv2 < "$input_file" > "$actual_file" 2>&1
+
+    # On compare
+    diff -u "$expected_file" "$actual_file" > "tests/actual/${base_name}.diff"
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ PASS : $base_name${NC}"
+        PASSED=$((PASSED + 1))
+        rm "tests/actual/${base_name}.diff" # On nettoie si c'est bon
+    else
+        echo -e "${RED}❌ FAIL : $base_name${NC}"
+    fi
+done
+
+echo "---------------------------------"
+if [ $PASSED -eq $TOTAL ]; then
+    echo -e "${GREEN}🎉 SUCCÈS : $PASSED / $TOTAL tests réussis !${NC}"
 else
-    echo -e "${RED}❌ ERREUR TROUVÉE !${NC}"
-    echo "Regarde les différences ci-dessous :"
-    cat tests/diff.log
+    echo -e "${RED}⚠️  ÉCHEC : $PASSED / $TOTAL tests réussis.${NC}"
+    echo "Consulte les fichiers .diff dans le dossier tests/actual/ pour voir les erreurs."
 fi

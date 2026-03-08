@@ -14,6 +14,7 @@ int	main( void )
 	Interpreter	interpret(ctx);
 	Lexer		lexer;
 
+	std::cout << maths::sin(1.0) << std::endl;
 	while (true)
 	{
 		std::cout << "> ";
