@@ -99,12 +99,7 @@ void	Interpreter::executeAssignment( const Target& target, const std::vector<Tok
 		std::get<Polynomial>(result).setVarName(target.param);
 	}
 
-	_ctx[target.name] = result;
-
-	std::cout << target.name;
-	if (target.isFunction)
-		std::cout << "(" << target.param << ")";
-	std::cout << " = " << result << std::endl;
+	std::cout << result << std::endl;
 }
 
 void	Interpreter::processLine( std::vector<Token>& tokens )
