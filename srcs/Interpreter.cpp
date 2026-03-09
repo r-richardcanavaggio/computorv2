@@ -99,6 +99,8 @@ void	Interpreter::executeAssignment( const Target& target, const std::vector<Tok
 		std::get<Polynomial>(result).setVarName(target.param);
 	}
 
+	_ctx[target.name] = result;
+
 	std::cout << result << std::endl;
 }
 

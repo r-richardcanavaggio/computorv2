@@ -6,13 +6,14 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 15:57:52 by rrichard          #+#    #+#             */
-/*   Updated: 2026/02/11 16:34:12 by rrichard         ###   ########.fr       */
+/*   Updated: 2026/03/09 21:15:40 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include <iostream>
 #include <exception>
+#include <compare>
 
 class Real
 {
@@ -36,11 +37,7 @@ class Real
 		Real&					operator*=( const Real& ) noexcept;
 		Real&					operator/=( const Real& );
 		bool					operator==( const Real& ) const noexcept;
-		bool					operator<( const Real& ) const noexcept;
-		bool					operator>( const Real& ) const noexcept;
-		bool					operator<=( const Real& ) const noexcept;
-		bool					operator>=( const Real& ) const noexcept;
-		bool					operator!=( const Real& ) const noexcept;
+		auto					operator<=>( const Real& ) const = default;
 		Real					operator%( const Real& ) const;
 
 		explicit				operator long() const;

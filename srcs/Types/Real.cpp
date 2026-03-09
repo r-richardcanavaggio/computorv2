@@ -1,5 +1,5 @@
 
-#include "computor.hpp"
+#include "Real.hpp"
 
 Real::Real() : real(0.0) {}
 
@@ -113,30 +113,30 @@ std::ostream&	operator<<( std::ostream& os, const Real& r )
 	return (os);
 }
 
-bool	Real::operator>( const Real& other ) const noexcept
-{
-	return (this->real > other.real);
-}
+// bool	Real::operator>( const Real& other ) const noexcept
+// {
+// 	return (this->real > other.real);
+// }
 
-bool	Real::operator<( const Real& other ) const noexcept
-{
-	return (this->real < other.real);
-}
+// bool	Real::operator<( const Real& other ) const noexcept
+// {
+// 	return (this->real < other.real);
+// }
 
-bool	Real::operator>=( const Real& other ) const noexcept
-{
-	return (this->real >= other.real);
-}
+// bool	Real::operator>=( const Real& other ) const noexcept
+// {
+// 	return (this->real >= other.real);
+// }
 
-bool	Real::operator<=( const Real& other ) const noexcept
-{
-	return (this->real <= other.real);
-}
+// bool	Real::operator<=( const Real& other ) const noexcept
+// {
+// 	return (this->real <= other.real);
+// }
 
-bool	Real::operator!=( const Real& other ) const noexcept
-{
-	return (this->real != other.real);
-}
+// bool	Real::operator!=( const Real& other ) const noexcept
+// {
+// 	return (this->real != other.real);
+// }
 
 Real	Real::square() const noexcept
 {
