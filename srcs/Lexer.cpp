@@ -10,7 +10,6 @@ Lexer::~Lexer() {}
 
 Token	Lexer::createSymbolToken( const std::string& str ) const
 {
-	std::map<std::string, int>	hey;
 	static const std::map<std::string, TokenDef>	symbolMap = {
 		{"=",  {TokenType::EQUAL,				 OpKind::NONE}},
 		{"[",  {TokenType::BRACKET_MATRIX_OPEN,	 OpKind::NONE}},
@@ -50,8 +49,6 @@ std::vector<Token>	Lexer::tokenize( const std::string& input ) const
 			tokens.emplace_back(match_str, TokenType::NUMBER, Arity::CONSTANT, OpKind::NONE);
 		else if (isalpha(match_str[0]))
 		{
-			for (auto& c : match_str)
-				c = std::tolower(static_cast<unsigned char>(c));
 			TokenType	type = (match_str == "i") ? TokenType::IMAGINARY : TokenType::VARIABLE;
 
 			tokens.emplace_back(match_str, type, Arity::CONSTANT, OpKind::NONE);

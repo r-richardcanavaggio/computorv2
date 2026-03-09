@@ -5,6 +5,8 @@
 namespace maths
 {
 
+inline constexpr double pi = 3.14159265358979323846;
+
 template<typename T>
 const T&	min( const T& a, const T& b ) noexcept
 {
@@ -65,9 +67,9 @@ inline Real	sqrt( Real x )
 inline double	cos( double x, size_t terms = 20 )
 {
 	while (x < 0)
-		x += 2 * M_PI;
-	while (x > 2 * M_PI)
-		x -= 2 * M_PI;
+		x += 2 * pi;
+	while (x > 2 * pi)
+		x -= 2 * pi;
 	
 	double	result = 1.0;
 	double	term = 1.0;
@@ -82,10 +84,10 @@ inline double	cos( double x, size_t terms = 20 )
 
 inline double	sin( double x, size_t terms = 20 )
 {
-	while (x < -M_PI)
-		x += 2 * M_PI;
-	while (x > M_PI)
-		x -= 2 * M_PI;
+	while (x < -pi)
+		x += 2 * pi;
+	while (x > pi)
+		x -= 2 * pi;
 
 	double	result = x;
 	double	term = x;
@@ -129,7 +131,7 @@ inline double	arctan( double x, size_t terms = 20 )
 	}
 	
 	if (x_abs > 1)
-		sum = M_PI / 2.0 - sum;
+		sum = pi / 2.0 - sum;
 	if (x < 0)
 		sum = -sum;
 
@@ -141,21 +143,21 @@ inline double	arctan2( double a, double b )
 	if (b == 0)
 	{
 		if (a >= 0) return (0.0);
-		else  return (M_PI);
+		else  return (pi);
 	}
 
 	if (a == 0)
 	{
-		if (b > 0) return (M_PI / 2);
-		else return (-M_PI / 2);
+		if (b > 0) return (pi / 2);
+		else return (-pi / 2);
 	}
 	double	ratio = maths::abs(b / a);
 	double	alpha = maths::arctan(ratio);
 	double	theta = 0.0;
 
 	if (a > 0 && b > 0)		 theta = alpha;
-	else if (a < 0 && b > 0) theta = M_PI - alpha;
-	else if (a < 0 && b < 0) theta = M_PI + alpha;
+	else if (a < 0 && b > 0) theta = pi - alpha;
+	else if (a < 0 && b < 0) theta = pi + alpha;
 	else if (a > 0 && b < 0) theta = -alpha;
 
 	return (theta);
