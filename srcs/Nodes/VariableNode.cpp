@@ -10,8 +10,11 @@ NodePtr	VariableNode::clone() const
 
 VarType	VariableNode::eval( Context& ctx ) const
 {
-	if (!ctx.contains(name))
-		throw std::runtime_error("Undefined variable: " + name);
+	auto	it = ctx.find(name);
+	if (it != ctx.end())
+		return (it->second);
 
-	return (ctx.at(name));
+	Polynomial	sym({0, 1});
+	sym.setVarName(name);
+	return (sym);
 }
