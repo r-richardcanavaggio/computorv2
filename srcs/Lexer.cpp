@@ -2,8 +2,6 @@
 #include "Lexer.hpp"
 #include <regex>
 #include <cctype>
-#include <string>
-#include <map>
 
 Lexer::Lexer() {}
 Lexer::~Lexer() {}
@@ -58,62 +56,5 @@ std::vector<Token>	Lexer::tokenize( const std::string& input ) const
 		else
 			tokens.push_back(createSymbolToken(match_str));
 	}
-	prePassArity(tokens);
-	prePassImplMulti(tokens);
 	return (tokens);
-}
-
-void	Lexer::prePassArity( std::vector<Token>& tokens ) const
-{
-	bool	expects_operands = true;
-
-	for (auto& token : tokens)
-	{
-		if (token.type == TokenType::VARIABLE || token.type == TokenType::NUMBER || token.type == TokenType::IMAGINARY)
-			expects_operands = false;
-		else if (token.type == TokenType::BRACKET_OPEN)
-			expects_operands = true;
-		else if (token.type == TokenType::BRACKET_CLOSE)
-			expects_operands = false;
-		else if (token.type == TokenType::OPERATOR)
-		{
-			token.arity = expects_operands ? Arity::UNARY : Arity::BINARY;
-			expects_operands = true;
-		}
-	}
-}
-
-bool	Lexer::endsExpression( const Token& token ) const
-{
-	return (token.type == TokenType::NUMBER    ||
-			token.type == TokenType::VARIABLE  || 
-			token.type == TokenType::IMAGINARY || 
-			token.type == TokenType::BRACKET_CLOSE);
-}
-
-bool	Lexer::startsExpression( const Token& token ) const
-{
-	return (token.type == TokenType::NUMBER    ||
-			token.type == TokenType::VARIABLE  ||
-			token.type == TokenType::IMAGINARY ||
-			token.type == TokenType::BRACKET_OPEN);
-}
-
-void	Lexer::prePassImplMulti( std::vector<Token>& tokens ) const
-{
-	size_t	i = 0;
-
-	while (i + 1 < tokens.size())
-	{
-		if (endsExpression(tokens[i])              &&
-			startsExpression(tokens[i + 1])        &&
-			!(tokens[i].type == TokenType::VARIABLE &&
-			tokens[i + 1].type == TokenType::BRACKET_OPEN))
-		{
-			tokens.insert(tokens.begin() + (i + 1), Token("*", TokenType::OPERATOR, Arity::BINARY, OpKind::MUL));
-			i++;
-		}
-		else
-			i++;
-	}
 }

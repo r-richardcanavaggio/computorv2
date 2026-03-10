@@ -1,6 +1,7 @@
 
 #include "Interpreter.hpp"
 #include <type_traits>
+#include <sstream>
 
 Interpreter::Interpreter( Context& ctx ) : _ctx(ctx) {}
 
@@ -82,7 +83,7 @@ void	Interpreter::executeQuery( const Target& target, const std::vector<Token>& 
 	}
 }
 
-void	Interpreter::executeAssignment( const Target& target, const std::vector<Token>& rhsTokens )
+void	Interpreter::executeAssignment( const Target& target, const std::vector<Token>& rhsTokens, const std::string& rawLine )
 {
 	Context evalCtx = _ctx;
 
@@ -101,10 +102,61 @@ void	Interpreter::executeAssignment( const Target& target, const std::vector<Tok
 
 	_ctx[target.name] = result;
 
+	std::ostringstream	oss;
+	oss << result;
+
+	std::string			resultStr = oss.str();
+	_history.push_back(rawLine + "  ->  " + resultStr);
 	std::cout << result << std::endl;
 }
 
-void	Interpreter::processLine( std::vector<Token>& tokens )
+bool	Interpreter::handleSystemCommand( const std::vector<Token>& tokens ) const
+{
+	if (tokens.empty())	return (false);
+
+	std::string	cmd = tokens[0].value;
+
+	if (tokens.size() == 1 && cmd == "list")
+	{
+		if (_ctx.empty())
+			std::cout << "No Variables.\n";
+		else
+		{
+			for (const auto& pair : _ctx)
+				std::cout << pair.first << " : " << pair.second << std::endl;
+		}
+		return (true);
+	}
+	if (tokens.size() == 1 && cmd == "history")
+	{
+		if (_history.empty())
+			std::cout << "History is empty." << std::endl;
+		else
+		{
+			for (std::size_t i = 0; i < _history.size(); i++)
+				std::cout << i + 1 << ": " << _history[i] << std::endl;
+		}
+		return (true);
+	}
+	if (cmd == "clear")
+	{
+		std::string	varToDelete = tokens[1].value;
+	
+		auto		it = _ctx.find(varToDelete);
+
+		if (it != _ctx.end())
+		{
+			_ctx.erase(it);
+			std::cout << "Variable/Function '" << varToDelete << "' has been deleted.\n";
+		}
+		else
+			std::cout << "Error: '" << varToDelete << "' is not defined.\n";
+		return (true);
+	}
+	return (false);
+}
+
+void	Interpreter::processLine( std::vector<Token>& tokens, const std::string& rawLine )
 {
 	if (tokens.empty())
 		return;
@@ -117,6 +169,15 @@ void	Interpreter::processLine( std::vector<Token>& tokens )
 		if (tokens.empty())
 			return;
 	}
+
+	if (handleSystemCommand(tokens))
+	{
+		_history.push_back(rawLine);
+		return ;
+	}
+
+	prePassArity(tokens);
+	prePassImplMulti(tokens);
 
 	int eq = findEqualIndex(tokens);
 
@@ -147,6 +208,61 @@ void	Interpreter::processLine( std::vector<Token>& tokens )
 	else
 	{
 		Target	target = parseLHS(lhsTokens);
-		executeAssignment(target, rhsTokens);
+		executeAssignment(target, rhsTokens, rawLine);
+	}
+}
+
+void	Interpreter::prePassArity( std::vector<Token>& tokens ) const
+{
+	bool	expects_operands = true;
+
+	for (auto& token : tokens)
+	{
+		if (token.type == TokenType::VARIABLE || token.type == TokenType::NUMBER || token.type == TokenType::IMAGINARY)
+			expects_operands = false;
+		else if (token.type == TokenType::BRACKET_OPEN)
+			expects_operands = true;
+		else if (token.type == TokenType::BRACKET_CLOSE)
+			expects_operands = false;
+		else if (token.type == TokenType::OPERATOR)
+		{
+			token.arity = expects_operands ? Arity::UNARY : Arity::BINARY;
+			expects_operands = true;
+		}
+	}
+}
+
+bool	Interpreter::endsExpression( const Token& token ) const
+{
+	return (token.type == TokenType::NUMBER    ||
+			token.type == TokenType::VARIABLE  || 
+			token.type == TokenType::IMAGINARY || 
+			token.type == TokenType::BRACKET_CLOSE);
+}
+
+bool	Interpreter::startsExpression( const Token& token ) const
+{
+	return (token.type == TokenType::NUMBER    ||
+			token.type == TokenType::VARIABLE  ||
+			token.type == TokenType::IMAGINARY ||
+			token.type == TokenType::BRACKET_OPEN);
+}
+
+void	Interpreter::prePassImplMulti( std::vector<Token>& tokens ) const
+{
+	size_t	i = 0;
+
+	while (i + 1 < tokens.size())
+	{
+		if (endsExpression(tokens[i])              &&
+			startsExpression(tokens[i + 1])        &&
+			!(tokens[i].type == TokenType::VARIABLE &&
+			tokens[i + 1].type == TokenType::BRACKET_OPEN))
+		{
+			tokens.insert(tokens.begin() + (i + 1), Token("*", TokenType::OPERATOR, Arity::BINARY, OpKind::MUL));
+			i++;
+		}
+		else
+			i++;
 	}
 }

@@ -3,6 +3,9 @@
 #include <map>
 #include <variant>
 #include <regex>
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <cstdlib>
 #include "RuntimeTypes.hpp"
 #include "Interpreter.hpp"
 #include "Lexer.hpp"
@@ -16,18 +19,26 @@ int	main( void )
 
 	while (true)
 	{
-		std::cout << "> ";
-		if (!std::getline(std::cin, line))
+		char*	input = readline("> ");
+
+		if (!input)
 		{
 			std::cout << std::endl;
 			break;
 		}
+		std::string	line(input);
+
+		if (!line.empty())
+			add_history(input);
+		free(input);
 		if (line.empty())
-			continue;
+			continue ;
+		if (line == "exit" || line == "quit")
+			break ;
 		try
 		{
 			auto	tokens = lexer.tokenize(line);
-			interpret.processLine(tokens);
+			interpret.processLine(tokens, line);
 		}
 		catch (const std::exception& e)
 		{

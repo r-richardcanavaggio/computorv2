@@ -5,6 +5,7 @@
 NAME		:= computorv2
 CXX			:= c++
 CXXFLAGS	:= -Werror -Wall -Wextra -std=c++20 -MMD -MP -Iincludes -Iincludes/Types -Iincludes/Nodes -Iincludes/Visitors
+LDFLAGS		:= -lreadline
 
 SRCS_PATH = ./srcs/
 OBJS_PATH = .obj/
@@ -94,7 +95,7 @@ $(OBJS_PATH):
 
 $(NAME): COM_STRING = Linking
 $(NAME): $(OBJS_PATH) $(OBJS)
-	@$(call run_and_test, $(CXX) $(CXXFLAGS) -o $@ $(OBJS))
+	@$(call run_and_test, $(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS))
 
 $(OBJS_PATH)%.o: COM_STRING = Compiling
 $(OBJS_PATH)%.o: $(SRCS_PATH)%.cpp
