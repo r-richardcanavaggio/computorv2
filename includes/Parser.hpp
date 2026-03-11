@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Parser.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/12 12:02:56 by rrichard          #+#    #+#             */
-/*   Updated: 2026/02/02 12:00:26 by rrichard         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include "Nodes.hpp"
 
@@ -30,9 +19,10 @@ class Parser
 		const Token&				consume( TokenType );
 		bool						match( TokenType );
 		bool						match_op( OpKind );
-	
+
 	public:
 		explicit Parser( const std::vector<Token>& t ) : tokens(t), pos(0) {}
-		
-		NodePtr	parse();
+
+		NodePtr						parse();
+		static bool					isBuiltinFunction( const std::string& );
 };

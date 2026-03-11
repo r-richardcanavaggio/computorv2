@@ -82,6 +82,11 @@ inline double	cos( double x, size_t terms = 20 )
 	return (result);
 }
 
+inline Real	cos( Real x, size_t terms = 20 )
+{
+	return (Real(maths::cos(x.getReal(), terms)));
+}
+
 inline double	sin( double x, size_t terms = 20 )
 {
 	while (x < -pi)
@@ -98,6 +103,11 @@ inline double	sin( double x, size_t terms = 20 )
 		result += term;
 	}
 	return (result);
+}
+
+inline Real	sin( Real x, size_t terms = 20 )
+{
+	return (Real(maths::sin(x.getReal(), terms)));
 }
 
 inline double	arctan( double x, size_t terms = 20 )

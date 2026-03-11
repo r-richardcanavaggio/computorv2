@@ -1,5 +1,6 @@
 
 #include "Parser.hpp"
+#include <unordered_set>
 
 NodePtr	Parser::parse_matrix()
 {
@@ -44,6 +45,14 @@ Real	parse_real_literal( const std::string& s )
 	
 }
 
+bool	Parser::isBuiltinFunction( const std::string& name )
+{
+	static const std::unordered_set<std::string>	builtins = {
+		"cos", "sin", "sqrt", "abs"
+	};
+	return (builtins.count(name) > 0);
+}
+
 NodePtr	Parser::parse_primary()
 {
 	if (match(TokenType::NUMBER))
@@ -56,13 +65,15 @@ NodePtr	Parser::parse_primary()
 		{
 			auto	arg = parse_expression();
 			consume(TokenType::BRACKET_CLOSE);
-			return (std::make_unique<FunctionCallNode>(name, std::move(arg)));
+			if (isBuiltinFunction(name))
+				return (std::make_unique<BuiltinFunctionNode>(name, std::move(arg)));
+			else
+				return (std::make_unique<FunctionCallNode>(name, std::move(arg)));
 		}
 		return (std::make_unique<VariableNode>(name));
 	}
 	if (match(TokenType::IMAGINARY))
 		return (std::make_unique<ImaginaryNode>());
-		
 	if (match(TokenType::BRACKET_OPEN))
 	{
 		auto	expr = parse_expression();

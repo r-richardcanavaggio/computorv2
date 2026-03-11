@@ -51,6 +51,7 @@ SRCS_FILES =	main.cpp \
 				Nodes/VariableNode.cpp \
 				Nodes/NumberNode.cpp \
 				Nodes/FunctionCallNode.cpp \
+				Nodes/BuiltinFunctionNode.cpp \
 
 ################################################################################
 #                                    COlORS                                    #

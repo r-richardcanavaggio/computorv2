@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 15:41:30 by rrichard          #+#    #+#             */
-/*   Updated: 2026/02/02 12:03:34 by rrichard         ###   ########.fr       */
+/*   Updated: 2026/03/11 11:21:32 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,3 +20,4 @@
 #include "ImaginaryNode.hpp"
 #include "MatrixNode.hpp"
 #include "FunctionCallNode.hpp"
+#include "BuiltinFunctionNode.hpp"

@@ -85,6 +85,8 @@ void	Interpreter::executeQuery( const Target& target, const std::vector<Token>& 
 
 void	Interpreter::executeAssignment( const Target& target, const std::vector<Token>& rhsTokens, const std::string& rawLine )
 {
+	if (Parser::isBuiltinFunction(target.name))
+		throw std::runtime_error("Forbidden: '" + target.name + "' is a built-in function and cannot be redefined.");
 	Context evalCtx = _ctx;
 
 	if (target.isFunction)
