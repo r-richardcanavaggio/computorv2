@@ -21,6 +21,7 @@ SRCS_FILES =	main.cpp \
 				Parser.cpp \
 				Interpreter.cpp \
 				Lexer.cpp \
+				Maths.cpp \
 \
 				Types/Complex/Complex_core.cpp \
 				Types/Complex/Complex_free_ops.cpp \
@@ -111,7 +112,9 @@ fclean: COM_STRING = Cleaning
 fclean: clean
 	@$(call run_and_test, rm -f $(NAME))
 
-re: fclean all
+re:
+	@$(MAKE) fclean 
+	@$(MAKE) all
 
 test: all
 	@./run_tests.sh

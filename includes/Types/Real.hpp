@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 15:57:52 by rrichard          #+#    #+#             */
-/*   Updated: 2026/03/09 21:15:40 by rrichard         ###   ########.fr       */
+/*   Updated: 2026/03/11 19:29:11 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,4 +48,5 @@ class Real
 
 		double					getReal() const;
 		Real					square() const noexcept;
+		Real					abs() const;
 };

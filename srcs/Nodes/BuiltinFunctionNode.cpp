@@ -1,5 +1,6 @@
 
 #include "BuiltinFunctionNode.hpp"
+#include "Maths.hpp"
 #include <type_traits>
 #include <unordered_map>
 #include <functional>
@@ -19,7 +20,7 @@ VarType	apply_math( const VarType& arg, Func mathFunc, const std::string& funcNa
 	{
 		using T = std::decay_t<decltype(val)>;
 
-		if constexpr (std::is_same_v<T, Real>)
+		if constexpr (std::is_same_v<T, Real> || std::is_same_v<T, Complex>)
 		{
 			return (mathFunc(val));
 		}

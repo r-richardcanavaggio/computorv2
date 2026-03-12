@@ -35,14 +35,6 @@ Complex	Complex::conj() const
 	return (z);
 }
 
-Real	Complex::abs() const
-{
-	Real	a = getReal();
-	Real	b = getImag();
-
-	return (maths::sqrt(maths::pow(a, 2) + maths::pow(b, 2)));
-}
-
 bool	Complex::operator==( const Complex& other ) const noexcept
 {
 	return (this->real == other.real && this->imag == other.imag);

@@ -1,5 +1,6 @@
 
 #include "Polynomial.hpp"
+#include "Maths.hpp"
 
 std::ostream&	operator<<( std::ostream& os, const Polynomial& p )
 {

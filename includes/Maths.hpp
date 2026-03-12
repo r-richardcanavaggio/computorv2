@@ -1,176 +1,36 @@
+
 #pragma once
 
 #include "Real.hpp"
+#include "Types/Complex.hpp"
 
 namespace maths
 {
 
 inline constexpr double pi = 3.14159265358979323846;
 
-template<typename T>
-const T&	min( const T& a, const T& b ) noexcept
-{
-	return (b < a) ? b : a;
-}
+Real		min( const Real&, const Real& );
+Real		max( const Real&, const Real& );
 
-template<typename T>
-const T&	max( const T& a, const T& b) noexcept
-{
-	return (a < b) ? b : a;
-}
+Real		abs( const Real& );
+Real		abs( const Complex& );
 
-template<typename T>
-T			abs( T x ) noexcept
-{
-	return (x < static_cast<T>(0) ? -x : x);
-}
+Real		pow( const Real&, int );
+Complex		pow( const Complex&, int );
 
-template<typename T>
-T			pow( T base, int exp )
-{
-	if (exp < 0)
-		return (T(1) / pow(base, -exp));
+Real		sqrt( const Real& );
+Complex		sqrt( const Complex& );
 
-	T	res = 1.0;
+Real		cos( const Real& x, size_t terms = 50 );
+Complex		cos( const Complex& z, size_t terms = 50 );
 
-	while (exp > 0)
-	{
-		if (exp % 2 == 1)
-			res *= base;
-		base *= base;
-		exp /= 2;
-	}
-	return (res);
-}
+Real		sin( const Real& r, size_t terms = 50 );
+Complex		sin( const Complex& z, size_t terms = 50 );
 
-inline Real	sqrt( Real x )
-{
-	if (x <= 0.0)
-		return (0.0);
+Real		tan( const Real& x, size_t terms = 50 );
+Complex		tan( const Complex& z, size_t terms = 50 );
 
-	Real		guess = x / 2;
-	const Real	tolerance = 1e-6;
-
-	while (true)
-	{
-		Real	other_side = x / guess;
-		Real	new_guess = (guess + other_side) / 2;
-
-		Real	diff = abs(guess - new_guess);
-
-		if (diff < tolerance)
-			return (new_guess);
-		guess = new_guess;
-	}
-}
-
-inline double	cos( double x, size_t terms = 20 )
-{
-	while (x < 0)
-		x += 2 * pi;
-	while (x > 2 * pi)
-		x -= 2 * pi;
-	
-	double	result = 1.0;
-	double	term = 1.0;
-
-	for (size_t k = 1; k < terms; k++)
-	{
-		term *= -x * x / ((2 * k) * (2 * k - 1));
-		result += term;
-	}
-	return (result);
-}
-
-inline Real	cos( Real x, size_t terms = 20 )
-{
-	return (Real(maths::cos(x.getReal(), terms)));
-}
-
-inline double	sin( double x, size_t terms = 20 )
-{
-	while (x < -pi)
-		x += 2 * pi;
-	while (x > pi)
-		x -= 2 * pi;
-
-	double	result = x;
-	double	term = x;
-
-	for (size_t k = 1; k < terms; k++)
-	{
-		term *= -x * x / ((2 * k) * (2 * k + 1));
-		result += term;
-	}
-	return (result);
-}
-
-inline Real	sin( Real x, size_t terms = 20 )
-{
-	return (Real(maths::sin(x.getReal(), terms)));
-}
-
-inline double	arctan( double x, size_t terms = 20 )
-{
-	double	x_abs = maths::abs(x);
-
-	double	num;
-	double	step;
-
-	if (x_abs <= 1)
-	{
-		num = x_abs;
-		step = x_abs * x_abs;
-	}
-	else
-	{
-		num = 1.0 / x_abs;
-		step = 1.0 / (x_abs * x_abs);
-	}
-	
-	double	sum = 0.0;
-	int		denom = 1;
-	int		sign = 1;
-
-	for (size_t k = 0; k < terms; k++)
-	{
-		sum += sign * (num / denom); 
-		num *= step;
-		denom += 2;
-		sign = -sign;
-	}
-	
-	if (x_abs > 1)
-		sum = pi / 2.0 - sum;
-	if (x < 0)
-		sum = -sum;
-
-	return (sum);
-}
-
-inline double	arctan2( double a, double b )
-{
-	if (b == 0)
-	{
-		if (a >= 0) return (0.0);
-		else  return (pi);
-	}
-
-	if (a == 0)
-	{
-		if (b > 0) return (pi / 2);
-		else return (-pi / 2);
-	}
-	double	ratio = maths::abs(b / a);
-	double	alpha = maths::arctan(ratio);
-	double	theta = 0.0;
-
-	if (a > 0 && b > 0)		 theta = alpha;
-	else if (a < 0 && b > 0) theta = pi - alpha;
-	else if (a < 0 && b < 0) theta = pi + alpha;
-	else if (a > 0 && b < 0) theta = -alpha;
-
-	return (theta);
-}
+Real		arctan( const Real& x, size_t terms = 50 );
+Real		arctan2( const Real& a, const Real& b );
 
 }

@@ -1,4 +1,6 @@
+
 #include "Polynomial.hpp"
+#include "Maths.hpp"
 
 std::vector<Root>	Polynomial::solve( bool verbose ) const
 {

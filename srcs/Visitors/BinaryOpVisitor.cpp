@@ -1,5 +1,6 @@
 
 #include "Visitors/BinaryOpVisitor.hpp"
+#include "Maths.hpp"
 
 VarType	BinaryOpVisitor::operator()( const Real& a, const Real& b ) const
 {
@@ -118,7 +119,7 @@ VarType BinaryOpVisitor::operator()( const Complex& z, const Real& b ) const
 		case OpKind::SUB: return (z - b);
 		case OpKind::MUL: return (z * b);
 		case OpKind::DIV: return (z / b);
-		case OpKind::POW: return (z.pow(static_cast<int>(b)));
+		case OpKind::POW: return (maths::pow(z, static_cast<int>(b)));
 		default:
 			throw std::runtime_error("Unknown operator");
 	}
