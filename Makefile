@@ -22,6 +22,7 @@ SRCS_FILES =	main.cpp \
 				Interpreter.cpp \
 				Lexer.cpp \
 				Maths.cpp \
+				Plotter.cpp \
 \
 				Types/Complex/Complex_core.cpp \
 				Types/Complex/Complex_free_ops.cpp \

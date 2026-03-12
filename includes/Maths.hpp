@@ -18,6 +18,9 @@ Real		abs( const Complex& );
 Real		pow( const Real&, int );
 Complex		pow( const Complex&, int );
 
+Real		exp( const Real& x, size_t terms = 50 );
+Complex		exp( const Complex& z, size_t terms = 50 );
+
 Real		sqrt( const Real& );
 Complex		sqrt( const Complex& );
 

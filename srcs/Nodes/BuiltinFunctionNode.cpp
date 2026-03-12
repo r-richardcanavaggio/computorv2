@@ -42,11 +42,17 @@ VarType	BuiltinFunctionNode::eval( Context& ctx ) const
 		{"sin", [](const VarType& v) {
 			return apply_math(v, [](const auto& x) { return maths::sin(x); }, "sin");
 		}},
+		{"tan", [](const VarType& v) {
+			return apply_math(v, [](const auto& x) { return maths::tan(x); }, "tan");
+		}},
 		{"sqrt", [](const VarType& v) {
 			return apply_math(v, [](const auto& x) { return maths::sqrt(x); }, "sqrt");
 		}},
 		{"abs", [](const VarType& v) {
 			return apply_math(v, [](const auto& x) { return maths::abs(x); }, "abs");
+		}},
+		{"exp", [](const VarType& v) {
+			return apply_math(v, [](const auto& x) { return maths::exp(x); }, "exp");
 		}}
 	};
 

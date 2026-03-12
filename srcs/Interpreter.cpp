@@ -1,5 +1,6 @@
 
 #include "Interpreter.hpp"
+#include "Plotter.hpp"
 #include <type_traits>
 #include <sstream>
 
@@ -97,8 +98,11 @@ void	Interpreter::executeAssignment( const Target& target, const std::vector<Tok
 
 	if (target.isFunction)
 	{
+		if (std::holds_alternative<Real>(result))
+			result = Polynomial({ std::get<Real>(result) });
+
 		if (!std::holds_alternative<Polynomial>(result))
-			throw std::runtime_error("Function must evaluate to a Polynomial");
+			throw std::runtime_error("Function must evaluate to a Polynomial.");
 		std::get<Polynomial>(result).setVarName(target.param);
 	}
 
@@ -154,6 +158,26 @@ bool	Interpreter::handleSystemCommand( const std::vector<Token>& tokens ) const
 		else
 			std::cout << "Error: '" << varToDelete << "' is not defined.\n";
 		return (true);
+	}
+	if (tokens.size() == 2 && cmd == "plot" && tokens[1].type == TokenType::VARIABLE)
+	{
+		std::string	targetFunc = tokens[1].value;
+
+		auto		it = _ctx.find(targetFunc);
+		if (it != _ctx.end())
+		{
+			if (std::holds_alternative<Polynomial>(it->second))
+			{
+				Plotter plotter;
+				plotter.plot(targetFunc, std::get<Polynomial>(it->second));
+			}
+			else
+			{
+				std::cout << "Error: '" << targetFunc << "' is not a function/polynomial.\n";
+			}
+		}
+		else
+			std::cout << "Error: Unknown function '" << targetFunc << "'." << std::endl;
 	}
 	return (false);
 }

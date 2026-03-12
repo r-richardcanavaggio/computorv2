@@ -90,7 +90,7 @@ Complex	sqrt( const Complex& z )
 	return (Complex(real_part, imag_part));
 }
 
-static Complex	exp_complex( const Complex& z, size_t terms )
+Complex	exp( const Complex& z, size_t terms )
 {
 	Complex	sum(1, 0);
 	Complex	current_term(1, 0);
@@ -103,10 +103,23 @@ static Complex	exp_complex( const Complex& z, size_t terms )
 	return (sum);
 }
 
+Real	exp( const Real& x, size_t terms )
+{
+	Real	sum(1);
+	Real	current_term(1);
+
+	for (size_t i = 1; i < terms; i++)
+	{
+		current_term = (current_term * x) / i;
+		sum += current_term;
+	}
+	return (sum);
+}
+
 Complex cos( const Complex& z, size_t terms )
 {
 	Complex iz(-z.getImag(), z.getReal());
-	Complex	numerator = maths::exp_complex(iz, terms) + maths::exp_complex(-iz, terms);
+	Complex	numerator = maths::exp(iz, terms) + maths::exp(-iz, terms);
 
 	return (numerator / Real(2));
 }
@@ -134,7 +147,7 @@ Real	cos( const Real& r, size_t terms )
 Complex sin( const Complex& z, size_t terms )
 {
 	Complex iz(-z.getImag(), z.getReal());
-	Complex	numerator = maths::exp_complex(iz, terms) - maths::exp_complex(-iz, terms);
+	Complex	numerator = maths::exp(iz, terms) - maths::exp(-iz, terms);
 
 	return (numerator / Complex(0, 2));
 }
