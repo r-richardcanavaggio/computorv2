@@ -4,8 +4,9 @@
 
 NAME		:= computorv2
 CXX			:= c++
-CXXFLAGS	:= -Werror -Wall -Wextra -std=c++20 -MMD -MP -Iincludes -Iincludes/Types -Iincludes/Nodes -Iincludes/Visitors -Iincludes/Interpreter
+CXXFLAGS	:= -Werror -Wall -Wextra -std=c++20 -MMD -MP
 LDFLAGS		:= -lreadline
+INCLUDES	:= -Iincludes -Iincludes/Types -Iincludes/Nodes -Iincludes/Visitors -Iincludes/Interpreter
 
 SRCS_PATH = ./srcs/
 OBJS_PATH = .obj/
@@ -20,7 +21,6 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 SRCS_FILES =	main.cpp \
 				Parser.cpp \
 				Lexer.cpp \
-				Maths.cpp \
 				Plotter.cpp \
 \
 				Interpreter/Interpreter.cpp \
@@ -58,6 +58,10 @@ SRCS_FILES =	main.cpp \
 				Nodes/NumberNode.cpp \
 				Nodes/FunctionCallNode.cpp \
 				Nodes/BuiltinFunctionNode.cpp \
+\
+				Maths/Maths_arithmetic.cpp \
+				Maths/Maths_exponential.cpp \
+				Maths/Maths_trig.cpp \
 
 ################################################################################
 #                                    COlORS                                    #
@@ -102,12 +106,12 @@ $(OBJS_PATH):
 
 $(NAME): COM_STRING = Linking
 $(NAME): $(OBJS_PATH) $(OBJS)
-	@$(call run_and_test, $(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS))
+	@$(call run_and_test, $(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $@ $(OBJS))
 
 $(OBJS_PATH)%.o: COM_STRING = Compiling
 $(OBJS_PATH)%.o: $(SRCS_PATH)%.cpp
 	@mkdir -p $(dir $@)
-	@$(call run_and_test, $(CXX) $(CXXFLAGS) -c $< -o $@)
+	@$(call run_and_test, $(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@)
 
 clean: COM_STRING = Cleaning
 clean:
