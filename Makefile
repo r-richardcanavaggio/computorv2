@@ -4,7 +4,7 @@
 
 NAME		:= computorv2
 CXX			:= c++
-CXXFLAGS	:= -Werror -Wall -Wextra -std=c++20 -MMD -MP -Iincludes -Iincludes/Types -Iincludes/Nodes -Iincludes/Visitors
+CXXFLAGS	:= -Werror -Wall -Wextra -std=c++20 -MMD -MP -Iincludes -Iincludes/Types -Iincludes/Nodes -Iincludes/Visitors -Iincludes/Interpreter
 LDFLAGS		:= -lreadline
 
 SRCS_PATH = ./srcs/
@@ -19,10 +19,14 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 
 SRCS_FILES =	main.cpp \
 				Parser.cpp \
-				Interpreter.cpp \
 				Lexer.cpp \
 				Maths.cpp \
 				Plotter.cpp \
+\
+				Interpreter/Interpreter.cpp \
+				Interpreter/InterpreterEvaluator.cpp \
+				Interpreter/InterpreterCommandHandler.cpp \
+				Interpreter/TokenPreprocessor.cpp \
 \
 				Types/Complex/Complex_core.cpp \
 				Types/Complex/Complex_free_ops.cpp \
