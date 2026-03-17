@@ -1,6 +1,7 @@
 
 #include "BuiltinFunctionNode.hpp"
 #include "Maths.hpp"
+#include "Settings.hpp"
 #include <type_traits>
 #include <unordered_map>
 #include <functional>
@@ -37,13 +38,28 @@ VarType	BuiltinFunctionNode::eval( Context& ctx ) const
 
 	static const std::unordered_map<std::string, std::function<VarType(const VarType&)>> builtin_funcs = {
 		{"cos", [](const VarType& v) {
-			return apply_math(v, [](const auto& x) { return maths::cos(x); }, "cos");
+			return apply_math(v, [](const auto& x)
+			{
+				if (Settings::isDegreeMode)
+					return (maths::cos(x * maths::pi / 180.0));
+				return (maths::cos(x));
+			}, "cos");
 		}},
 		{"sin", [](const VarType& v) {
-			return apply_math(v, [](const auto& x) { return maths::sin(x); }, "sin");
+			return apply_math(v, [](const auto& x)
+			{
+				if (Settings::isDegreeMode)
+					return (maths::sin(x * maths::pi / 180.0));
+				return maths::sin(x);
+			}, "sin");
 		}},
 		{"tan", [](const VarType& v) {
-			return apply_math(v, [](const auto& x) { return maths::tan(x); }, "tan");
+			return apply_math(v, [](const auto& x)
+			{
+				if (Settings::isDegreeMode)
+					return (maths::tan(x * maths::pi / 180.0));
+				return maths::tan(x);
+			}, "tan");
 		}},
 		{"sqrt", [](const VarType& v) {
 			return apply_math(v, [](const auto& x) { return maths::sqrt(x); }, "sqrt");

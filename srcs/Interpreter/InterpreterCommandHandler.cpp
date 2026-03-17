@@ -1,6 +1,7 @@
 
 #include "InterpreterCommandHandler.hpp"
 #include "Plotter.hpp"
+#include "Settings.hpp"
 #include <iostream>
 
 namespace interpreter_cmd
@@ -32,6 +33,18 @@ namespace interpreter_cmd
 				for (std::size_t i = 0; i < history.size(); i++)
 					std::cout << i + 1 << ": " << history[i] << std::endl;
 			}
+			return (true);
+		}
+		if (tokens.size() == 1 && cmd == "deg")
+		{
+			Settings::isDegreeMode = true;
+			std::cout << "Angle mode switched to: DEGREES" << std::endl;
+			return (true);
+		}
+		if (tokens.size() == 1 && cmd == "rad")
+		{
+			Settings::isDegreeMode = false;
+			std::cout << "Angle mode switched to: RADIANS" << std::endl;
 			return (true);
 		}
 		if (cmd == "clear")
