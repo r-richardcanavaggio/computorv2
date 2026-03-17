@@ -70,7 +70,7 @@ VarType MatrixNode::eval( Context& ctx ) const
 			if (std::holds_alternative<Complex>(v))
 				orow.push_back(std::get<Complex>(v));
 			else
-				orow.push_back(Complex(std::get<Real>(v).getReal(), 0.));
+				orow.push_back(Complex(std::get<Real>(v).getValue(), 0.));
 		}
 		out.push_back(std::move(orow));
 	}

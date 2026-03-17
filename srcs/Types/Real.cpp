@@ -1,15 +1,15 @@
 
 #include "Real.hpp"
 
-Real::Real() : real(0.0) {}
+Real::Real() : value(0.0) {}
 
-Real::Real( double r ) : real(r) {}
+Real::Real( double r ) : value(r) {}
 
 Real	Real::operator+( const Real& other ) const noexcept
 {
 	Real	r(0.);
 
-	r.real = this->real + other.real;
+	r.value = this->value + other.value;
 	return (r);
 }
 
@@ -17,7 +17,7 @@ Real	Real::operator-( const Real& other ) const noexcept
 {
 	Real	r(0.);
 
-	r.real = this->real - other.real;
+	r.value = this->value - other.value;
 	return (r);
 }
 
@@ -25,18 +25,18 @@ Real	Real::operator*( const Real& other ) const noexcept
 {
 	Real	r(0.);
 	
-	r.real = this->real * other.real;
+	r.value = this->value * other.value;
 	return (r);
 }
 
 Real	Real::operator/( const Real& other ) const
 {
-	if (other.real == 0.)
+	if (other.value == 0.)
 		throw std::runtime_error("Error: cannot divide by zero");
 
 	Real	r(0.);
 
-	r.real = this->real / other.real;
+	r.value = this->value / other.value;
 	return (r);
 }
 
@@ -52,73 +52,73 @@ Real	Real::operator%( const Real& other ) const
 
 Real::operator long() const
 {
-	return (static_cast<long>(this->real));
+	return (static_cast<long>(this->value));
 }
 
 Real::operator int() const
 {
-	return (static_cast<int>(this->real));
+	return (static_cast<int>(this->value));
 }
 
 Real::operator double() const
 {
-	return (this->getReal());
+	return (this->getValue());
 }
 
 Real	Real::operator-() const noexcept
 {
-	return (Real(-real));
+	return (Real(-value));
 }
 
 Real&	Real::operator+=( const Real& other ) noexcept
 {
-	real += other.real;
+	value += other.value;
 	return (*this);
 }
 
 Real&	Real::operator-=( const Real& other ) noexcept
 {
-	real -= other.real;
+	value -= other.value;
 	return (*this);
 }
 
 Real&	Real::operator*=( const Real& other ) noexcept
 {
-	real *= other.real;
+	value *= other.value;
 	return (*this);
 }
 
 Real&	Real::operator/=( const Real& other )
 {
-	if (other.real == 0.)
+	if (other.value == 0.)
 		throw std::runtime_error("Error: cannot divide by zero.");
 
-	real /= other.real;
+	value /= other.value;
 	return (*this);
 }
 
 bool	Real::operator==( const Real& other ) const noexcept
 {
-	return (this->real == other.real);
+	return (this->value == other.value);
 }
 
-double	Real::getReal() const
+double	Real::getValue() const
 {
-	return (this->real);
+	return (this->value);
 }
 
 std::ostream&	operator<<( std::ostream& os, const Real& r )
 {
-	os << r.real;
+	os << r.value;
 	return (os);
 }
 
 Real	Real::square() const noexcept
 {
-	return (Real(real * real));
+	return (Real(value * value));
 }
 
 Real	Real::abs() const
 {
-	return ((real < 0) ? -real : real);
+	return ((value < 0) ? -value : value);
 }

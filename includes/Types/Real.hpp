@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 15:57:52 by rrichard          #+#    #+#             */
-/*   Updated: 2026/03/11 19:29:11 by rrichard         ###   ########.fr       */
+/*   Updated: 2026/03/17 16:47:18 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 class Real
 {
 	private:
-		double	real;
+		double	value;
 	
 	public:
 		Real();
@@ -46,7 +46,7 @@ class Real
 
 		friend std::ostream&	operator<<( std::ostream&, const Real& );
 
-		double					getReal() const;
+		double					getValue() const;
 		Real					square() const noexcept;
 		Real					abs() const;
 };

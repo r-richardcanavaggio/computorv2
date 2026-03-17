@@ -4,7 +4,7 @@ Complex	operator+( const Complex& z, const Real& x )
 {
 	Complex	z1(0);
 
-	z1.setReal(z.getReal() + x.getReal());
+	z1.setReal(z.getReal() + x.getValue());
 	z1.setImag(z.getImag());
 	return (z1);
 }
@@ -13,7 +13,7 @@ Complex	operator+( const Real& x, const Complex& z )
 {
 	Complex	z1(0);
 
-	z1.setReal(z.getReal() + x.getReal());
+	z1.setReal(z.getReal() + x.getValue());
 	z1.setImag(z.getImag());
 	return (z1);
 }
@@ -22,7 +22,7 @@ Complex	operator-( const Complex& z, const Real& x )
 {
 	Complex	z1(0);
 
-	z1.setReal(z.getReal() - x.getReal());
+	z1.setReal(z.getReal() - x.getValue());
 	z1.setImag(z.getImag());
 	return (z1);
 }
@@ -56,13 +56,13 @@ Complex	operator*( const Real& x, const Complex& z )
 
 Complex	operator/( const Complex& z, const Real& x )
 {
-	if (x.getReal() == 0.)
+	if (x.getValue() == 0.)
 		throw std::runtime_error("Error: cannot divide by zero");
 
 	Complex z1(0);
 
-	z1.setReal(z.getReal() / x.getReal());
-	z1.setImag(z.getImag() / x.getReal());
+	z1.setReal(z.getReal() / x.getValue());
+	z1.setImag(z.getImag() / x.getValue());
 	return (z1);
 }
 

@@ -136,11 +136,11 @@ namespace maths
 
 	Real arctan( const Real& x, size_t terms )
 	{
-		return (Real(arctan_impl(x.getReal(), terms)));
+		return (Real(arctan_impl(x.getValue(), terms)));
 	}
 
 	Real	arctan2( const Real& a, const Real& b )
 	{
-		return (Real(arctan2_impl(a.getReal(), b.getReal())));
+		return (Real(arctan2_impl(a.getValue(), b.getValue())));
 	}
 }

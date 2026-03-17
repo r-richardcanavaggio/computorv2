@@ -22,7 +22,7 @@ void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
 		double x = _xMin + (c / (double)_width) * (_xMax - _xMin);
 
 		VarType	result = poly.eval(Real(x));
-		double	y = std::get<Real>(result).getReal();
+		double	y = std::get<Real>(result).getValue();
 
 		int 	r = _height - 1 - ((y - _yMin) / (_yMax - _yMin) * _height);
 
