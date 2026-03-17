@@ -18,6 +18,11 @@ namespace maths
 		return ((x < 0) ? -x : x);
 	}
 
+	double	abs( double x )
+	{
+		return ((x < 0.0) ? -x : x);
+	}
+
 	Real	abs( const Complex& z )
 	{
 		Real	a = z.getReal();
@@ -56,5 +61,15 @@ namespace maths
 		result.setImag(maths::sin(Real(exp) * theta));
 		result *= maths::pow(m, exp);
 		return (result);
+	}
+
+	bool	finite( double x )
+	{
+		return (x - x == 0.0); 
+	}
+
+	int		round( double x )
+	{
+		return ((int)(x >= 0.0 ? x + 0.5 : x - 0.5));
 	}
 }
