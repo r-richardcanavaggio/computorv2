@@ -82,4 +82,19 @@ namespace maths
 	{
 		return ((int)(x >= 0.0 ? x + 0.5 : x - 0.5));
 	}
+
+	int		gcd( int a, int b )
+	{
+		if (b == 0)
+			return (a);
+		return (gcd(b, a % b));
+	}
+
+	double	floor( double num )
+	{
+		if (num < 0.0)	
+			return ((int)num - 1);
+		else
+			return ((int)num);
+	}
 }

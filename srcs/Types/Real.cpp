@@ -1,5 +1,6 @@
 
 #include "Real.hpp"
+#include "Fraction.hpp"
 
 Real::Real() : value(0.0) {}
 
@@ -109,7 +110,18 @@ double	Real::getValue() const
 
 std::ostream&	operator<<( std::ostream& os, const Real& r )
 {
-	os << r.value;
+	double	val = r.getValue();
+
+	const double eps = 1e-14;
+	if (std::abs(val) < eps)
+		val = 0.0;
+
+	Fraction	tempObj(0, 1);
+
+	if (Fraction::fromDouble(val, tempObj) && tempObj.getDenom() != 1)
+		os << tempObj;
+	else
+		os << val;
 	return (os);
 }
 

@@ -22,6 +22,7 @@ SRCS_FILES =	main.cpp \
 				Parser.cpp \
 				Lexer.cpp \
 				Plotter.cpp \
+				Fraction.cpp \
 \
 				Interpreter/Interpreter.cpp \
 				Interpreter/InterpreterEvaluator.cpp \
