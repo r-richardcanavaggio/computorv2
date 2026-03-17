@@ -48,7 +48,7 @@ Real	parse_real_literal( const std::string& s )
 bool	Parser::isBuiltinFunction( const std::string& name )
 {
 	static const std::unordered_set<std::string>	builtins = {
-		"cos", "sin", "tan", "sqrt", "abs", "exp"
+		"cos", "sin", "tan", "sqrt", "abs", "exp", "inv", "norm"
 	};
 	return (builtins.count(name) > 0);
 }

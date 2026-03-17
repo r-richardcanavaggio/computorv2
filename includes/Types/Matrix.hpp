@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 16:28:09 by rrichard          #+#    #+#             */
-/*   Updated: 2026/02/04 12:30:42 by rrichard         ###   ########.fr       */
+/*   Updated: 2026/03/17 17:47:33 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,14 @@ class Matrix
 		void					scl( const Real& scalar );
 		Matrix<K>				mul_mat( const Matrix<K>& mat ) const;
 		Matrix<K>				pow( int exp ) const;
+		Real					norm() const;
+		
+		void					swap_rows( size_t, size_t );
+		void					scale_row( size_t, K );
+		void					add_row_multiple( size_t, size_t, K );
+		size_t					findIndexMaxAbsColumn( size_t col, size_t start_row );
+		std::optional<Matrix<K>>	inverse() const;
+		
 
 		Matrix					operator+( const Matrix& ) const;
 		Matrix					operator-( const Matrix& ) const;

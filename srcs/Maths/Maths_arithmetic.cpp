@@ -23,6 +23,16 @@ namespace maths
 		return ((x < 0.0) ? -x : x);
 	}
 
+	Real	scalar_norm2( const Real& x )
+	{
+		return (x * x);
+	}
+
+	Real	scalar_norm2( const Complex& z )
+	{
+		return (z.getReal() * z.getReal() + z.getImag() * z.getImag());
+	}
+
 	Real	abs( const Complex& z )
 	{
 		Real	a = z.getReal();

@@ -53,6 +53,36 @@ VarType	BuiltinFunctionNode::eval( Context& ctx ) const
 		}},
 		{"exp", [](const VarType& v) {
 			return apply_math(v, [](const auto& x) { return maths::exp(x); }, "exp");
+		}},
+		{"inv", [](const VarType& v) {
+			return std::visit([](const auto& val) -> VarType
+			{
+				using T = std::decay_t<decltype(val)>;
+
+				if constexpr (std::is_same_v<T, Matrix<Real>> || std::is_same_v<T, Matrix<Complex>>)
+				{
+					auto	optResult = val.inverse();
+
+					if (!optResult.has_value())
+						throw std::runtime_error("Math Error: The matrix is singular and cannot be inverted.");
+					return (optResult.value());
+				}
+				throw std::runtime_error("Math Error: inv() can only be applied to a Matrix.");
+			}, v);
+		}},
+		{"norm", [](const VarType& v) {
+			return std::visit([](const auto& val) -> VarType {
+				using T = std::decay_t<decltype(val)>;
+				if constexpr (std::is_same_v<T, Matrix<Real>> || std::is_same_v<T, Matrix<Complex>>)
+				{
+					return Real(val.norm());
+				}
+				else if constexpr (std::is_same_v<T, Real> || std::is_same_v<T, Complex>)
+				{
+					return (maths::abs(val));
+				}
+				throw std::runtime_error("Math Error: norm() requires a Matrix or a scalar.");
+			}, v);
 		}}
 	};
 

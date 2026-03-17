@@ -18,6 +18,8 @@ namespace maths
 	Complex		pow( const Complex&, int );
 	bool		finite( double );
 	int			round( double );
+	Real		scalar_norm2( const Real& );
+	Real		scalar_norm2( const Complex& );
 
 	Real		exp( const Real& x, size_t terms = 50 );
 	Complex		exp( const Complex& z, size_t terms = 50 );
