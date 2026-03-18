@@ -106,7 +106,7 @@ namespace interpreter_cmd
 					  << "  exit / quit  - Exit the program\n"
 					  << "-----------------------------------------\n"
 					  << "Built-in functions:\n"
-					  << "  cos, sin, tan, sqrt, abs, exp, ln, norm, inv\n"
+					  << "  cos, sin, tan, sqrt, abs, exp, norm, inv\n"
 					  << "=========================================" 
 					  << std::endl;
 			return (true);

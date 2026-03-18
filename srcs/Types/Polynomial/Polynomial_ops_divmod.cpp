@@ -31,6 +31,7 @@ std::pair<Polynomial, Polynomial>	Polynomial::euclidean_div( const Polynomial& b
 
 		Polynomial	to_substract = b * term;
 		remainder = remainder - to_substract;
+		remainder.trim();
 	}
 	return {quotient, remainder};
 }

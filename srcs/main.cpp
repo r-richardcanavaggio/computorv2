@@ -33,8 +33,6 @@ int	main( void )
 		free(input);
 		if (line.empty())
 			continue ;
-		if (line == "exit" || line == "quit")
-			break ;
 		try
 		{
 			auto	tokens = lexer.tokenize(line);
@@ -42,6 +40,7 @@ int	main( void )
 		}
 		catch (const ExitException& e)
 		{
+			rl_clear_history();
 			break ;
 		}
 		catch (const std::exception& e)

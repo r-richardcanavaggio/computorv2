@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 16:28:09 by rrichard          #+#    #+#             */
-/*   Updated: 2026/03/17 17:47:33 by rrichard         ###   ########.fr       */
+/*   Updated: 2026/03/18 10:30:39 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <vector>
 #include <iostream>
 #include <concepts>
+#include <optional>
 
 #include "Real.hpp"
 #include "Complex.hpp"

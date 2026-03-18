@@ -1,3 +1,4 @@
+
 #include "Polynomial.hpp"
 
 Polynomial::Polynomial( std::initializer_list<Real> init ) : coeffs(init)
@@ -18,7 +19,9 @@ int	Polynomial::degree() const
 
 void	Polynomial::trim()
 {
-	while (coeffs.size() > 1 && coeffs.back() == Real(0.))
+	const double	eps = 1e-14;
+
+	while (!coeffs.empty() && maths::abs(coeffs.back().getValue() < eps))
 	{
 		coeffs.pop_back();
 	}

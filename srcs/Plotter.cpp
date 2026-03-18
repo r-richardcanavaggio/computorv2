@@ -62,7 +62,7 @@ void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
     for (int c = 0; c < _width; ++c)
 		canvas[originY][c] = '-';
     if (originY >= 0 && originY < _height && originX >= 0 && originX < _width)
-        canvas[originY][originX] = '+';
+		canvas[originY][originX] = '+';
 
 	for (int c = 0; c < _width; ++c)
 	{
