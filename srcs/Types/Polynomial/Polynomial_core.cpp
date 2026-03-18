@@ -21,7 +21,7 @@ void	Polynomial::trim()
 {
 	const double	eps = 1e-14;
 
-	while (!coeffs.empty() && maths::abs(coeffs.back().getValue() < eps))
+	while (!coeffs.empty() && maths::abs(coeffs.back().getValue()) < eps)
 	{
 		coeffs.pop_back();
 	}

@@ -40,7 +40,6 @@ int	main( void )
 		}
 		catch (const ExitException& e)
 		{
-			rl_clear_history();
 			break ;
 		}
 		catch (const std::exception& e)
