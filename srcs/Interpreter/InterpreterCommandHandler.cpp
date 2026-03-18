@@ -1,4 +1,5 @@
 
+#include "Interpreter.hpp"
 #include "InterpreterCommandHandler.hpp"
 #include "Plotter.hpp"
 #include "Settings.hpp"
@@ -84,6 +85,30 @@ namespace interpreter_cmd
 			}
 			Plotter plotter;
 			plotter.plot(targetFunc, std::get<Polynomial>(it->second));
+			return (true);
+		}
+		if (tokens.size() == 1 && (cmd == "exit" || cmd == "quit"))
+		{
+			std::cout << "Exiting ComputorV2, Goodbye!\n";
+			throw ExitException();
+		}
+		if (tokens.size() == 1 && cmd == "help")
+		{
+			std::cout << "=========================================\n"
+					  << "          ComputorV2 - Help Menu         \n"
+					  << "=========================================\n"
+					  << "  list         - List all saved variables and functions\n"
+					  << "  history      - Show the command history\n"
+					  << "  clear <var>  - Delete a specific variable or function\n"
+					  << "  plot <func>  - Plot a function in an ASCII graph\n"
+					  << "  deg / rad    - Switch angle mode for trigonometry\n"
+					  << "  help         - Show this help message\n"
+					  << "  exit / quit  - Exit the program\n"
+					  << "-----------------------------------------\n"
+					  << "Built-in functions:\n"
+					  << "  cos, sin, tan, sqrt, abs, exp, ln, norm, inv\n"
+					  << "=========================================" 
+					  << std::endl;
 			return (true);
 		}
 		return (false);

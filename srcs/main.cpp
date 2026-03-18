@@ -40,6 +40,10 @@ int	main( void )
 			auto	tokens = lexer.tokenize(line);
 			interpret.processLine(tokens, line);
 		}
+		catch (const ExitException& e)
+		{
+			break ;
+		}
 		catch (const std::exception& e)
 		{
 			std::cerr << e.what() << '\n';

@@ -5,6 +5,13 @@
 #include <vector>
 #include <string>
 
+struct ExitException : public std::exception
+{
+	const char* what() const noexcept override
+	{
+		return ("Exiting");
+	}
+};
 
 class Interpreter
 {
