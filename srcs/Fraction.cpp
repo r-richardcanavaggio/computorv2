@@ -27,6 +27,11 @@ int	Fraction::getDenom() const
 	return (this->denominator);
 }
 
+int	Fraction::getNum() const
+{
+	return (this->numerator);
+}
+
 void	Fraction::print() const
 {
 	std::cout << numerator << "/" << denominator << std::endl;

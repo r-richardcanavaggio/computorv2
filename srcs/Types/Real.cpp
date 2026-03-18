@@ -1,6 +1,7 @@
 
 #include "Real.hpp"
 #include "Fraction.hpp"
+#include "Maths.hpp"
 
 Real::Real() : value(0.0) {}
 
@@ -110,16 +111,55 @@ double	Real::getValue() const
 
 std::ostream&	operator<<( std::ostream& os, const Real& r )
 {
-	double	val = r.getValue();
+	double			val = r.getValue();
+	const double	eps = 1e-10;
 
-	const double eps = 1e-14;
-	if (std::abs(val) < eps)
-		val = 0.0;
+	if (maths::abs(val) < eps)
+	{
+		os << 0;
+		return (os);
+	}
 
-	Fraction	tempObj(0, 1);
+	if (maths::abs(val - maths::round(val)) < eps)
+	{
+		os << static_cast<long long>(maths::round(val));
+		return (os);
+	}
 
-	if (Fraction::fromDouble(val, tempObj) && tempObj.getDenom() != 1)
-		os << tempObj;
+	Fraction	piFrac(0, 1);
+
+	if (Fraction::fromDouble(val / maths::pi, piFrac) && piFrac.getDenom() <= 12)
+	{
+		if (piFrac.getNum() == 1)
+			os << "PI";
+		else if (piFrac.getNum() == -1)
+			os << "-PI";
+		else
+			os << piFrac.getNum() << "PI";
+
+		if (piFrac.getDenom() != 1)
+			os << "/" << piFrac.getDenom();
+		return (os);
+	}
+
+	double	squared = val * val;
+	if (maths::abs(squared - maths::round(squared)) < eps)
+	{
+		long long intSq = static_cast<long long>(maths::round(squared));
+
+		if (intSq > 1 && intSq <= 50)
+		{
+			if (val < 0.0)
+				os << "-";
+			os << "sqrt(" << intSq << ")";
+			return (os);
+		}
+	}
+
+	Fraction	f(0, 1);
+
+	if (Fraction::fromDouble(val, f) && f.getDenom() != 1 && f.getDenom() <= 100)
+		os << f;
 	else
 		os << val;
 	return (os);

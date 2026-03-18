@@ -39,6 +39,9 @@ Polynomial	operator/( const Polynomial& p, const Real& x )
 
 Polynomial	operator/( const Real& x, const Polynomial& p )
 {
+	if (p.degree() > 0)
+		throw std::runtime_error("Math Error: Division by a polynomial (rational function) is not supported.");
+
 	Polynomial	result = x;
 
 	result = result / p;

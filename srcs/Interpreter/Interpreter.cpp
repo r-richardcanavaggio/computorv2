@@ -4,7 +4,13 @@
 #include "InterpreterEvaluator.hpp"
 #include "TokenPreprocessor.hpp"
 
-Interpreter::Interpreter( Context& ctx ) : _ctx(ctx) {}
+Interpreter::Interpreter( Context& ctx ) : _ctx(ctx)
+{
+	_ctx["pi"] = Real(maths::pi);
+	_ctx["e"] = Real(maths::e);
+	_ctx["sqrt2"] = Real(maths::sqrt2);
+	_ctx["i"] = Complex(0, 1);
+}
 
 Interpreter::~Interpreter() {}
 

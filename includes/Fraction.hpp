@@ -16,6 +16,7 @@ class Fraction
 
 		void					simplify();	
 		void					print() const;
+		int						getNum() const;
 		int						getDenom() const;
 		friend std::ostream&	operator<<( std::ostream& os, const Fraction& f );
 		static bool				fromDouble( double value, Fraction& out );
