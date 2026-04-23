@@ -10,9 +10,44 @@ void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
 	if (_width <= 0 || _height <= 0)
 		return ;
 
-	double	xMin = _xMin;
-	double	xMax = _xMax;
-	double	xSpan = xMax - xMin;
+	double	currentXMin = _xMin;
+	double	currentXMax = _xMax;
+
+	int	degree = poly.degree();
+
+	if (degree == 0)
+	{
+		currentXMin = -5.0;
+		currentXMax = 5.0;
+	}
+	else if (degree == 1)
+	{
+		auto coeffs = poly.getCoeffs();
+		double a = coeffs[1].getValue();
+		double b = coeffs[0].getValue();
+		
+		if (a != 0.0)
+		{
+			double root = -b / a;
+			currentXMin = root - 10.0;
+			currentXMax = root + 10.0;
+		}
+	}
+	else if (degree == 2)
+	{
+		auto 	coeffs = poly.getCoeffs();
+		double	a = coeffs[2].getValue();
+		double	b = coeffs[1].getValue();
+
+		if (a != 0.0)
+		{
+			double vertexX = -b / (2.0 * a);
+			currentXMin = vertexX - 10.0;
+			currentXMax = vertexX + 10.0;
+		}
+	}
+
+	double	xSpan = currentXMax - currentXMin;
 
 	double	yMin = std::numeric_limits<double>::max();
 	double	yMax = std::numeric_limits<double>::lowest();
@@ -21,7 +56,7 @@ void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
 	for (int c = 0; c < _width; ++c)
 	{
 		double	t = (double)c / (double)(_width - 1);
-		double	x = xMin + t * xSpan;
+		double	x = currentXMin + t * xSpan;
 		double	y = poly.eval(Real(x)).getValue();
 
 		if (maths::finite(y))
@@ -54,20 +89,26 @@ void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
 
 	std::vector<std::string>	canvas(_height, std::string(_width, ' '));
 
-	int	originX = maths::round(((0.0 - xMin) / xSpan) * (_width - 1));
+	int	originX = maths::round(((0.0 - currentXMin) / xSpan) * (_width - 1));
 	int	originY = (_height - 1) - maths::round(((0.0 - yMin) / ySpan) * (_height - 1));
 
-	for (int r = 0; r < _height; ++r)
-		canvas[r][originX] = '|';
-    for (int c = 0; c < _width; ++c)
-		canvas[originY][c] = '-';
+	if (originX >= 0 && originX < _width)
+	{
+		for (int r = 0; r < _height; ++r)
+			canvas[r][originX] = '|';
+	}
+	if (originY >= 0 && originY < _height)
+	{
+		for (int c = 0; c < _width; ++c)
+			canvas[originY][c] = '-';
+	}
     if (originY >= 0 && originY < _height && originX >= 0 && originX < _width)
 		canvas[originY][originX] = '+';
 
 	for (int c = 0; c < _width; ++c)
 	{
 		double	t = (double)c / (double)(_width - 1);
-		double	x = xMin + t * xSpan;
+		double	x = currentXMin + t * xSpan;
 		double	y = poly.eval(Real(x)).getValue();
 
 		if (!maths::finite(y))
@@ -78,7 +119,7 @@ void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
 	}
 	std::cout << "Plotting " << funcName
 		<< "(" << poly.getVarName() << ")"
-		<< " from x=[" << xMin << ", " << xMax << "]"
+		<< " from x=[" << currentXMin << ", " << currentXMin << "]"
 		<< ", y=[" << yMin << ", " << yMax << "]:\n";
 	for (const auto& row : canvas)
         std::cout << row << std::endl;
