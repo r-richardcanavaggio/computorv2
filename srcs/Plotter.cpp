@@ -2,6 +2,7 @@
 #include "Plotter.hpp"
 #include "Maths.hpp"
 #include <limits>
+#include <SFML/Graphics.hpp>
 
 Plotter::Plotter( int width, int height ) : _width(width), _height(height), _xMin(-10.0), _xMax(10.0) {}
 
@@ -55,7 +56,7 @@ void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
 
 	for (int c = 0; c < _width; ++c)
 	{
-		double	t = (double)c / (double)(_width - 1);
+		double	t = (double)c / (double)_width;
 		double	x = currentXMin + t * xSpan;
 		double	y = poly.eval(Real(x)).getValue();
 
@@ -73,6 +74,8 @@ void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
 		std::cout << "Cannot plot: No valid points found in this range.\n";
 		return ;
 	}
+	if (yMin > 0.0) yMin = 0.0;
+	if (yMax < 0.0) yMax = 0.0;
 
 	double	ySpan = yMax - yMin;
 	if (ySpan < 1e-9)
@@ -87,40 +90,70 @@ void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
 	}
 	ySpan = yMax - yMin;
 
-	std::vector<std::string>	canvas(_height, std::string(_width, ' '));
+	// std::vector<std::string>	canvas(_height, std::string(_width, ' '));
+	sf::VertexArray	curve(sf::PrimitiveType::LineStrip);
 
-	int	originX = maths::round(((0.0 - currentXMin) / xSpan) * (_width - 1));
-	int	originY = (_height - 1) - maths::round(((0.0 - yMin) / ySpan) * (_height - 1));
-
-	if (originX >= 0 && originX < _width)
+	for (int c = 0; c <= _width; ++c)
 	{
-		for (int r = 0; r < _height; ++r)
-			canvas[r][originX] = '|';
+		double t = (double)c / (double)_width;
+		double x = currentXMin + t * xSpan;
+		double y = poly.eval(Real(x)).getValue();
+
+		if (!maths::finite(y)) continue;
+		double r = _height - ((y - yMin) / ySpan) * _height;
+
+		curve.append(sf::Vertex(sf::Vector2f(c, r), sf::Color::Cyan));
+	}
+
+	sf::VertexArray	axes(sf::PrimitiveType::Lines);
+
+	int	originX = ((0.0 - currentXMin) / xSpan) * _width;
+	int	originY = _height - ((0.0 - yMin) / ySpan) * _height;
+
+	if (originX >= 0 && originX <= _width)
+	{
+		axes.append(sf::Vertex(sf::Vector2f(originX, 0), sf::Color(150, 150, 150)));
+		axes.append(sf::Vertex(sf::Vector2f(originX, _height), sf::Color(150, 150, 150)));
 	}
 	if (originY >= 0 && originY < _height)
 	{
-		for (int c = 0; c < _width; ++c)
-			canvas[originY][c] = '-';
+		axes.append(sf::Vertex(sf::Vector2f(0, originY), sf::Color(150, 150, 150)));
+		axes.append(sf::Vertex(sf::Vector2f(_width, originY), sf::Color(150, 150, 150)));
 	}
-    if (originY >= 0 && originY < _height && originX >= 0 && originX < _width)
-		canvas[originY][originX] = '+';
+    
+	sf::RenderWindow	window(sf::VideoMode({800, 600}), "Plotting: " + funcName);
+	window.setFramerateLimit(60);
 
-	for (int c = 0; c < _width; ++c)
+	std::cout << "Displaying graphic window for " << funcName << "(x)... Close the window to return to prompt.\n";
+
+	while (window.isOpen())
 	{
-		double	t = (double)c / (double)(_width - 1);
-		double	x = currentXMin + t * xSpan;
-		double	y = poly.eval(Real(x)).getValue();
-
-		if (!maths::finite(y))
-			continue;
-		int	r = (_height - 1) - maths::round(((y - yMin) / ySpan) * (_height - 1));
-		if (r >= 0 && r < _height)
-			canvas[r][c] = '*';
+		if (const auto event = window.pollEvent())
+		{
+			if (event->is<sf::Event::Closed>())
+				window.close();
+		}
+		window.clear(sf::Color(30, 30, 30));
+		window.draw(axes);
+		window.draw(curve);
+		window.display();
 	}
-	std::cout << "Plotting " << funcName
-		<< "(" << poly.getVarName() << ")"
-		<< " from x=[" << currentXMin << ", " << currentXMin << "]"
-		<< ", y=[" << yMin << ", " << yMax << "]:\n";
-	for (const auto& row : canvas)
-        std::cout << row << std::endl;
+	// for (int c = 0; c < _width; ++c)
+	// {
+	// 	double	t = (double)c / (double)(_width - 1);
+	// 	double	x = currentXMin + t * xSpan;
+	// 	double	y = poly.eval(Real(x)).getValue();
+
+	// 	if (!maths::finite(y))
+	// 		continue;
+	// 	int	r = (_height - 1) - maths::round(((y - yMin) / ySpan) * (_height - 1));
+	// 	if (r >= 0 && r < _height)
+	// 		canvas[r][c] = '*';
+	// }
+	// std::cout << "Plotting " << funcName
+	// 	<< "(" << poly.getVarName() << ")"
+	// 	<< " from x=[" << currentXMin << ", " << currentXMax << "]"
+	// 	<< ", y=[" << yMin << ", " << yMax << "]:\n";
+	// for (const auto& row : canvas)
+    //     std::cout << row << std::endl;
 }

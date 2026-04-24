@@ -7,6 +7,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+include(FetchContent)
+FetchContent_Declare(SFML
+    GIT_REPOSITORY https://github.com/SFML/SFML.git
+    GIT_TAG 3.1.0
+    GIT_SHALLOW ON
+    EXCLUDE_FROM_ALL
+    SYSTEM)
+FetchContent_MakeAvailable(SFML)
+
 add_executable(computorv2
     srcs/main.cpp
     srcs/Parser.cpp
@@ -71,3 +80,5 @@ target_compile_options(computorv2 PRIVATE
 )
 
 target_link_libraries(computorv2 PRIVATE readline)
+
+target_link_libraries(computorv2 PRIVATE SFML::Graphics)
