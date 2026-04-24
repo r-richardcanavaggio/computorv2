@@ -90,8 +90,7 @@ void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
 	}
 	ySpan = yMax - yMin;
 
-	// std::vector<std::string>	canvas(_height, std::string(_width, ' '));
-	sf::VertexArray	curve(sf::PrimitiveType::LineStrip);
+	sf::VertexArray	curve(sf::LineStrip);
 
 	for (int c = 0; c <= _width; ++c)
 	{
@@ -102,13 +101,13 @@ void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
 		if (!maths::finite(y)) continue;
 		double r = _height - ((y - yMin) / ySpan) * _height;
 
-		curve.append(sf::Vertex(sf::Vector2f(c, r), sf::Color::Cyan));
+		curve.append(sf::Vertex(sf::Vector2f(c, r), sf::Color::Red));
 	}
 
-	sf::VertexArray	axes(sf::PrimitiveType::Lines);
+	sf::VertexArray	axes(sf::Lines);
 
-	int	originX = ((0.0 - currentXMin) / xSpan) * _width;
-	int	originY = _height - ((0.0 - yMin) / ySpan) * _height;
+	int				originX = ((0.0 - currentXMin) / xSpan) * _width;
+	int				originY = _height - ((0.0 - yMin) / ySpan) * _height;
 
 	if (originX >= 0 && originX <= _width)
 	{
@@ -120,40 +119,32 @@ void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
 		axes.append(sf::Vertex(sf::Vector2f(0, originY), sf::Color(150, 150, 150)));
 		axes.append(sf::Vertex(sf::Vector2f(_width, originY), sf::Color(150, 150, 150)));
 	}
+
+	int	tickSize = 5;
+	int	startX = std::ceil(currentXMin);
+	
     
-	sf::RenderWindow	window(sf::VideoMode({800, 600}), "Plotting: " + funcName);
+	sf::RenderWindow	window(sf::VideoMode(800, 600), "Plotting: " + funcName);
 	window.setFramerateLimit(60);
 
 	std::cout << "Displaying graphic window for " << funcName << "(x)... Close the window to return to prompt.\n";
 
 	while (window.isOpen())
 	{
-		if (const auto event = window.pollEvent())
+		sf::Event	event;
+
+		while (window.pollEvent(event))
 		{
-			if (event->is<sf::Event::Closed>())
+			if (event.type == sf::Event::Closed)
 				window.close();
 		}
 		window.clear(sf::Color(30, 30, 30));
 		window.draw(axes);
 		window.draw(curve);
+		window.draw(xMinText);
+		window.draw(xMaxText);
+		window.draw(yMinText);
+		window.draw(yMaxText);
 		window.display();
 	}
-	// for (int c = 0; c < _width; ++c)
-	// {
-	// 	double	t = (double)c / (double)(_width - 1);
-	// 	double	x = currentXMin + t * xSpan;
-	// 	double	y = poly.eval(Real(x)).getValue();
-
-	// 	if (!maths::finite(y))
-	// 		continue;
-	// 	int	r = (_height - 1) - maths::round(((y - yMin) / ySpan) * (_height - 1));
-	// 	if (r >= 0 && r < _height)
-	// 		canvas[r][c] = '*';
-	// }
-	// std::cout << "Plotting " << funcName
-	// 	<< "(" << poly.getVarName() << ")"
-	// 	<< " from x=[" << currentXMin << ", " << currentXMax << "]"
-	// 	<< ", y=[" << yMin << ", " << yMax << "]:\n";
-	// for (const auto& row : canvas)
-    //     std::cout << row << std::endl;
 }

@@ -15,7 +15,7 @@ class Plotter
 		double	_xMax;
 	
 	public:
-		Plotter( int width = 80, int height = 40 );
+		Plotter( int width = 800, int height = 600 );
 		~Plotter() = default;
 
 		void	plot( const std::string&, const Polynomial& ) const;

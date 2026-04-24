@@ -97,4 +97,13 @@ namespace maths
 		else
 			return ((int)num);
 	}
+
+	template <typename T>
+	typename std::enable_if<std::is_floating_point<T>::value, double>::type
+	ceil(T x)
+	{
+		if (x == floor(x))
+			return ((double)static_cast<long long>(x));
+		return (floor(x) + 1.0);
+	}
 }
