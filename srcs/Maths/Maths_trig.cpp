@@ -5,7 +5,7 @@ namespace
 {
 	double	arctan_impl( double x, size_t terms )
 	{
-		double	x_abs = static_cast<double>(abs(x));
+		double	x_abs = static_cast<double>(maths::abs(x));
 		double	num;
 		double	step;
 
