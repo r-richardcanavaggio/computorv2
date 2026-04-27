@@ -30,7 +30,6 @@ The runtime is structured as a classic pipeline:
 - Keep reusable values/functions in context (`list`, `history`, `clear`).
 - Work with both scalar and advanced types (complex, polynomial, matrix).
 - Plot polynomial functions from the REPL (`plot <func>`).
-- Use test fixtures in [tests/inputs](tests/inputs) and [tests/expected](tests/expected) for quick regression checks.
 
 ## How To Get Started
 
@@ -40,9 +39,6 @@ The runtime is structured as a classic pipeline:
 - `make`
 - `cmake` (optional alternative build flow)
 - `readline` library
-- SFML 2.5.1 (for plotting):
-  - with CMake, local SFML is used when found
-  - otherwise SFML is fetched automatically by CMake
 
 ### Build
 
@@ -103,46 +99,11 @@ f(x) = 0?
 - `deg` / `rad`
 - `exit` / `quit`
 
-### Run Tests
-
-```bash
-make test
-```
-
-or:
-
-```bash
-./run_tests.sh
-```
-
-Test artifacts:
-
-- expected snapshots: [tests/expected](tests/expected)
-- generated outputs: [tests/actual](tests/actual)
-- failing diffs: `tests/actual/*.diff`
-
 ## Where Users Can Get Help
 
 - Start with REPL command help: run `help` inside computorv2.
-- Review practical test scenarios in [tests/inputs](tests/inputs).
 - Open a GitHub Issue in this repository for bugs, questions, or feature requests.
 - For implementation details, browse:
   - interpreter flow: [srcs/Interpreter](srcs/Interpreter)
   - parser and lexer: [srcs/Parser.cpp](srcs/Parser.cpp), [srcs/Lexer.cpp](srcs/Lexer.cpp)
   - type system: [includes/Types](includes/Types), [srcs/Types](srcs/Types)
-
-## Who Maintains And Contributes
-
-This project is maintained/contributed by:
-
-- Robin Richard Canavaggio
-
-Contributions are welcome through pull requests.
-
-Recommended contribution flow:
-
-1. Fork the repository and create a feature branch.
-2. Keep changes focused and add/update tests under [tests/inputs](tests/inputs) and [tests/expected](tests/expected) when behavior changes.
-3. Run `make test` locally.
-4. Open a pull request with a clear summary and rationale.
-
