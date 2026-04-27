@@ -83,8 +83,20 @@ namespace interpreter_cmd
 				std::cout << "Error: '" << targetFunc << "' is not a function/polynomial.\n";
 				return (true);
 			}
-			Plotter plotter;
-			plotter.plot(targetFunc, std::get<Polynomial>(it->second));
+			Plotter		canvas(80, 60);
+			Polynomial	f = std::get<Polynomial>(it->second); 
+
+			canvas.drawLine(0, 30, 80, 30);
+			canvas.drawLine(40, 0, 40, 60);
+
+			for (float x = -20; x <= 20; x += 0.1)
+			{
+				double	y = f.eval(Real(x)).getValue();
+				int	px = (x + 20) * 2;
+				int	py = (y + 30);
+				canvas.set(px, py);
+			}
+			canvas.display();
 			return (true);
 		}
 		if (tokens.size() == 1 && (cmd == "exit" || cmd == "quit"))

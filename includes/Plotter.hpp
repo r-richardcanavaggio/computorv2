@@ -9,14 +9,17 @@
 class Plotter
 {
 	private:
-		int		_width;
-		int		_height;
-		double	_xMin;
-		double	_xMax;
+		int		width;
+		int		height;
+		std::vector<std::vector<bool>>	grid;
+
+		bool	get( int x, int y );
 	
 	public:
-		Plotter( int width = 800, int height = 600 );
+		Plotter( int w, int h );
 		~Plotter() = default;
 
-		void	plot( const std::string&, const Polynomial& ) const;
+		void 	set( int x, int y );
+		void	drawLine( float x0, float y0, float x1, float y1 );
+		void	display();
 };

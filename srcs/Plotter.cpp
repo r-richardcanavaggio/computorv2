@@ -2,149 +2,55 @@
 #include "Plotter.hpp"
 #include "Maths.hpp"
 #include <limits>
-#include <SFML/Graphics.hpp>
 
-Plotter::Plotter( int width, int height ) : _width(width), _height(height), _xMin(-10.0), _xMax(10.0) {}
+Plotter::Plotter( int w, int h ) : width(w), height(h), grid(w, std::vector<bool>(h, false)) {}
 
-void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
+void	Plotter::set( int x, int y )
 {
-	if (_width <= 0 || _height <= 0)
-		return ;
+	if (x >= 0 && x < width && y >= 0 && y < height)
+		grid[x][y] = true;
+}
 
-	double	currentXMin = _xMin;
-	double	currentXMax = _xMax;
+void	Plotter::drawLine( float x0, float y0, float x1, float y1 )
+{
+	int steps = static_cast<int>(maths::max(maths::abs(x1 - x0), maths::abs(y1 - y0)) * 2);
 
-	int	degree = poly.degree();
-
-	if (degree == 0)
+	for (int i = 0; i <= steps; i++)
 	{
-		currentXMin = -5.0;
-		currentXMax = 5.0;
+		float t = (float)i / steps;
+		set(x0 + t * (x1 - x0), y0 + t * (y1 - y0));
 	}
-	else if (degree == 1)
+}
+
+void	Plotter::display()
+{
+	for (int y = height - 1; y >= 0; y -= 4)
 	{
-		auto coeffs = poly.getCoeffs();
-		double a = coeffs[1].getValue();
-		double b = coeffs[0].getValue();
-		
-		if (a != 0.0)
-		{
-			double root = -b / a;
-			currentXMin = root - 10.0;
-			currentXMax = root + 10.0;
-		}
-	}
-	else if (degree == 2)
-	{
-		auto 	coeffs = poly.getCoeffs();
-		double	a = coeffs[2].getValue();
-		double	b = coeffs[1].getValue();
+            for (int x = 0; x < width; x += 2)
+			{
+                int code = 0;
 
-		if (a != 0.0)
-		{
-			double vertexX = -b / (2.0 * a);
-			currentXMin = vertexX - 10.0;
-			currentXMax = vertexX + 10.0;
-		}
-	}
+                if (get(x, y))     code |= 0x1;
+                if (get(x, y-1))   code |= 0x2;
+                if (get(x, y-2))   code |= 0x4;
+                if (get(x+1, y))   code |= 0x8;
+                if (get(x+1, y-1)) code |= 0x10;
+                if (get(x+1, y-2)) code |= 0x20;
+                if (get(x, y-3))   code |= 0x40;
+                if (get(x+1, y-3)) code |= 0x80;
 
-	double	xSpan = currentXMax - currentXMin;
+                if (code == 0) std::cout << " ";
+                else
+				{
+                    unsigned int hex = 0x2800 + code;
+                    std::cout << (char)(0xE2) << (char)(0xA0 + (hex >> 6 & 0x3)) << (char)(0x80 + (hex & 0x3F));
+                }
+            }
+            std::cout << "\n";
+        }
+}
 
-	double	yMin = std::numeric_limits<double>::max();
-	double	yMax = std::numeric_limits<double>::lowest();
-	bool	hasValidPoints = false;
-
-	for (int c = 0; c < _width; ++c)
-	{
-		double	t = (double)c / (double)_width;
-		double	x = currentXMin + t * xSpan;
-		double	y = poly.eval(Real(x)).getValue();
-
-		if (maths::finite(y))
-		{
-			if (y < yMin)
-				yMin = y;
-			if (y > yMax)
-				yMax = y;
-			hasValidPoints = true;
-		}
-	}
-	if (!hasValidPoints)
-	{
-		std::cout << "Cannot plot: No valid points found in this range.\n";
-		return ;
-	}
-	if (yMin > 0.0) yMin = 0.0;
-	if (yMax < 0.0) yMax = 0.0;
-
-	double	ySpan = yMax - yMin;
-	if (ySpan < 1e-9)
-	{
-		yMin -= 1.0;
-		yMax += 1.0;
-	}
-	else
-	{
-		yMin -= ySpan * 0.1;
-		yMax += ySpan * 0.1;
-	}
-	ySpan = yMax - yMin;
-
-	sf::VertexArray	curve(sf::LineStrip);
-
-	for (int c = 0; c <= _width; ++c)
-	{
-		double t = (double)c / (double)_width;
-		double x = currentXMin + t * xSpan;
-		double y = poly.eval(Real(x)).getValue();
-
-		if (!maths::finite(y)) continue;
-		double r = _height - ((y - yMin) / ySpan) * _height;
-
-		curve.append(sf::Vertex(sf::Vector2f(c, r), sf::Color::Red));
-	}
-
-	sf::VertexArray	axes(sf::Lines);
-
-	int				originX = ((0.0 - currentXMin) / xSpan) * _width;
-	int				originY = _height - ((0.0 - yMin) / ySpan) * _height;
-
-	if (originX >= 0 && originX <= _width)
-	{
-		axes.append(sf::Vertex(sf::Vector2f(originX, 0), sf::Color(150, 150, 150)));
-		axes.append(sf::Vertex(sf::Vector2f(originX, _height), sf::Color(150, 150, 150)));
-	}
-	if (originY >= 0 && originY < _height)
-	{
-		axes.append(sf::Vertex(sf::Vector2f(0, originY), sf::Color(150, 150, 150)));
-		axes.append(sf::Vertex(sf::Vector2f(_width, originY), sf::Color(150, 150, 150)));
-	}
-
-	int	tickSize = 5;
-	int	startX = std::ceil(currentXMin);
-	
-    
-	sf::RenderWindow	window(sf::VideoMode(800, 600), "Plotting: " + funcName);
-	window.setFramerateLimit(60);
-
-	std::cout << "Displaying graphic window for " << funcName << "(x)... Close the window to return to prompt.\n";
-
-	while (window.isOpen())
-	{
-		sf::Event	event;
-
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
-		window.clear(sf::Color(30, 30, 30));
-		window.draw(axes);
-		window.draw(curve);
-		window.draw(xMinText);
-		window.draw(xMaxText);
-		window.draw(yMinText);
-		window.draw(yMaxText);
-		window.display();
-	}
+bool	Plotter::get( int x, int y )
+{
+	return (x >= 0 && x < width && y >= 0 && y < height) ? grid[x][y] : false;
 }
