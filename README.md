@@ -1,204 +1,148 @@
 # computorv2
 
-`computorv2` is an interactive command-line calculator/interpreter written in **C++20**.
-It can parse and evaluate mathematical expressions with support for:
+[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/)
+[![Build-Make](https://img.shields.io/badge/build-Make-informational)](Makefile)
+[![Build-CMake](https://img.shields.io/badge/build-CMake-informational)](CMakeLists.txt)
+
+computorv2 is an interactive command-line math interpreter written in C++20.
+It reads an expression, parses it into an AST, evaluates it in a shared context, and prints the result.
+
+## What The Project Does
+
+computorv2 provides a REPL for symbolic and numeric calculations with support for:
 
 - real numbers
 - complex numbers
-- polynomials
-- matrices (real and complex)
-- variables and function calls
-- a set of built-in math functions
+- polynomials and polynomial functions
+- matrices
+- variables and function definitions
+- built-in math functions (`cos`, `sin`, `tan`, `sqrt`, `abs`, `exp`, `norm`, `inv`)
 
-The project is organized as a small language runtime: **lexer → parser (AST) → interpreter/evaluator**.
+The runtime is structured as a classic pipeline:
 
----
+- lexer
+- parser (recursive-descent AST)
+- interpreter/evaluator
 
-## 1) Project goals
+## Why The Project Is Useful
 
-This project behaves like a REPL (Read-Eval-Print Loop):
+- Mix symbolic and numeric workflows in one terminal session.
+- Keep reusable values/functions in context (`list`, `history`, `clear`).
+- Work with both scalar and advanced types (complex, polynomial, matrix).
+- Plot polynomial functions from the REPL (`plot <func>`).
+- Use test fixtures in [tests/inputs](tests/inputs) and [tests/expected](tests/expected) for quick regression checks.
 
-1. read a line from the user,
-2. tokenize it,
-3. parse it into an AST,
-4. evaluate it inside a runtime context,
-5. print the result or an error.
+## How To Get Started
 
-It is designed to manipulate symbolic and numeric math objects in the same environment.
+### Prerequisites
 
----
-
-## 2) Stack and dependencies
-
-- **Language:** C++20
-- **Compiler:** `c++` (via Makefile)
-- **Build system:** Make
-- **Terminal input/history:** GNU **readline** (`-lreadline`)
-- **Lexing tool:** C++ standard library **`<regex>`** (`std::regex`, `std::sregex_iterator`)
-- **Runtime polymorphism:** `std::variant` + `std::visit`
-- **Ownership model:** RAII + `std::unique_ptr` for AST nodes
-
----
-
-## 3) High-level architecture
-
-Main components:
-
-- **Lexer** (`srcs/Lexer.cpp`)  
-  Converts input text into `Token` objects.
-
-- **Parser** (`srcs/Parser.cpp`)  
-  Implements recursive-descent parsing and builds an **AST**.
-
-- **AST nodes** (`srcs/Nodes/...`)  
-  Node types like binary operators, unary operators, numbers, variables, function calls, matrices, etc.
-
-- **Visitors** (`srcs/Visitors/...`)  
-  Operator/evaluation-related dispatch logic.
-
-- **Interpreter** (`srcs/Interpreter/...`)  
-  Handles line processing, command handling, token preprocessing, and AST evaluation.
-
-- **Math types** (`srcs/Types/...`)  
-  Implementations for `Real`, `Complex`, `Polynomial`, and matrix-related behavior.
-
-- **Math helpers** (`srcs/Maths/...`)  
-  Arithmetic, exponential, and trigonometric utility operations.
-
-- **Plotter** (`srcs/Plotter.cpp`)  
-  Runtime plotting-related support.
-
----
-
-## 4) Lexing technique
-
-The lexer is regex-based. It recognizes:
-
-- numeric literals (`123`, `3.14`)
-- identifiers (`x`, `foo`, `var_2`)
-- operators (`+ - * / % ^ **`)
-- grouping and matrix tokens (`( ) [ ] , ;`)
-- query marker (`?`)
-
-After regex extraction, symbols are mapped to internal token categories (`TokenType`) and operation kinds (`OpKind`).
-Identifiers are normalized to lowercase, and `i` is treated specially as the imaginary token.
-
----
-
-## 5) Parsing technique (AST)
-
-The parser is a **recursive-descent parser**.
-
-It builds an explicit **Abstract Syntax Tree (AST)** using heap-allocated nodes wrapped in `std::unique_ptr` (`NodePtr`).
-
-Implemented precedence levels:
-
-1. primary expressions (numbers, variables, function calls, parenthesized expressions, matrices)
-2. power (`^`)
-3. unary operators (`+`, `-`)
-4. multiplicative (`*`, `/`, `%`, matrix multiply `**`)
-5. additive (`+`, `-`)
-
-Matrix literals are parsed as nested expression lists with row separators (`;`) and value separators (`,`).
-
-Built-in function names currently recognized by the parser:
-
-- `cos`, `sin`, `tan`, `sqrt`, `abs`, `exp`, `inv`, `norm`
-
----
-
-## 6) Runtime model and memory management
-
-### Runtime values
-
-Runtime values are stored in:
-
-- `VarType = std::variant<Real, Complex, Polynomial, Matrix<Real>, Matrix<Complex>>`
-- `Context = std::map<std::string, VarType>`
-
-So variables live in a key/value environment where each value is a type-safe variant.
-
-### Memory management strategy
-
-- AST nodes are owned by `std::unique_ptr` (single ownership, automatic cleanup).
-- Temporary objects rely on automatic storage and RAII.
-- No manual `new/delete` management is needed for AST in normal flow.
-- Readline input buffers are released with `free(input)` in the REPL loop.
-
-This design minimizes leaks and makes ownership explicit.
-
----
-
-## 7) Runtime tools available to the user
-
-At runtime, the program provides:
-
-- an **interactive prompt** (`> `)
-- command history via readline
-- expression evaluation
-- variable/context-based computation
-- built-in math functions
-- matrix and polynomial manipulation
-- interpreter command handling (implemented in `InterpreterCommandHandler.cpp`)
-
-The evaluator/command layer is split in dedicated interpreter source files to keep parsing and execution concerns separated.
-
----
-
-## 8) Build and run
+- C++20 compiler (`c++`, `clang++`, or `g++`)
+- `make`
+- `cmake` (optional alternative build flow)
+- `readline` library
+- SFML 2.5.1 (for plotting):
+  - with CMake, local SFML is used when found
+  - otherwise SFML is fetched automatically by CMake
 
 ### Build
+
+Using Make:
 
 ```bash
 make
 ```
 
+Using CMake:
+
+```bash
+cmake -S . -B build
+cmake --build build
+```
+
 ### Run
+
+Make build output:
 
 ```bash
 ./computorv2
 ```
 
-### Clean
+CMake build output:
 
 ```bash
-make clean
-make fclean
+./build/computorv2
 ```
 
-### Rebuild
+### Quick Usage Examples
 
-```bash
-make re
+```text
+a = 5
+b = -3.2
+c = a + b * 2
+a = ?
 ```
 
-### Test suite
+```text
+f(x) = x^2 + 2x + 1
+x = 2
+f(x) = ?
+```
+
+```text
+f(x) = x^2 + 2x + 1
+f(x) = 0?
+```
+
+### Built-in REPL Commands
+
+- `help`
+- `list`
+- `history`
+- `clear <variable>`
+- `plot <function>`
+- `deg` / `rad`
+- `exit` / `quit`
+
+### Run Tests
 
 ```bash
 make test
-# or
+```
+
+or:
+
+```bash
 ./run_tests.sh
 ```
 
----
+Test artifacts:
 
-## 9) Folder overview
+- expected snapshots: [tests/expected](tests/expected)
+- generated outputs: [tests/actual](tests/actual)
+- failing diffs: `tests/actual/*.diff`
 
-- `includes/` — public headers (lexer, parser, types, runtime definitions, etc.)
-- `srcs/` — implementation files
-  - `Interpreter/`
-  - `Nodes/`
-  - `Types/`
-  - `Visitors/`
-  - `Maths/`
-- `tests/` — test inputs/expected outputs and diffs
-- `Makefile` — build rules
-- `run_tests.sh` — regression test script
+## Where Users Can Get Help
 
----
+- Start with REPL command help: run `help` inside computorv2.
+- Review practical test scenarios in [tests/inputs](tests/inputs).
+- Open a GitHub Issue in this repository for bugs, questions, or feature requests.
+- For implementation details, browse:
+  - interpreter flow: [srcs/Interpreter](srcs/Interpreter)
+  - parser and lexer: [srcs/Parser.cpp](srcs/Parser.cpp), [srcs/Lexer.cpp](srcs/Lexer.cpp)
+  - type system: [includes/Types](includes/Types), [srcs/Types](srcs/Types)
 
-## 10) Notes
+## Who Maintains And Contributes
 
-- The project uses a classical compiler/interpreter pipeline and modern C++ ownership idioms.
-- Core parsing is AST-driven, not direct-eval.
-- Type behavior is centralized in dedicated numeric/symbolic classes.
+This project is maintained/contributed by:
+
+- Robin Richard Canavaggio
+
+Contributions are welcome through pull requests.
+
+Recommended contribution flow:
+
+1. Fork the repository and create a feature branch.
+2. Keep changes focused and add/update tests under [tests/inputs](tests/inputs) and [tests/expected](tests/expected) when behavior changes.
+3. Run `make test` locally.
+4. Open a pull request with a clear summary and rationale.
+
