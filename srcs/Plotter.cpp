@@ -3,83 +3,54 @@
 #include "Maths.hpp"
 #include <limits>
 
-Plotter::Plotter( int width, int height ) : _width(width), _height(height), _xMin(-10.0), _xMax(10.0) {}
+Plotter::Plotter( int w, int h ) : width(w), height(h), grid(w, std::vector<bool>(h, false)) {}
 
-void	Plotter::plot( const std::string& funcName, const Polynomial& poly ) const
+void	Plotter::set( int x, int y )
 {
-	if (_width <= 0 || _height <= 0)
-		return ;
+	if (x >= 0 && x < width && y >= 0 && y < height)
+		grid[x][y] = true;
+}
 
-	double	xMin = _xMin;
-	double	xMax = _xMax;
-	double	xSpan = xMax - xMin;
+void	Plotter::drawLine( float x0, float y0, float x1, float y1 )
+{
+	int steps = static_cast<int>(maths::max(maths::abs(x1 - x0), maths::abs(y1 - y0)) * 2);
 
-	double	yMin = std::numeric_limits<double>::max();
-	double	yMax = std::numeric_limits<double>::lowest();
-	bool	hasValidPoints = false;
-
-	for (int c = 0; c < _width; ++c)
+	for (int i = 0; i <= steps; i++)
 	{
-		double	t = (double)c / (double)(_width - 1);
-		double	x = xMin + t * xSpan;
-		double	y = poly.eval(Real(x)).getValue();
-
-		if (maths::finite(y))
-		{
-			if (y < yMin)
-				yMin = y;
-			if (y > yMax)
-				yMax = y;
-			hasValidPoints = true;
-		}
+		float t = (float)i / steps;
+		set(x0 + t * (x1 - x0), y0 + t * (y1 - y0));
 	}
-	if (!hasValidPoints)
+}
+
+void	Plotter::display()
+{
+	for (int y = height - 1; y >= 0; y -= 4)
 	{
-		std::cout << "Cannot plot: No valid points found in this range.\n";
-		return ;
-	}
+            for (int x = 0; x < width; x += 2)
+			{
+                int code = 0;
 
-	double	ySpan = yMax - yMin;
-	if (ySpan < 1e-9)
-	{
-		yMin -= 1.0;
-		yMax += 1.0;
-	}
-	else
-	{
-		yMin -= ySpan * 0.1;
-		yMax += ySpan * 0.1;
-	}
-	ySpan = yMax - yMin;
+                if (get(x, y))     code |= 0x1;
+                if (get(x, y-1))   code |= 0x2;
+                if (get(x, y-2))   code |= 0x4;
+                if (get(x+1, y))   code |= 0x8;
+                if (get(x+1, y-1)) code |= 0x10;
+                if (get(x+1, y-2)) code |= 0x20;
+                if (get(x, y-3))   code |= 0x40;
+                if (get(x+1, y-3)) code |= 0x80;
 
-	std::vector<std::string>	canvas(_height, std::string(_width, ' '));
+                if (code == 0) std::cout << " ";
+                else
+				{
+                    unsigned int hex = 0x2800 + code;
+                    std::cout << (char)(0xE2) << (char)(0xA0 + (hex >> 6 & 0x3)) << (char)(0x80 + (hex & 0x3F));
+                }
+            }
+            std::cout << "\n";
+        }
+}
 
-	int	originX = maths::round(((0.0 - xMin) / xSpan) * (_width - 1));
-	int	originY = (_height - 1) - maths::round(((0.0 - yMin) / ySpan) * (_height - 1));
-
-	for (int r = 0; r < _height; ++r)
-		canvas[r][originX] = '|';
-    for (int c = 0; c < _width; ++c)
-		canvas[originY][c] = '-';
-    if (originY >= 0 && originY < _height && originX >= 0 && originX < _width)
-		canvas[originY][originX] = '+';
-
-	for (int c = 0; c < _width; ++c)
-	{
-		double	t = (double)c / (double)(_width - 1);
-		double	x = xMin + t * xSpan;
-		double	y = poly.eval(Real(x)).getValue();
-
-		if (!maths::finite(y))
-			continue;
-		int	r = (_height - 1) - maths::round(((y - yMin) / ySpan) * (_height - 1));
-		if (r >= 0 && r < _height)
-			canvas[r][c] = '*';
-	}
-	std::cout << "Plotting " << funcName
-		<< "(" << poly.getVarName() << ")"
-		<< " from x=[" << xMin << ", " << xMax << "]"
-		<< ", y=[" << yMin << ", " << yMax << "]:\n";
-	for (const auto& row : canvas)
-        std::cout << row << std::endl;
+bool	Plotter::get( int x, int y )
+{
+	return (x >= 0 && x < width && y >= 0 && y < height) ? grid[x][y] : false;
 }
