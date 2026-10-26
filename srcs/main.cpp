@@ -1,50 +1,46 @@
-#include <string>
-#include <map>
-#include <variant>
-#include <regex>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include <cstdlib>
-#include "RuntimeTypes.hpp"
+#include <string>
+#include <optional>
 #include "Interpreter.hpp"
-#include "Lexer.hpp"
+
+
+namespace
+{
+
+std::optional<std::string> readLine( std::string_view prompt )
+{
+	char*	input = readline(prompt.data());
+
+	if (!input) // CTRL-D
+	{
+		std::cout << "\n";
+		return std::nullopt;
+	}
+
+	std::string	line(input);
+
+	if (!line.empty()) add_history(input);
+	
+	std::free(input);
+	return line;
+}
+
+}
+
 
 int	main( void )
 {
-	std::string	line;
-	Context		ctx;
-	Interpreter	interpret(ctx);
-	Lexer		lexer;
+	Interpreter	interpreter;
 
-	while (true)
+	while (interpreter.isRunning())
 	{
-		char*	input = readline("> ");
+		auto line = readLine("> ");
 
-		if (!input)
-		{
-			std::cout << std::endl;
-			break;
-		}
-		std::string	line(input);
+		if (!line) break;
+		if (line->empty()) continue ;
 
-		if (!line.empty())
-			add_history(input);
-		free(input);
-		if (line.empty())
-			continue ;
-		try
-		{
-			auto	tokens = lexer.tokenize(line);
-			interpret.processLine(tokens, line);
-		}
-		catch (const ExitException& e)
-		{
-			break ;
-		}
-		catch (const std::exception& e)
-		{
-			std::cerr << e.what() << '\n';
-		}
+		interpreter.processLine(*line);
 	}
 	return (0);
 }

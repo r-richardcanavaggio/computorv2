@@ -1,37 +1,66 @@
 #include "Interpreter.hpp"
-#include "InterpreterCommandHandler.hpp"
-#include "InterpreterEvaluator.hpp"
-#include "TokenPreprocessor.hpp"
+#include "Settings.hpp"
+#include "Plotter.hpp"
+#include "Evaluator.hpp"
 
-Interpreter::Interpreter( Context& ctx ) : _ctx(ctx)
+Interpreter::Interpreter() : running(true)
 {
-	_ctx["pi"] = Real(maths::pi);
-	_ctx["e"] = Real(maths::e);
-	_ctx["sqrt2"] = Real(maths::sqrt2);
-	_ctx["i"] = Complex(0, 1);
+	ctx["pi"] = Real(maths::pi);
+	ctx["e"] = Real(maths::e);
+	ctx["sqrt2"] = Real(maths::sqrt2);
+	ctx["i"] = Complex(0, 1);
+
+	commands = {
+		{"list",    [this](std::span<const Token> args) { commandList(args); }},
+		{"clear",   [this](std::span<const Token> args) { commandClear(args); }},
+		{"history", [this](std::span<const Token> args) { commandHistory(args); }},
+		{"deg",     [this](std::span<const Token> args) { commandDeg(args); }},
+		{"rad",     [this](std::span<const Token> args) { commandRad(args); }},
+		{"exit",    [this](std::span<const Token> args) { commandExit(args); }},
+		{"quit",    [this](std::span<const Token> args) { commandExit(args); }},
+		{"help",    [this](std::span<const Token> args) { commandHelp(args); }},
+		{"plot",    [this](std::span<const Token> args) { commandPlot(args); }}
+	};
 }
 
 Interpreter::~Interpreter() {}
 
-void	Interpreter::processLine( std::vector<Token>& tokens, const std::string& rawLine )
+bool	Interpreter::isRunning() const
+{
+	return running;
+}
+
+bool	Interpreter::executeCommand( const std::vector<Token>& tokens )
 {
 	if (tokens.empty())
-		return ;
+		return false;
+	
+	auto	cmd = tokens[0].value;
+	auto	it = commands.find(cmd);
 
-	bool	isQuery = false;
+	if (it == commands.end())
+		return false;
+	
+	std::span<const Token>	args = std::span(tokens).subspan(1);
 
-	if (tokens.back().type == TokenType::QUERY)
+	it->second(args);
+	return true;
+}
+
+void	Interpreter::processLine( const std::string& line )
+{
+	try
 	{
-		isQuery = true;
-		tokens.pop_back();
-		if (tokens.empty())
-			return ;
+		auto	tokens = lexer.tokenize(line);
+		if (tokens.empty()) return ;
+
+		if (executeCommand(tokens)) return ;
+
+		Evaluator evaluator(ctx, history, std::move(tokens), line);
+		evaluator.evaluate();
 	}
-	if (interpreter_cmd::handle(tokens, _ctx, _history))
+	catch (const std::exception& e)
 	{
-		_history.push_back(rawLine);
-		return ;
+		std::cerr << e.what() << '\n';
 	}
-	token_preproc::normalize(tokens);
-	interpreter_eval::execute(_ctx, _history, tokens, isQuery, rawLine);
 }

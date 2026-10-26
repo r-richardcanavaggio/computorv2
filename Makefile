@@ -4,7 +4,7 @@
 
 NAME		:= computorv2
 CXX			:= c++
-CXXFLAGS	:= -Werror -Wall -Wextra -std=c++20 -MMD -MP
+CXXFLAGS	:= -Werror -Wall -Wextra -std=c++20
 LDFLAGS		:= -lreadline
 INCLUDES	:= -Iincludes -Iincludes/Types -Iincludes/Nodes -Iincludes/Visitors -Iincludes/Interpreter
 
@@ -25,9 +25,9 @@ SRCS_FILES =	main.cpp \
 				Fraction.cpp \
 \
 				Interpreter/Interpreter.cpp \
-				Interpreter/InterpreterEvaluator.cpp \
-				Interpreter/InterpreterCommandHandler.cpp \
-				Interpreter/TokenPreprocessor.cpp \
+				Interpreter/Commands.cpp \
+				Interpreter/Evaluator.cpp \
+				Interpreter/EvaluatorNormalize.cpp \
 \
 				Types/Complex/Complex_core.cpp \
 				Types/Complex/Complex_free_ops.cpp \

@@ -44,12 +44,12 @@ Real	parse_real_literal( const std::string& s )
 	
 }
 
-bool	Parser::isBuiltinFunction( const std::string& name )
+bool	Parser::isBuiltinFunction( std::string_view name )
 {
-	static const std::unordered_set<std::string>	builtins = {
+	static const std::unordered_set<std::string_view>	builtins = {
 		"cos", "sin", "tan", "sqrt", "abs", "exp", "inv", "norm"
 	};
-	return (builtins.count(name) > 0);
+	return (builtins.contains(name));
 }
 
 NodePtr	Parser::parse_primary()

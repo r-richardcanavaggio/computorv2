@@ -26,6 +26,7 @@ Token	Lexer::createSymbolToken( const std::string& str ) const
 	};
 
 	auto	it = symbolMap.find(str);
+
 	if (it != symbolMap.end())
 		return (Token(str, it->second.first, Arity::CONSTANT, it->second.second));
 	return (Token(str, TokenType::UNKOWN, Arity::CONSTANT, OpKind::NONE));
@@ -33,10 +34,10 @@ Token	Lexer::createSymbolToken( const std::string& str ) const
 
 std::vector<Token>	Lexer::tokenize( const std::string& input ) const
 {
-	const std::regex 	pattern("([0-9]+(\\.[0-9]+)?)|([a-zA-Z][a-zA-Z0-9_]*)|(\\*\\*|[\\+\\-\\*\\/%\\^\\(\\)=])|([\\[\\]\\,\\;])|(\\?)");
-	auto				words_begin = std::sregex_iterator(input.begin(), input.end(), pattern);
-	auto				words_end	= std::sregex_iterator();
-	std::vector<Token>	tokens;
+	static const std::regex 	pattern("([0-9]+(\\.[0-9]+)?)|([a-zA-Z][a-zA-Z0-9_]*)|(\\*\\*|[\\+\\-\\*\\/%\\^\\(\\)=])|([\\[\\]\\,\\;])|(\\?)");
+	auto						words_begin = std::sregex_iterator(input.begin(), input.end(), pattern);
+	auto						words_end	= std::sregex_iterator();
+	std::vector<Token>			tokens;
 
 	for (std::sregex_iterator i = words_begin; i != words_end; i++)
 	{

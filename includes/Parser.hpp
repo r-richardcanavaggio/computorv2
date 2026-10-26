@@ -23,5 +23,5 @@ class Parser
 		explicit Parser( const std::vector<Token>& t ) : tokens(t), pos(0) {}
 
 		NodePtr						parse();
-		static bool					isBuiltinFunction( const std::string& );
+		static bool					isBuiltinFunction( std::string_view );
 };
