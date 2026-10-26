@@ -197,9 +197,8 @@ VarType	BinaryOpVisitor::operator()( const Polynomial& p, const Real& x ) const
 }
 
 template<typename T, typename U>
-VarType BinaryOpVisitor::operator()( const T& a, const U& b ) const
+VarType BinaryOpVisitor::operator()( const T&, const U& ) const
 {	
-	static_cast<void>(a); static_cast<void>(b);
 	throw std::runtime_error("Invalid type operation");
 }
 
