@@ -1,5 +1,5 @@
 #include "Evaluator.hpp"
-#include "Parser.hpp"
+#include "Parser/Parser.hpp"
 #include <sstream>
 
 Evaluator::Evaluator( Context& _ctx, std::vector<std::string>& _history, std::vector<Token> _tokens, const std::string& line ) : ctx(_ctx), history(_history), tokens(_tokens), rawLine(line) {}

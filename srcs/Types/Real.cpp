@@ -1,10 +1,22 @@
 #include "Real.hpp"
 #include "Fraction.hpp"
 #include "Maths.hpp"
+#include <charconv>
+#include <system_error>
 
 Real::Real() : value(0.0) {}
 
 Real::Real( double r ) : value(r) {}
+
+Real::Real( std::string_view s )
+{
+	auto [ptr, ec] = std::from_chars(s.data(), s.data() + s.size(), value);
+
+	if (ec == std::errc::result_out_of_range)
+		throw std::runtime_error("Number out of range: " + std::string(s));
+	if (ec != std::errc() || ptr != s.data() + s.size())
+		throw std::runtime_error("Invalid number format: " + std::string(s));
+}
 
 Real	Real::operator+( const Real& other ) const noexcept
 {

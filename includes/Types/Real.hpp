@@ -12,6 +12,7 @@ class Real
 	public:
 		Real();
 		Real( double );
+		explicit Real( std::string_view );
 		Real( const Real& ) = default;
 		~Real() = default;
 

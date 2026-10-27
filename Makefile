@@ -19,7 +19,6 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 ################################################################################
 
 SRCS_FILES =	main.cpp \
-				Parser.cpp \
 				Lexer.cpp \
 				Plotter.cpp \
 				Fraction.cpp \
@@ -28,6 +27,10 @@ SRCS_FILES =	main.cpp \
 				Interpreter/Commands.cpp \
 				Interpreter/Evaluator.cpp \
 				Interpreter/EvaluatorNormalize.cpp \
+\
+				Parser/Parser.cpp \
+				Parser/Parser_primary.cpp \
+				Parser/TokenStream.cpp \
 \
 				Types/Complex/Complex_core.cpp \
 				Types/Complex/Complex_free_ops.cpp \
