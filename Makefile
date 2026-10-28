@@ -32,15 +32,8 @@ SRCS_FILES =	main.cpp \
 				Parser/Parser_primary.cpp \
 				Parser/TokenStream.cpp \
 \
-				Types/Real/Real.cpp \
-\
-				Types/Complex/Complex_core.cpp \
-				Types/Complex/Complex_free_ops.cpp \
-				Types/Complex/Complex_io.cpp \
-				Types/Complex/Complex_ops_addsub.cpp \
-				Types/Complex/Complex_ops_divmod.cpp \
-				Types/Complex/Complex_ops_mul.cpp \
-				Types/Complex/Complex_pow.cpp \
+				Types/Literals/Real.cpp \
+				Types/Literals/Complex.cpp \
 \
 				Types/Matrix/Matrix_core.cpp \
 				Types/Matrix/Matrix_io.cpp \

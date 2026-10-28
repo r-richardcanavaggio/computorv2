@@ -64,10 +64,8 @@ Complex	pow( const Complex& base, int exp )
 	Real	a = base.getReal();
 	Real	b = base.getImag();
 	Real	theta = maths::arctan2(a, b);
-	Complex	result(0);
+	Complex	result(maths::cos(Real(exp) * theta), maths::sin(Real(exp) * theta));
 
-	result.setReal(maths::cos(Real(exp) * theta));
-	result.setImag(maths::sin(Real(exp) * theta));
 	result *= maths::pow(m, exp);
 	return (result);
 }

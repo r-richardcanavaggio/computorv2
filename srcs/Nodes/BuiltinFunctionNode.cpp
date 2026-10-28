@@ -12,7 +12,7 @@ template <typename T>
 T	toRadians( const T& x, const Context& ctx )
 {
 	if (ctx.isDegreeMode)
-		return x * maths::pi / 180.0;
+		return x * Real(maths::pi / 180.0);
 	return x;
 }
 

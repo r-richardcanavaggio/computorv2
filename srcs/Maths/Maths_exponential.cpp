@@ -9,7 +9,6 @@ Real	sqrt( const Real& x )
 		return (0.0);
 
 	Real		guess = x / 2;
-	const Real	tolerance = 1e-6;
 
 	while (true)
 	{
@@ -18,7 +17,7 @@ Real	sqrt( const Real& x )
 
 		Real	diff = abs(guess - new_guess);
 
-		if (diff < tolerance)
+		if (diff < eps)
 			return (new_guess);
 		guess = new_guess;
 	}

@@ -1,9 +1,22 @@
 #include "Complex.hpp"
-#include "Maths/MathsConstant.hpp"
+#include "Maths/Maths.hpp"
+
+Real	Complex::norm() const
+{
+	return maths::sqrt(real * real + imag * imag);
+}
+
+Complex	Complex::pow( int exp ) const
+{
+	Real	m = norm();
+	auto	theta = maths::arctan2(real, imag);
+
+	return Complex(maths::cos(theta * exp), maths::sin(theta * exp)) * maths::pow(m, exp);
+}
 
 std::ostream&	operator<<( std::ostream& os, const Complex& z )
 {
-	auto near = [&](Real x, Real target)
+	auto near = [&]( Real x, Real target )
 	{
 		return (Real(x - target).abs() < maths::eps);
 	};
