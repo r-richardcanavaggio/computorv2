@@ -8,7 +8,7 @@ class Real
 {
 	private:
 		double	value;
-	
+
 	public:
 		Real();
 		Real( double );

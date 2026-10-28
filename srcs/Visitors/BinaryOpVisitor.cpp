@@ -23,7 +23,7 @@ VarType BinaryOpVisitor::operator()( const Matrix<Real>& a, const Matrix<Real>& 
 		case OpKind::ADD: return (a + b);
 		case OpKind::SUB: return (a - b);
 		case OpKind::MUL: return (a * b);
-		case OpKind::MUL_MAT: return (a.mul_mat(b));
+		case OpKind::MUL_MAT: return (a.dot(b));
 		case OpKind::DIV:
 			throw std::runtime_error("Matrix division not supported");
 		default:
@@ -38,7 +38,7 @@ VarType BinaryOpVisitor::operator()( const Matrix<Complex>& a, const Matrix<Comp
 		case OpKind::ADD: return (a + b);
 		case OpKind::SUB: return (a - b);
 		case OpKind::MUL: return (a * b);
-		case OpKind::MUL_MAT: return (a.mul_mat(b));
+		case OpKind::MUL_MAT: return (a.dot(b));
 		case OpKind::DIV:
 			throw std::runtime_error("Matrix division not supported");
 		default:

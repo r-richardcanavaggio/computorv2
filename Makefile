@@ -32,6 +32,8 @@ SRCS_FILES =	main.cpp \
 				Parser/Parser_primary.cpp \
 				Parser/TokenStream.cpp \
 \
+				Types/Real.cpp \
+\
 				Types/Complex/Complex_core.cpp \
 				Types/Complex/Complex_free_ops.cpp \
 				Types/Complex/Complex_io.cpp \
@@ -40,7 +42,12 @@ SRCS_FILES =	main.cpp \
 				Types/Complex/Complex_ops_mul.cpp \
 				Types/Complex/Complex_pow.cpp \
 \
-				Types/Real.cpp \
+				Types/Matrix/Matrix_core.cpp \
+				Types/Matrix/Matrix_io.cpp \
+				Types/Matrix/Matrix_ops_addsub.cpp \
+				Types/Matrix/Matrix_ops_mul.cpp \
+				Types/Matrix/Matrix_ops_inv.cpp \
+\
 				Types/Polynomial/Polynomial_core.cpp \
 				Types/Polynomial/Polynomial_eval.cpp \
 				Types/Polynomial/Polynomial_free_ops.cpp \

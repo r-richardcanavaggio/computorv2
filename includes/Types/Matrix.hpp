@@ -4,6 +4,7 @@
 #include <iostream>
 #include <concepts>
 #include <optional>
+#include <cstddef>
 
 #include "Real.hpp"
 #include "Complex.hpp"
@@ -17,55 +18,50 @@ template<real_complex K>
 class Matrix
 {
 	private:
-		std::vector<K> elements;
-		size_t			_rows;
-		size_t			_cols;
-	
+		std::vector<K>	m_elements;
+		std::size_t		m_rows;
+		std::size_t		m_cols;
+
+		K&							at( std::size_t, std::size_t );
+		const K&					at( std::size_t, std::size_t ) const;
+		void						scl( const Real& );
+		void						add( const Matrix& );
+		void						sub( const Matrix& );
+
+		std::optional<std::size_t>	findPivotRow( std::size_t, std::size_t );
+		void						swap_rows( std::size_t, std::size_t );
+		void						scale_row( std::size_t, K );
+		void						add_row_multiple( std::size_t, std::size_t, K );
+
 	public:
-		// Square matrix constructor
-		Matrix( size_t n );
-		// Rectangle matrix constructor
-		Matrix( size_t n, size_t m );
-		Matrix( std::initializer_list<std::initializer_list<K>> values );
-		Matrix( const std::vector<std::vector<K>>& values );
-		Matrix( const Matrix& other ) = default;
-		Matrix& operator=( const Matrix& other ) = default;	
+		Matrix( std::size_t, std::size_t );
+		Matrix( std::size_t );
+		Matrix( const std::vector<std::vector<K>>& );
+		Matrix( const Matrix& ) = default;
+		Matrix& operator=( const Matrix& ) = default;	
 		~Matrix() = default;
 		
-		size_t					getSize() const;
-		size_t					getRows() const;
-		size_t					getCols() const;
-		bool					empty() const;
-		Matrix<K>				identity() const;
-		K&						at( size_t row, size_t col );
-		const K&				at( size_t row, size_t col ) const;
-		K&						operator()( size_t row, size_t col );
-		const K&				operator()( size_t row, size_t col ) const;
-		K&						operator[]( size_t index );
-		const K&				operator[]( size_t index ) const;
+		std::size_t					getSize() const;
+		std::size_t					getRows() const;
+		std::size_t					getCols() const;
+		bool						empty() const;
+		Matrix<K>					identity() const;
+		Real						norm() const;
 
-		template<real_complex T>
-		friend std::ostream&	operator<<( std::ostream& os, const Matrix<T>& m );
-
-		void					add( const Matrix& m );
-		void					sub( const Matrix& m );
-		void					scl( const Real& scalar );
-		Matrix<K>				mul_mat( const Matrix<K>& mat ) const;
-		Matrix<K>				pow( int exp ) const;
-		Real					norm() const;
-		
-		void					swap_rows( size_t, size_t );
-		void					scale_row( size_t, K );
-		void					add_row_multiple( size_t, size_t, K );
-		size_t					findIndexMaxAbsColumn( size_t col, size_t start_row );
 		std::optional<Matrix<K>>	inverse() const;
 		
+		Matrix<K>					dot( const Matrix<K>& ) const;
+		Matrix<K>					pow( int ) const;
+		Matrix						operator+( const Matrix& ) const;
+		Matrix						operator-( const Matrix& ) const;
+		Matrix						operator-() const;
+		Matrix						operator*( const Matrix& ) const;
+		Matrix						operator*( const Real& ) const;
 
-		Matrix					operator+( const Matrix& ) const;
-		Matrix					operator-( const Matrix& ) const;
-		Matrix					operator-() const;
-		Matrix					operator*( const Matrix& ) const;
-		Matrix					operator*( const Real& scalar ) const;
+		K&							operator()( std::size_t, std::size_t );
+		const K&					operator()( std::size_t, std::size_t ) const;
+		K&							operator[]( std::size_t );
+		const K&					operator[]( std::size_t ) const;
+		template<real_complex T>
+		friend std::ostream&		operator<<( std::ostream&, const Matrix<T>& );
 };
-
-#include "Matrix.tpp"

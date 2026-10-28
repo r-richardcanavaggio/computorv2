@@ -1,4 +1,5 @@
 #include "Polynomial.hpp"
+#include "Maths.hpp"
 
 Polynomial::Polynomial( std::initializer_list<Real> init ) : coeffs(init)
 {
