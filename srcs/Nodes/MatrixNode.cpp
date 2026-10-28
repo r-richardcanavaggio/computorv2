@@ -21,12 +21,18 @@ NodePtr	MatrixNode::clone() const
 
 VarType MatrixNode::eval( Context& ctx ) const
 {
-	std::vector<std::vector<VarType>>	values;
-	bool								hasComplex = false;
+	if (elements.empty()) return Matrix<Real>(0, 0);
+
+	const std::size_t		rows = elements.size();
+	const std::size_t		cols = elements[0].size();
+	bool					hasComplex = false;
+
+	std::vector<VarType>	evaluated;
+	evaluated.reserve(rows * cols);
 	
 	for (const auto& row : elements)
 	{
-		std::vector<VarType>	vrow;
+		if (row.size() != cols) throw std::runtime_error("Error: inconsistent row size in matrix definition.");
 
 		for (const auto& expr : row)
 		{
@@ -34,44 +40,25 @@ VarType MatrixNode::eval( Context& ctx ) const
 			if (std::holds_alternative<Complex>(v))
 				hasComplex = true;
 			else if (!std::holds_alternative<Real>(v))
-				throw std::runtime_error("Matrix elements must be Real or Complex");
-			vrow.push_back(std::move(v));
+				throw std::runtime_error("Matrix elements must be Real or Complex.");
+			evaluated.push_back(std::move(v));
 		}
-		values.push_back(std::move(vrow));
 	}
 	if (!hasComplex)
 	{
-		std::vector<std::vector<Real>>	out;
-
-		out.reserve(values.size());
-		for (const auto& row : values)
-		{
-			std::vector<Real> orow;
-
-			orow.reserve(row.size());
-			for (const auto& v : row)
-				orow.push_back(std::get<Real>(v));
-			out.push_back(std::move(orow));
-		}
-		return (Matrix<Real>(out));
+		Matrix<Real>	mat(rows, cols);
+		for (std::size_t i = 0; i < evaluated.size(); ++i)
+			mat[i] = std::get<Real>(evaluated[i]);
+		return mat;
 	}
 	
-	std::vector<std::vector<Complex>>	out;
-
-	out.reserve(values.size());
-	for (const auto& row : values)
+	Matrix<Complex>	mat(rows, cols);
+	for (std::size_t i = 0; i < evaluated.size(); i++)
 	{
-		std::vector<Complex>	orow;
-
-		orow.reserve(row.size());
-		for (const auto& v : row)
-		{
-			if (std::holds_alternative<Complex>(v))
-				orow.push_back(std::get<Complex>(v));
-			else
-				orow.push_back(Complex(std::get<Real>(v).getValue(), 0.));
-		}
-		out.push_back(std::move(orow));
+		if (std::holds_alternative<Complex>(evaluated[i]))
+			mat[i] = std::get<Complex>(evaluated[i]);
+		else
+			mat[i] = Complex(std::get<Real>(evaluated[i]));
 	}
-	return (Matrix<Complex>(out));
+	return mat;
 }
