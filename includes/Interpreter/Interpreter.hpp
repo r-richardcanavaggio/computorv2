@@ -6,6 +6,7 @@
 #include <string>
 #include <map>
 #include <span>
+#include <functional>
 
 using CommandHandler = std::function<void(std::span<const Token>)>;
 

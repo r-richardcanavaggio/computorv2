@@ -2,7 +2,7 @@
 #include "Maths/Maths.hpp"
 
 template<real_complex K>
-Matrix<K>::Matrix( std::size_t rows, std::size_t cols ) 
+Matrix<K>::Matrix( std::size_t rows, std::size_t cols )
     : m_elements(rows * cols, K(0)), m_rows(rows), m_cols(cols) {}
 
 template<real_complex K>
@@ -30,25 +30,25 @@ Matrix<K>::Matrix( const std::vector<std::vector<K>>& values )
 }
 
 template<real_complex K>
-std::size_t	Matrix<K>::getSize() const
+std::size_t	Matrix<K>::getSize() const noexcept
 {
 	return (this->m_cols * this->m_rows);
 }
 
 template<real_complex K>
-std::size_t	Matrix<K>::getRows() const
+std::size_t	Matrix<K>::getRows() const noexcept
 {
 	return (this->m_rows);
 }
 
 template<real_complex K>
-std::size_t	Matrix<K>::getCols() const
+std::size_t	Matrix<K>::getCols() const noexcept
 {
 	return (this->m_cols);
 }
 
 template<real_complex K>
-bool	Matrix<K>::empty() const
+bool	Matrix<K>::empty() const noexcept
 {
 	return (m_elements.empty());
 }
@@ -64,7 +64,7 @@ Matrix<K>	Matrix<K>::identity() const
 }
 
 template <real_complex K>
-Real	Matrix<K>::norm() const
+Real	Matrix<K>::norm() const noexcept
 {
 	Real	sum = 0.0;
 

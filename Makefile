@@ -3,7 +3,7 @@
 ################################################################################
 
 NAME		:= computorv2
-CXX			:= c++
+CXX			:= g++-16
 CXXFLAGS	:= -Werror -Wall -Wextra -std=c++20
 LDFLAGS		:= -lreadline
 INCLUDES	:= -Iincludes -Iincludes/Types -Iincludes/Nodes -Iincludes/Visitors -Iincludes/Interpreter

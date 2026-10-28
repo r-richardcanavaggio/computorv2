@@ -37,16 +37,21 @@ class Matrix
 		Matrix( std::size_t, std::size_t );
 		Matrix( std::size_t );
 		Matrix( const std::vector<std::vector<K>>& );
+
 		Matrix( const Matrix& ) = default;
-		Matrix& operator=( const Matrix& ) = default;	
+		Matrix&	operator=( const Matrix& ) = default;
+
+		Matrix( Matrix&& ) noexcept = default;
+		Matrix& operator=( Matrix&& ) noexcept = default;
+
 		~Matrix() = default;
 		
-		std::size_t					getSize() const;
-		std::size_t					getRows() const;
-		std::size_t					getCols() const;
-		bool						empty() const;
+		std::size_t					getSize() const noexcept;
+		std::size_t					getRows() const noexcept;
+		std::size_t					getCols() const noexcept;
+		bool						empty() const noexcept;
+		Real						norm() const noexcept;
 		Matrix<K>					identity() const;
-		Real						norm() const;
 
 		std::optional<Matrix<K>>	inverse() const;
 		
