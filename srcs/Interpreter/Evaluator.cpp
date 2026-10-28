@@ -105,20 +105,12 @@ void    Evaluator::executeAssignment()
 
     if (Parser::isBuiltinFunction(target.name)) throw std::runtime_error("Forbidden: '" + target.name + "' is a built-in function and cannot be redefined.");
 
-    if (target.isFunction())
-        assignFunction(target.name, *target.param);
-    else
-        assignVariable(target.name);
-
+    if (target.isFunction()) assignFunction(target.name, *target.param);
+    else assignVariable(target.name);
 }
 
 void    Evaluator::assignVariable( const std::string& name )
 {
-    for (auto t : rhs)
-        std::cout << t.value << std::endl;
-
-    for (auto t : lhs)
-        std::cout << t.value << std::endl;
     Parser  parser(rhs);
     VarType result = parser.parse()->eval(ctx);
 
@@ -138,7 +130,6 @@ void    Evaluator::assignFunction( const std::string& name, const std::string& p
     if (!std::holds_alternative<Polynomial>(result)) throw std::runtime_error("Function must evaluate to a Polynomial.");
 
     std::get<Polynomial>(result).setVarName(param);
-
     saveResult(name, result);
 }
 

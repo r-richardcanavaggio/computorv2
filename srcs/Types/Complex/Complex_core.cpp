@@ -1,4 +1,5 @@
 #include "Complex.hpp"
+#include "Maths.hpp"
 
 Complex::Complex() : real(Real()), imag(Real()) {}
 
@@ -33,6 +34,11 @@ Complex	Complex::conj() const
 	z.real = this->real;
 	z.imag = -this->imag;
 	return (z);
+}
+
+Real	Complex::norm() const
+{
+	return maths::sqrt(real * real + imag * imag);
 }
 
 bool	Complex::operator==( const Complex& other ) const noexcept

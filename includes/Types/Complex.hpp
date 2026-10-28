@@ -17,7 +17,7 @@ class Complex
 		~Complex() = default;
 		
 		Complex		conj() const;
-		Real		abs() const;
+		Real		norm() const;
 		Real		getReal() const;
 		Real		getImag() const;
 		void		setReal( Real );

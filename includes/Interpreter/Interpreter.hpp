@@ -31,8 +31,8 @@ class Interpreter
 		void	commandList( std::span<const Token> ) const;
 		void	commandClear( std::span<const Token> );
 		void	commandHistory( std::span<const Token> ) const;
-		void	commandDeg( std::span<const Token> ) const;
-		void	commandRad( std::span<const Token> ) const;
+		void	commandDeg( std::span<const Token> );
+		void	commandRad( std::span<const Token> );
 		void	commandExit( std::span<const Token> );
 		void	commandHelp( std::span<const Token> ) const;
 		void	commandPlot( std::span<const Token> );

@@ -1,5 +1,4 @@
 #include "Interpreter.hpp"
-#include "Settings.hpp"
 #include "Plotter.hpp"
 #include "Evaluator.hpp"
 

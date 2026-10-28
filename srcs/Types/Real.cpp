@@ -185,3 +185,8 @@ Real	Real::abs() const
 {
 	return ((value < 0) ? -value : value);
 }
+
+Real	Real::norm() const
+{
+	return abs();
+}

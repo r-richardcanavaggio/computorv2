@@ -39,4 +39,5 @@ class Real
 		double					getValue() const;
 		Real					square() const noexcept;
 		Real					abs() const;
+		Real					norm() const;
 };

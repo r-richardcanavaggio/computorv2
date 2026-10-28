@@ -11,7 +11,11 @@
 #include "Types/Polynomial.hpp"
 
 using VarType = std::variant<Real, Complex, Polynomial, Matrix<Real>, Matrix<Complex>>;
-using Context = std::map<std::string, VarType>;
+
+struct Context : std::map<std::string, VarType>
+{
+	bool	isDegreeMode = false;
+};
 
 inline std::ostream&	operator<<( std::ostream& os, const VarType& v )
 {

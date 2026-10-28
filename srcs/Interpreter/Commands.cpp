@@ -1,5 +1,4 @@
 #include "Interpreter.hpp"
-#include "Settings.hpp"
 #include "Plotter.hpp"
 
 void	Interpreter::commandList( std::span<const Token> args ) const
@@ -30,22 +29,22 @@ void	Interpreter::commandHistory( std::span<const Token> args ) const
 	}
 }
 
-void	Interpreter::commandDeg( std::span<const Token> args ) const
+void	Interpreter::commandDeg( std::span<const Token> args )
 {
 	if (!args.empty())
 		throw std::runtime_error("Usage: deg (takes no arguments)\n");
 
-	Settings::isDegreeMode = true;
+	ctx.isDegreeMode = true;
 
 	std::cout << "Angle mode switched to: DEGREES" << std::endl;
 }
 
-void	Interpreter::commandRad( std::span<const Token> args) const
+void	Interpreter::commandRad( std::span<const Token> args)
 {
 	if (!args.empty())
 		throw std::runtime_error("Usage: rad (takes no arguments)\n");
 
-	Settings::isDegreeMode = false;
+	ctx.isDegreeMode = false;
 
 	std::cout << "Angle mode switched to: RADIANS" << std::endl;
 }
