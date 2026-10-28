@@ -1,5 +1,5 @@
 #include "Fraction.hpp"
-#include "Maths.hpp"
+#include "Maths/Maths.hpp"
 
 Fraction::Fraction( int num, int den ) : numerator(num), denominator(den)
 {

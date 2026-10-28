@@ -1,5 +1,5 @@
 #include "Matrix.hpp"
-#include "Maths.hpp"
+#include "Maths/Maths.hpp"
 
 template<real_complex K>
 void	Matrix<K>::swap_rows( std::size_t row1, std::size_t row2 )
@@ -30,7 +30,6 @@ std::optional<std::size_t>	Matrix<K>::findPivotRow( std::size_t col, std::size_t
 {
 	Real		bestNorm2 = 0.0;
 	std::size_t	bestIndex;
-	Real		eps = 1e-9;
 
 	for (std::size_t r = start_row; r < getRows(); r++)
 	{
@@ -42,7 +41,7 @@ std::optional<std::size_t>	Matrix<K>::findPivotRow( std::size_t col, std::size_t
 		}
 	}
 
-	if (bestNorm2 < eps * eps)
+	if (bestNorm2 < maths::eps * maths::eps)
 		return (std::nullopt);
 	return (bestIndex);
 }

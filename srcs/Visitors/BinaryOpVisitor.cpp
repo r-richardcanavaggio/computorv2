@@ -1,5 +1,5 @@
 #include "Visitors/BinaryOpVisitor.hpp"
-#include "Maths.hpp"
+#include "Maths/Maths.hpp"
 
 VarType	BinaryOpVisitor::operator()( const Real& a, const Real& b ) const
 {

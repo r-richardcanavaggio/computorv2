@@ -1,5 +1,5 @@
 #include "BuiltinFunctionNode.hpp"
-#include "Maths.hpp"
+#include "Maths/Maths.hpp"
 #include <type_traits>
 #include <unordered_map>
 #include <functional>

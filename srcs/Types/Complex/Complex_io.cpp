@@ -1,23 +1,22 @@
 #include "Complex.hpp"
+#include "Maths/MathsConstant.hpp"
 
 std::ostream&	operator<<( std::ostream& os, const Complex& z )
 {
-	double	eps = 1e-9;
-
 	auto near = [&](Real x, Real target)
 	{
-		return (Real(x - target).abs() < eps);
+		return (Real(x - target).abs() < maths::eps);
 	};
 
 	Real	re = z.real;
 	Real	im = z.imag;
 
-	if (im.abs() < eps)
+	if (im.abs() < maths::eps)
 	{
 		os << re;
 		return (os);
 	}
-	if (re.abs() < eps)
+	if (re.abs() < maths::eps)
 	{
 		if (near(im, 1))
 			os << "i";

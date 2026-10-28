@@ -1,5 +1,5 @@
 #include "Plotter.hpp"
-#include "Maths.hpp"
+#include "Maths/Maths.hpp"
 #include <limits>
 
 Plotter::Plotter( int w, int h ) : width(w), height(h), grid(w, std::vector<bool>(h, false)) {}

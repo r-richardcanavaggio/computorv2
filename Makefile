@@ -32,7 +32,7 @@ SRCS_FILES =	main.cpp \
 				Parser/Parser_primary.cpp \
 				Parser/TokenStream.cpp \
 \
-				Types/Real.cpp \
+				Types/Real/Real.cpp \
 \
 				Types/Complex/Complex_core.cpp \
 				Types/Complex/Complex_free_ops.cpp \

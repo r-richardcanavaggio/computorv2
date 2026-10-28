@@ -1,5 +1,5 @@
 #include "Complex.hpp"
-#include "Maths.hpp"
+#include "Maths/Maths.hpp"
 
 Complex::Complex() : real(Real()), imag(Real()) {}
 

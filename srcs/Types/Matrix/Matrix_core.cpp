@@ -1,5 +1,5 @@
 #include "Matrix.hpp"
-#include "Maths.hpp"
+#include "Maths/Maths.hpp"
 
 template<real_complex K>
 Matrix<K>::Matrix( std::size_t rows, std::size_t cols ) 

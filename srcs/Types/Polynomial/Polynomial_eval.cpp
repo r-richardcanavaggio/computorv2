@@ -1,5 +1,5 @@
 #include "Polynomial.hpp"
-#include "Maths.hpp"
+#include "Maths/Maths.hpp"
 #include <variant>
 
 Real	Polynomial::eval( const Real& x ) const

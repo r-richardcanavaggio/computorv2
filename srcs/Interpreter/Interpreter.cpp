@@ -1,7 +1,7 @@
 #include "Interpreter.hpp"
 #include "Plotter.hpp"
 #include "Evaluator.hpp"
-#include "Maths.hpp"
+#include "Maths/Maths.hpp"
 
 Interpreter::Interpreter() : running(true)
 {

@@ -1,5 +1,5 @@
 #include "Polynomial.hpp"
-#include "Maths.hpp"
+#include "Maths/Maths.hpp"
 
 std::vector<Root>	Polynomial::solve( bool verbose ) const
 {
