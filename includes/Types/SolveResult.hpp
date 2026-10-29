@@ -31,5 +31,39 @@ struct SolveResult
 	Solutions			roots{};
 };
 
-std::ostream&   operator<<( std::ostream& os, const SolveResult& res );
-std::ostream&	operator<<( std::ostream& os, const Root& r );
+inline std::ostream&	operator<<( std::ostream& os, const Root& r )
+{
+	std::visit([&os]( const auto & val ) { os << val; }, r);
+	return os;
+}
+
+inline std::ostream& operator<<( std::ostream& os, const SolveResult& res )
+{
+	os << "Polynomial degree: " << res.degree << '\n';
+	if (res.degree == 0)
+	{
+		if (res.state == SolveResult::State::Infinite)
+			os << "All real numbers are solution\n";
+		else
+			os << "No solution\n";
+		return os;
+	}
+	if (res.degree == 1)
+	{
+		os << "The solution is:\n" << res.roots[0] << '\n';
+		return os;
+	}
+	Real	delta = res.delta;
+
+	os << "Discriminant is " << delta << '\n';
+	if (delta > 0)
+		os << "Strictly positive, the two solutions are:\n"
+			<< res.roots[0] << '\n' << res.roots[1] << '\n';
+	else if (delta == 0)
+		os << "Discriminant is null, the solution is:\n"
+			<< res.roots[0] << '\n';
+	else
+		os << "Strictly negative, the two solutions are:\n"
+			<< res.roots[0] << '\n' << res.roots[1] << '\n';
+	return os;
+}

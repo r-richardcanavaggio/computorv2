@@ -34,13 +34,6 @@ SRCS_FILES =	main.cpp \
 \
 				Types/Literals/Real.cpp \
 				Types/Literals/Complex.cpp \
-				Types/Literals/Polynomial.cpp \
-\
-				Types/Matrix/Matrix_core.cpp \
-				Types/Matrix/Matrix_io.cpp \
-				Types/Matrix/Matrix_ops_addsub.cpp \
-				Types/Matrix/Matrix_ops_mul.cpp \
-				Types/Matrix/Matrix_ops_inv.cpp \
 \
 				Visitors/BinaryOpVisitor.cpp \
 				Visitors/UnaryOpVisitor.cpp \

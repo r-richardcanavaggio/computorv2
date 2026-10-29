@@ -1,15 +1,14 @@
 #pragma once
 
-#include "Real.hpp"
-#include "Complex.hpp"
-#include "Matrix.hpp"
-#include "Maths/Maths.hpp"
-
 #include <vector>
 #include <string>
 #include <variant>
 #include <array>
 
+#include "Real.hpp"
+#include "Complex.hpp"
+#include "Matrix.hpp"
+#include "Maths/Maths.hpp"
 #include "SolveResult.hpp"
 
 class Polynomial
@@ -120,14 +119,33 @@ class Polynomial
 			return result;
 		}
 		template<real_complex K>
-		Matrix<K>							eval( const Matrix<K>& ) const;
+		constexpr Matrix<K>					eval( const Matrix<K>& m ) const
+		{
+			if (m.getRows() != m.getCols())
+				throw std::runtime_error("Error: Evaluation only possible on square matrices");
+
+			Matrix<K>	result(m.getRows(), m.getCols());
+			Matrix<K>	id = Matrix<K>::identity(m.getRows());
+
+			for (int i = 0; i <= degree(); ++i)
+			{
+				if (m_coeffs[i] != 0)
+				{
+					if (i == 0)
+						result += id * m_coeffs[i];
+					else
+						result += m.pow(i) * m_coeffs[i];
+				}
+			}
+			return result;
+		}
 
 		constexpr Root						eval( const Root& r ) const
 		{
 			return std::visit([this]( const auto& val ) -> Root { return eval(val); }, r);
 		}
 
-		constexpr SolveResult					solve() const
+		constexpr SolveResult				solve() const
 		{
 			switch (degree())
 			{
@@ -260,5 +278,39 @@ class Polynomial
 		constexpr Polynomial				operator%=( const Polynomial& other ) { return *this = euclideanDiv(other).second; }
 
 		constexpr bool						operator==( const Polynomial& other ) const { return m_coeffs == other.m_coeffs; }
-		
 };
+
+inline std::ostream&	operator<<( std::ostream& os, const Polynomial& p )
+{
+	if (p.empty()) return (os << "0");
+
+	bool	printedAny = false;
+
+	for (std::size_t i = p.size(); i-- > 0;)
+	{
+		Real	coeff = p.getCoeffs()[i];
+
+		if (coeff == 0)
+			continue;
+
+		if (printedAny)
+			os << (coeff >= 0 ? " + " : " - ");
+		else if (coeff < 0)
+			os << "-";
+
+		Real	mag = maths::abs(coeff);
+
+		if (i == 0 || mag != 1)
+			os << mag;
+		if (i > 0)
+		{
+			os << p.getName();
+			if (i > 1)
+				os << "^" << i;
+		}
+		printedAny = true;
+	}
+	if (!printedAny)
+		return (os << "0");
+	return (os);
+}
