@@ -34,22 +34,13 @@ SRCS_FILES =	main.cpp \
 \
 				Types/Literals/Real.cpp \
 				Types/Literals/Complex.cpp \
+				Types/Literals/Polynomial.cpp \
 \
 				Types/Matrix/Matrix_core.cpp \
 				Types/Matrix/Matrix_io.cpp \
 				Types/Matrix/Matrix_ops_addsub.cpp \
 				Types/Matrix/Matrix_ops_mul.cpp \
 				Types/Matrix/Matrix_ops_inv.cpp \
-\
-				Types/Polynomial/Polynomial_core.cpp \
-				Types/Polynomial/Polynomial_eval.cpp \
-				Types/Polynomial/Polynomial_free_ops.cpp \
-				Types/Polynomial/Polynomial_io.cpp \
-				Types/Polynomial/Polynomial_ops_addsub.cpp \
-				Types/Polynomial/Polynomial_ops_divmod.cpp \
-				Types/Polynomial/Polynomial_ops_mul.cpp \
-				Types/Polynomial/Polynomial_pow.cpp \
-				Types/Polynomial/Polynomial_solve.cpp \
 \
 				Visitors/BinaryOpVisitor.cpp \
 				Visitors/UnaryOpVisitor.cpp \

@@ -11,6 +11,7 @@ class Complex
 	
 	public:
 		constexpr Complex() noexcept = default;
+		constexpr Complex( bool i ) { if (i) imag = 1; }
 		constexpr Complex( Real r , Real i ) noexcept : real(r), imag(i) {}
 		constexpr Complex( Real r ) noexcept : real(r), imag(0.0) {}
 
@@ -80,5 +81,5 @@ class Complex
 			imag = (oldImag * other.real - oldReal * other.imag) / (other.real * other.real + other.imag * other.imag);
 			return *this;
 		}
-		friend std::ostream&	operator<<( std::ostream&, const Complex& );
+		friend std::ostream&	operator<<( std::ostream&, Complex );
 };

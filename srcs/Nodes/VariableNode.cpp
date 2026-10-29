@@ -14,6 +14,6 @@ VarType	VariableNode::eval( Context& ctx ) const
 		return (it->second);
 
 	Polynomial	sym({0, 1});
-	sym.setVarName(name);
+	sym.setName(name);
 	return (sym);
 }

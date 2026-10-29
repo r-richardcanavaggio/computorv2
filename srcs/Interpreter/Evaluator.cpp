@@ -96,8 +96,7 @@ void    Evaluator::executeQuery() const
 
     equation -= std::get<Real>(rhsResult);
 
-    auto	solutions = equation.solve(true);
-    if (solutions.empty()) std::cout << "No solution\n";
+    std::cout << equation.solve();
 }
 
 void    Evaluator::executeAssignment()
@@ -130,7 +129,7 @@ void    Evaluator::assignFunction( const std::string& name, const std::string& p
     if (std::holds_alternative<Real>(result)) result = Polynomial({std::get<Real>(result)});
     if (!std::holds_alternative<Polynomial>(result)) throw std::runtime_error("Function must evaluate to a Polynomial.");
 
-    std::get<Polynomial>(result).setVarName(param);
+    std::get<Polynomial>(result).setName(param);
     saveResult(name, result);
 }
 

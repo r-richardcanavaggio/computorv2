@@ -14,7 +14,7 @@ Complex	Complex::pow( int exp ) const
 	return Complex(maths::cos(theta * exp), maths::sin(theta * exp)) * maths::pow(m, exp);
 }
 
-std::ostream&	operator<<( std::ostream& os, const Complex& z )
+std::ostream&	operator<<( std::ostream& os, Complex z )
 {
 	auto near = [&]( Real x, Real target )
 	{

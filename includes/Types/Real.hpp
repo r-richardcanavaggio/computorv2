@@ -62,6 +62,7 @@ class Real
 		constexpr Real			square() const noexcept { return Real(m_value * m_value); }
 		constexpr Real			abs() const noexcept { return (m_value < 0) ? -m_value : m_value; }
 		constexpr Real			norm() const noexcept { return abs(); }
+		constexpr Real			inv() const { if (m_value == 0) throw std::runtime_error("Error: inv() on 0."); return 1 / m_value; }
 
 		constexpr auto			operator<=>( const Real& ) const = default;
 
