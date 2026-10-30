@@ -95,28 +95,28 @@ void	Interpreter::commandClear( std::span<const Token> args )
 	std::cout << "Variable/Function '" << varToDelete << "' has been deleted.\n";
 }
 
-void	Interpreter::commandPlot( std::span<const Token> args )
-{
-	auto	targetFunc = args[0].value;
-	auto	it = ctx.find(targetFunc);
+// void	Interpreter::commandPlot( std::span<const Token> args )
+// {
+// 	auto	targetFunc = args[0].value;
+// 	auto	it = ctx.find(targetFunc);
 
-	if (it == ctx.end())
-		throw std::runtime_error("Error: Unknown function '" + targetFunc + "'.\n");
-	if (!std::holds_alternative<Polynomial>(it->second))
-		throw std::runtime_error("Error: '" + targetFunc + "' is not a function/polynomial.\n");
+// 	if (it == ctx.end())
+// 		throw std::runtime_error("Error: Unknown function '" + targetFunc + "'.\n");
+// 	if (!std::holds_alternative<Polynomial>(it->second))
+// 		throw std::runtime_error("Error: '" + targetFunc + "' is not a function/polynomial.\n");
 
-	Plotter		canvas(80, 60);
-	Polynomial	f = std::get<Polynomial>(it->second); 
+// 	Plotter		canvas(80, 60);
+// 	Polynomial	f = std::get<Polynomial>(it->second); 
 
-	canvas.drawLine(0, 30, 80, 30);
-	canvas.drawLine(40, 0, 40, 60);
+// 	canvas.drawLine(0, 30, 80, 30);
+// 	canvas.drawLine(40, 0, 40, 60);
 
-	for (float x = -20.0; x <= 20.0; x += 0.1)
-	{
-		double	y = f.eval(Real(x)).getValue();
-		int	px = (x + 20) * 2;
-		int	py = (y + 30);
-		canvas.set(px, py);
-	}
-	canvas.display();
-}
+// 	for (float x = -20.0; x <= 20.0; x += 0.1)
+// 	{
+// 		double	y = f.eval(Real(x)).getValue();
+// 		int	px = (x + 20) * 2;
+// 		int	py = (y + 30);
+// 		canvas.set(px, py);
+// 	}
+// 	canvas.display();
+// }

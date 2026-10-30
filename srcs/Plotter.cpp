@@ -1,8 +1,7 @@
 #include "Plotter.hpp"
-#include "Maths/Maths.hpp"
 #include <limits>
 
-Plotter::Plotter( int w, int h ) : width(w), height(h), grid(w, std::vector<bool>(h, false)) {}
+Plotter::Plotter( Real w, Real h ) : width(w), height(h), grid(w, std::vector<bool>(h, false)) {}
 
 void	Plotter::set( int x, int y )
 {
@@ -10,22 +9,22 @@ void	Plotter::set( int x, int y )
 		grid[x][y] = true;
 }
 
-void	Plotter::drawLine( float x0, float y0, float x1, float y1 )
+void	Plotter::drawLine( Real x0, Real y0, Real x1, Real y1 )
 {
-	int steps = static_cast<int>(maths::max(maths::abs(x1 - x0), maths::abs(y1 - y0)) * 2);
+	int steps = static_cast<int>(max(abs(x1 - x0), abs(y1 - y0)) * 2);
 
-	for (int i = 0; i <= steps; i++)
+	for (int i = 0; i <= steps; ++i)
 	{
-		float t = (float)i / steps;
+		Real t = Real(i) / steps;
 		set(x0 + t * (x1 - x0), y0 + t * (y1 - y0));
 	}
 }
 
 void	Plotter::display()
 {
-	for (int y = height - 1; y >= 0; y -= 4)
+	for (Real y = height - 1; y >= 0; y -= 4)
 	{
-            for (int x = 0; x < width; x += 2)
+            for (Real x = 0; x < width; x += 2)
 			{
                 int code = 0;
 
@@ -49,7 +48,7 @@ void	Plotter::display()
         }
 }
 
-bool	Plotter::get( int x, int y )
+bool	Plotter::get( Real x, Real y )
 {
 	return (x >= 0 && x < width && y >= 0 && y < height) ? grid[x][y] : false;
 }

@@ -20,8 +20,6 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 
 SRCS_FILES =	main.cpp \
 				Lexer.cpp \
-				Plotter.cpp \
-				Fraction.cpp \
 \
 				Interpreter/Interpreter.cpp \
 				Interpreter/Commands.cpp \
@@ -31,9 +29,6 @@ SRCS_FILES =	main.cpp \
 				Parser/Parser.cpp \
 				Parser/Parser_primary.cpp \
 				Parser/TokenStream.cpp \
-\
-				Types/Literals/Real.cpp \
-				Types/Literals/Complex.cpp \
 \
 				Visitors/BinaryOpVisitor.cpp \
 				Visitors/UnaryOpVisitor.cpp \
@@ -46,10 +41,6 @@ SRCS_FILES =	main.cpp \
 				Nodes/NumberNode.cpp \
 				Nodes/FunctionCallNode.cpp \
 				Nodes/BuiltinFunctionNode.cpp \
-\
-				Maths/Maths_arithmetic.cpp \
-				Maths/Maths_exponential.cpp \
-				Maths/Maths_trig.cpp \
 
 ################################################################################
 #                                    COlORS                                    #

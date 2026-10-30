@@ -8,7 +8,6 @@
 #include "Real.hpp"
 #include "Complex.hpp"
 #include "Matrix.hpp"
-#include "Maths/Maths.hpp"
 #include "SolveResult.hpp"
 
 class Polynomial
@@ -68,16 +67,15 @@ class Polynomial
 			Real	twoA = a * 2;
 			if (delta > 0)
 			{
-				Real	sqrtDelta = maths::sqrt(delta);
-				res.roots.push_back((-b - sqrtDelta) / twoA);
-				res.roots.push_back((-b + sqrtDelta) / twoA);
+				res.roots.push_back((-b - sqrt(delta)) / twoA);
+				res.roots.push_back((-b + sqrt(delta)) / twoA);
 			}
 			else if (delta == 0)
 				res.roots.push_back(-b / twoA);
 			else
 			{
 				Real	re = -b / twoA;
-				Real	im = maths::sqrt(-delta) / twoA;
+				Real	im = sqrt(-delta) / twoA;
 				res.roots.push_back(Complex(re, -im));
 				res.roots.push_back(Complex(re, im));
 			}
@@ -100,7 +98,7 @@ class Polynomial
 		constexpr int						degree() const noexcept { return empty() ? 0 : static_cast<int>(size()) - 1; }
 		constexpr void						trim() noexcept
 		{
-			while (!m_coeffs.empty() && maths::abs(m_coeffs.back().getValue()) < maths::eps)
+			while (!m_coeffs.empty() && abs(m_coeffs.back()) < maths::eps)
 				m_coeffs.pop_back();
 		}
 		constexpr std::string_view			getName() const noexcept { return m_variable; }
@@ -298,7 +296,7 @@ inline std::ostream&	operator<<( std::ostream& os, const Polynomial& p )
 		else if (coeff < 0)
 			os << "-";
 
-		Real	mag = maths::abs(coeff);
+		Real	mag = abs(coeff);
 
 		if (i == 0 || mag != 1)
 			os << mag;

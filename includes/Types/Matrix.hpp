@@ -8,7 +8,6 @@
 
 #include "Real.hpp"
 #include "Complex.hpp"
-#include "Maths/Maths.hpp"
 
 template<typename K>
 concept real_complex = 
@@ -23,14 +22,14 @@ class Matrix
 		std::size_t		m_rows;
 		std::size_t		m_cols;
 
-		constexpr std::optional<std::size_t>	findPivotRow( std::size_t col, std::size_t startRow )
+		constexpr std::optional<std::size_t> findPivotRow( std::size_t col, std::size_t startRow )
 		{
 			Real		bestNorm2 = 0;
 			std::size_t	bestIndex;
 
 			for (std::size_t r = startRow; r < m_rows; ++r)
 			{
-				Real n2 = maths::scalar_norm2(at(r, col));
+				Real n2 = norm2(at(r, col));
 				if (n2 > bestNorm2)
 				{
 					bestNorm2 = n2;
@@ -42,19 +41,19 @@ class Matrix
 				return (std::nullopt);
 			return (bestIndex);
 		}
-		constexpr void							swapRows( std::size_t r1, std::size_t r2 )
+		constexpr void swapRows( std::size_t r1, std::size_t r2 )
 		{
 			if (r1 == r2) return ;
 
 			for (std::size_t c = 0; c < m_cols; ++c)
 				std::swap(at(r1, c), at(r2, c));
 		}
-		constexpr void							scaleRow( std::size_t row, K x )
+		constexpr void scaleRow( std::size_t row, K x )
 		{
 			for (std::size_t c = 0; c < m_cols; ++c)
 				at(row, c) *= x;
 		}
-		constexpr void							addRowMultiple( std::size_t dest, std::size_t src, K factor )
+		constexpr void addRowMultiple( std::size_t dest, std::size_t src, K factor )
 		{
 			for (std::size_t c = 0; c < m_cols; ++c)
 				at(dest, c) -= at(src, c) * factor;
@@ -89,11 +88,11 @@ class Matrix
 			{
 				for (std::size_t c = 0; c < m_cols; ++c)
 				{
-					Real	val = maths::abs(at(r, c));
+					Real	val = abs(at(r, c));
 					sum += val.square();
 				}
 			}
-			return (maths::sqrt(sum));
+			return (sqrt(sum));
 		}
 
 		constexpr K&				at( std::size_t row, std::size_t col )
@@ -183,7 +182,7 @@ class Matrix
 			{
 				for (std::size_t c = 0; c < other.m_cols; ++c)
 				{
-					K	sum = 0;
+					K	sum{};
 					for (std::size_t k = 0; k < other.m_rows; k++)
 						sum += at(r, k) * other(k, c);
 					result(r, c) = sum;

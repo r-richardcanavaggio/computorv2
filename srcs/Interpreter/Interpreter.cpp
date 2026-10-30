@@ -1,7 +1,6 @@
 #include "Interpreter.hpp"
 #include "Plotter.hpp"
 #include "Evaluator.hpp"
-#include "Maths/Maths.hpp"
 
 Interpreter::Interpreter() : running(true)
 {
@@ -18,8 +17,8 @@ Interpreter::Interpreter() : running(true)
 		{"rad",     [this](std::span<const Token> args) { commandRad(args); }},
 		{"exit",    [this](std::span<const Token> args) { commandExit(args); }},
 		{"quit",    [this](std::span<const Token> args) { commandExit(args); }},
-		{"help",    [this](std::span<const Token> args) { commandHelp(args); }},
-		{"plot",    [this](std::span<const Token> args) { commandPlot(args); }}
+		{"help",    [this](std::span<const Token> args) { commandHelp(args); }}
+		// {"plot",    [this](std::span<const Token> args) { commandPlot(args); }}
 	};
 }
 

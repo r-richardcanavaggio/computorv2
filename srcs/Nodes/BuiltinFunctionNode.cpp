@@ -1,5 +1,4 @@
 #include "BuiltinFunctionNode.hpp"
-#include "Maths/Maths.hpp"
 #include <type_traits>
 #include <unordered_map>
 #include <functional>
@@ -31,32 +30,32 @@ VarType	applyMath( const VarType& arg, auto mathFunc, std::string_view funcName 
 
 VarType builtinCos( const VarType& v, const Context& ctx )
 {
-	return applyMath(v, [&]( const auto& x ) { return maths::cos(toRadians(x, ctx)); }, "cos");
+	return applyMath(v, [&]( const auto& x ) { return cos(toRadians(x, ctx)); }, "cos");
 }
 
 VarType	builtinSin( const VarType& v, const Context& ctx )
 {
-	return applyMath(v, [&]( const auto& x ) { return maths::sin(toRadians(x, ctx)); }, "sin");
+	return applyMath(v, [&]( const auto& x ) { return sin(toRadians(x, ctx)); }, "sin");
 }
 
 VarType builtinTan( const VarType& v, const Context& ctx )
 {
-	return applyMath(v, [&]( const auto& x ) { return maths::tan(toRadians(x, ctx)); }, "tan");
+	return applyMath(v, [&]( const auto& x ) { return tan(toRadians(x, ctx)); }, "tan");
 }
 
 VarType builtinSqrt( const VarType& v, const Context& )
 {
-	return applyMath(v, []( const auto& x ) { return maths::sqrt(x); }, "sqrt");
+	return applyMath(v, []( const auto& x ) { return sqrt(x); }, "sqrt");
 }
 
 VarType builtinAbs( const VarType& v, const Context& )
 {
-	return applyMath(v, []( const auto& x ) { return maths::abs(x); }, "abs");
+	return applyMath(v, []( const auto& x ) { return abs(x); }, "abs");
 }
 
 VarType builtinExp( const VarType& v, const Context& )
 {
-	return applyMath(v, []( const auto& x ) { return maths::exp(x); }, "exp");
+	return applyMath(v, []( const auto& x ) { return exp(x); }, "exp");
 }
 
 VarType	builtinInv( const VarType& v, const Context& )
