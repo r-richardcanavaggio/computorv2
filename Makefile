@@ -19,7 +19,6 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 ################################################################################
 
 SRCS_FILES =	main.cpp \
-				Lexer.cpp \
 \
 				Interpreter/Interpreter.cpp \
 				Interpreter/Commands.cpp \
@@ -30,9 +29,6 @@ SRCS_FILES =	main.cpp \
 				Parser/Parser_primary.cpp \
 				Parser/Nodes.cpp \
 				Parser/TokenStream.cpp \
-\
-				Visitors/BinaryOpVisitor.cpp \
-				Visitors/UnaryOpVisitor.cpp \
 
 ################################################################################
 #                                    COlORS                                    #

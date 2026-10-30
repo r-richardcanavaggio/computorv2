@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "RuntimeTypes.hpp"
-#include "Visitors/Visitors.hpp"
+#include "Visitors.hpp"
 
 struct BaseNode;
 using NodePtr = std::unique_ptr<BaseNode>;

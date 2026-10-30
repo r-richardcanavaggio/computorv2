@@ -1,5 +1,67 @@
 #include "Interpreter/Interpreter.hpp"
 #include "Interpreter/Evaluator.hpp"
+#include <regex>
+
+namespace Lexer
+{
+
+using TokenDef = std::pair<TokenType, OpKind>;
+
+Token	createSymbolToken( const std::string& str )
+{
+	static const std::map<std::string, TokenDef>	symbolMap = {
+		{"=",  {TokenType::EQUAL,				 OpKind::NONE}},
+		{"[",  {TokenType::BRACKET_MATRIX_OPEN,	 OpKind::NONE}},
+		{"]",  {TokenType::BRACKET_MATRIX_CLOSE, OpKind::NONE}},
+		{"(",  {TokenType::BRACKET_OPEN,		 OpKind::NONE}},
+		{")",  {TokenType::BRACKET_CLOSE,		 OpKind::NONE}},
+		{",",  {TokenType::COMMA,				 OpKind::NONE}},
+		{";",  {TokenType::SEMICOLON,			 OpKind::NONE}},
+		{"?",  {TokenType::QUERY,				 OpKind::NONE}},
+		{"+",  {TokenType::OPERATOR,			 OpKind::ADD}},
+		{"-",  {TokenType::OPERATOR,			 OpKind::SUB}},
+		{"**", {TokenType::OPERATOR,			 OpKind::DOT}},
+		{"*",  {TokenType::OPERATOR,			 OpKind::MUL}},
+		{"/",  {TokenType::OPERATOR,			 OpKind::DIV}},
+		{"%",  {TokenType::OPERATOR,			 OpKind::MOD}},
+		{"^",  {TokenType::OPERATOR,			 OpKind::POW}},
+	};
+
+	auto	it = symbolMap.find(str);
+
+	if (it != symbolMap.end())
+		return (Token(str, it->second.first, Arity::CONSTANT, it->second.second));
+	return (Token(str, TokenType::UNKOWN, Arity::CONSTANT, OpKind::NONE));
+}
+
+std::vector<Token>	tokenize( const std::string& input )
+{
+	static const std::regex 	pattern("([0-9]+(\\.[0-9]+)?)|([a-zA-Z][a-zA-Z0-9_]*)|(\\*\\*|[\\+\\-\\*\\/%\\^\\(\\)=])|([\\[\\]\\,\\;])|(\\?)");
+	auto						words_begin = std::sregex_iterator(input.begin(), input.end(), pattern);
+	auto						words_end	= std::sregex_iterator();
+	std::vector<Token>			tokens;
+
+	for (std::sregex_iterator i = words_begin; i != words_end; i++)
+	{
+		std::string	match_str = i->str();
+
+		if (isdigit(match_str[0]))
+			tokens.emplace_back(match_str, TokenType::NUMBER, Arity::CONSTANT, OpKind::NONE);
+		else if (isalpha(match_str[0]))
+		{
+			for (auto& c : match_str)
+				c = std::tolower(static_cast<unsigned char>(c));
+			TokenType	type = (match_str == "i") ? TokenType::IMAGINARY : TokenType::VARIABLE;
+
+			tokens.emplace_back(match_str, type, Arity::CONSTANT, OpKind::NONE);
+		}
+		else
+			tokens.push_back(createSymbolToken(match_str));
+	}
+	return (tokens);
+}
+
+}
 
 Interpreter::Interpreter() : running(true)
 {
@@ -20,8 +82,6 @@ Interpreter::Interpreter() : running(true)
 		// {"plot",    [this](std::span<const Token> args) { commandPlot(args); }}
 	};
 }
-
-Interpreter::~Interpreter() {}
 
 bool	Interpreter::isRunning() const
 {
@@ -49,7 +109,7 @@ void	Interpreter::processLine( const std::string& line )
 {
 	try
 	{
-		auto	tokens = lexer.tokenize(line);
+		auto	tokens = Lexer::tokenize(line);
 		if (tokens.empty()) return ;
 
 		if (executeCommand(tokens)) return ;

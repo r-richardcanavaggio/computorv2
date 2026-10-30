@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RuntimeTypes.hpp"
-#include "Lexer.hpp"
 #include <vector>
 #include <string>
 #include <map>
@@ -15,20 +14,11 @@ class Interpreter
 	private:
 		Context									ctx;
 		std::vector<std::string>				history;
-		Lexer									lexer;
 		std::map<std::string, CommandHandler>	commands;
 
 		bool									running;
 
 		bool	executeCommand( const std::vector<Token>& );
-
-	public:
-		Interpreter();
-		~Interpreter();
-
-		bool	isRunning() const;
-		void	processLine( const std::string& );
-
 		void	commandList( std::span<const Token> ) const;
 		void	commandClear( std::span<const Token> );
 		void	commandHistory( std::span<const Token> ) const;
@@ -37,4 +27,10 @@ class Interpreter
 		void	commandExit( std::span<const Token> );
 		void	commandHelp( std::span<const Token> ) const;
 		void	commandPlot( std::span<const Token> );
+
+	public:
+		Interpreter();
+
+		bool	isRunning() const;
+		void	processLine( const std::string& );
 };

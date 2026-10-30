@@ -34,8 +34,8 @@ enum class OpKind
 	DIV,
 	MOD,
 	POW,
-	MUL_MAT,
-	NONE	
+	DOT,
+	NONE
 };
 
 struct Token
@@ -45,5 +45,5 @@ struct Token
 	Arity		arity;
 	OpKind		op;
 
-	Token( const std::string& v, const TokenType& t, const Arity& a, const OpKind& o ) : value(v), type(t), arity(a), op(o) {}
+	Token( const std::string& v, TokenType t, Arity a, OpKind o ) : value(v), type(t), arity(a), op(o) {}
 };

@@ -53,7 +53,7 @@ NodePtr	Parser::parseTerm()
 {
 	auto	left = parseFactor();
 
-	while (auto op = stream.matchAnyOp({OpKind::MUL, OpKind::DIV, OpKind::MOD, OpKind::MUL_MAT}))
+	while (auto op = stream.matchAnyOp({OpKind::MUL, OpKind::DIV, OpKind::MOD, OpKind::DOT}))
 	{
 		auto	right = parseFactor();
 		left = std::make_unique<BinaryOpNode>(*op, std::move(left), std::move(right));
