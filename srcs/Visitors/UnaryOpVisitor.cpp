@@ -55,7 +55,7 @@ VarType	UnaryOpVisitor::operator()( const Polynomial& p ) const
 	}
 }
 
-VarType	apply_unary_op( const OpKind& op, const VarType& a )
+VarType	applyUnaryOp( const OpKind& op, const VarType& a )
 {
 	return (std::visit(UnaryOpVisitor{op}, a));
 }

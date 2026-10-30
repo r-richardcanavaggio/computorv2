@@ -19,9 +19,6 @@ struct Context : std::map<std::string, VarType>
 
 inline std::ostream&	operator<<( std::ostream& os, const VarType& v )
 {
-	std::visit([&os]( const auto& value )
-	{
-		os << value;
-	}, v);
+	std::visit([&os]( const auto& value ) { os << value; }, v);
 	return (os);
 }

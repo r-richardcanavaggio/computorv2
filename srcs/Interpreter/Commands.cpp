@@ -1,4 +1,4 @@
-#include "Interpreter.hpp"
+#include "Interpreter/Interpreter.hpp"
 #include "Plotter.hpp"
 
 void	Interpreter::commandList( std::span<const Token> args ) const

@@ -36,31 +36,38 @@ NodePtr Parser::parseVariableOrCall()
     return std::make_unique<VariableNode>(name);
 }
 
-std::vector<NodePtr>	Parser::parseMatrixRow()
-{
-	stream.consume(TokenType::BRACKET_MATRIX_OPEN);
-
-	std::vector<NodePtr>	row;
-	row.push_back(parseExpression());
-
-	while (stream.match(TokenType::COMMA))
-		row.push_back(parseExpression());
-	
-	stream.consume(TokenType::BRACKET_MATRIX_CLOSE);
-	return row;
-}
-
 NodePtr	Parser::parseMatrix()
 {
     stream.consume(TokenType::BRACKET_MATRIX_OPEN);
 
-	std::vector<std::vector<NodePtr>>	rows;
-	rows.push_back(parseMatrixRow());
+    std::size_t             rows = 0;
+    std::size_t             cols = 0;
+    std::vector<NodePtr>    elements;
+
+    auto parseRow = [&]()
+    {
+        stream.consume(TokenType::BRACKET_MATRIX_OPEN);
+        std::size_t count = 0;
+        elements.push_back(parseExpression());
+        ++count;
+        while (stream.match(TokenType::COMMA))
+        {
+            elements.push_back(parseExpression());
+            ++count;
+        }
+        stream.consume(TokenType::BRACKET_MATRIX_CLOSE);
+        return count;
+    };
+
+    cols = parseRow();
+    ++rows;
 
 	while (stream.match(TokenType::SEMICOLON))
-		rows.push_back(parseMatrixRow());
-	
+	{
+        std::size_t currentCols = parseRow();
+        if (currentCols != cols) throw std::runtime_error("Error: Inconsistent row size in matrix definition.");
+        ++rows;
+    }
 	stream.consume(TokenType::BRACKET_MATRIX_CLOSE);
-
-	return std::make_unique<MatrixNode>(std::move(rows));
+	return std::make_unique<MatrixNode>(rows, cols, std::move(elements));
 }

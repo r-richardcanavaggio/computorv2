@@ -6,7 +6,7 @@ NAME		:= computorv2
 CXX			:= g++-16
 CXXFLAGS	:= -Werror -Wall -Wextra -std=c++20
 LDFLAGS		:= -lreadline
-INCLUDES	:= -Iincludes -Iincludes/Types -Iincludes/Nodes -Iincludes/Visitors -Iincludes/Interpreter
+INCLUDES	:= -Iincludes
 
 SRCS_PATH = ./srcs/
 OBJS_PATH = .obj/
@@ -28,19 +28,11 @@ SRCS_FILES =	main.cpp \
 \
 				Parser/Parser.cpp \
 				Parser/Parser_primary.cpp \
+				Parser/Nodes.cpp \
 				Parser/TokenStream.cpp \
 \
 				Visitors/BinaryOpVisitor.cpp \
 				Visitors/UnaryOpVisitor.cpp \
-\
-				Nodes/BinaryOpNode.cpp \
-				Nodes/UnaryOpNode.cpp \
-				Nodes/MatrixNode.cpp \
-				Nodes/ImaginaryNode.cpp \
-				Nodes/VariableNode.cpp \
-				Nodes/NumberNode.cpp \
-				Nodes/FunctionCallNode.cpp \
-				Nodes/BuiltinFunctionNode.cpp \
 
 ################################################################################
 #                                    COlORS                                    #

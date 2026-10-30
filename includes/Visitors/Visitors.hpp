@@ -2,5 +2,5 @@
 
 #include "RuntimeTypes.hpp"
 
-VarType	apply_unary_op( const OpKind&, const VarType& );
-VarType	apply_binary_op( const OpKind&, const VarType&, const VarType& );
+VarType	applyUnaryOp( const OpKind&, const VarType& );
+VarType	applyBinaryOp( const OpKind&, const VarType&, const VarType& );

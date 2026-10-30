@@ -201,7 +201,7 @@ VarType BinaryOpVisitor::operator()( const T&, const U& ) const
 	throw std::runtime_error("Invalid type operation");
 }
 
-VarType	apply_binary_op( const OpKind& op, const VarType& lhs, const VarType& rhs )
+VarType	applyBinaryOp( const OpKind& op, const VarType& lhs, const VarType& rhs )
 {
 	return (std::visit(BinaryOpVisitor{op}, lhs, rhs));
 }

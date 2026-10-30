@@ -2,7 +2,7 @@
 #include <readline/history.h>
 #include <string>
 #include <optional>
-#include "Interpreter.hpp"
+#include "Interpreter/Interpreter.hpp"
 
 
 namespace

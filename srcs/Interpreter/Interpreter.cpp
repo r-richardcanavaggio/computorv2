@@ -1,6 +1,5 @@
-#include "Interpreter.hpp"
-#include "Plotter.hpp"
-#include "Evaluator.hpp"
+#include "Interpreter/Interpreter.hpp"
+#include "Interpreter/Evaluator.hpp"
 
 Interpreter::Interpreter() : running(true)
 {
