@@ -1,45 +1,65 @@
 #include "Interpreter/Interpreter.hpp"
 #include "Interpreter/Evaluator.hpp"
 #include <regex>
+#include <array>
+
+namespace
+{
+
+const std::regex tokenPattern(
+	"([0-9]+(?:\\.[0-9]+)?)"
+	"|([a-zA-Z][a-zA-Z0-9_]*)"
+	"|(\\*\\*|[+\\-*/%^=])"
+	"|([\\[\\],;])"
+	"|(\\?)"
+);
+
+struct SymbolDef
+{
+	std::string_view	sym;
+	TokenType			type;
+	OpKind				op;
+};
+
+constexpr std::array	symbolMap = {
+	SymbolDef{"=",  TokenType::EQUAL,				 OpKind::NONE},
+	SymbolDef{"[",  TokenType::BRACKET_MATRIX_OPEN,	 OpKind::NONE},
+	SymbolDef{"]",  TokenType::BRACKET_MATRIX_CLOSE, OpKind::NONE},
+	SymbolDef{"(",  TokenType::BRACKET_OPEN,		 OpKind::NONE},
+	SymbolDef{")",  TokenType::BRACKET_CLOSE,		 OpKind::NONE},
+	SymbolDef{",",  TokenType::COMMA,				 OpKind::NONE},
+	SymbolDef{";",  TokenType::SEMICOLON,			 OpKind::NONE},
+	SymbolDef{"?",  TokenType::QUERY,				 OpKind::NONE},
+	SymbolDef{"+",  TokenType::OPERATOR,			 OpKind::ADD},
+	SymbolDef{"-",  TokenType::OPERATOR,			 OpKind::SUB},
+	SymbolDef{"**", TokenType::OPERATOR,			 OpKind::DOT},
+	SymbolDef{"*",  TokenType::OPERATOR,			 OpKind::MUL},
+	SymbolDef{"/",  TokenType::OPERATOR,			 OpKind::DIV},
+	SymbolDef{"%",  TokenType::OPERATOR,			 OpKind::MOD},
+	SymbolDef{"^",  TokenType::OPERATOR,			 OpKind::POW},
+};
+
+}
 
 namespace Lexer
 {
 
 using TokenDef = std::pair<TokenType, OpKind>;
 
-Token	createSymbolToken( const std::string& str )
+Token	createSymbolToken( std::string_view str )
 {
-	static const std::map<std::string, TokenDef>	symbolMap = {
-		{"=",  {TokenType::EQUAL,				 OpKind::NONE}},
-		{"[",  {TokenType::BRACKET_MATRIX_OPEN,	 OpKind::NONE}},
-		{"]",  {TokenType::BRACKET_MATRIX_CLOSE, OpKind::NONE}},
-		{"(",  {TokenType::BRACKET_OPEN,		 OpKind::NONE}},
-		{")",  {TokenType::BRACKET_CLOSE,		 OpKind::NONE}},
-		{",",  {TokenType::COMMA,				 OpKind::NONE}},
-		{";",  {TokenType::SEMICOLON,			 OpKind::NONE}},
-		{"?",  {TokenType::QUERY,				 OpKind::NONE}},
-		{"+",  {TokenType::OPERATOR,			 OpKind::ADD}},
-		{"-",  {TokenType::OPERATOR,			 OpKind::SUB}},
-		{"**", {TokenType::OPERATOR,			 OpKind::DOT}},
-		{"*",  {TokenType::OPERATOR,			 OpKind::MUL}},
-		{"/",  {TokenType::OPERATOR,			 OpKind::DIV}},
-		{"%",  {TokenType::OPERATOR,			 OpKind::MOD}},
-		{"^",  {TokenType::OPERATOR,			 OpKind::POW}},
-	};
-
-	auto	it = symbolMap.find(str);
+	auto	it = std::ranges::find_if(symbolMap, [str]( const auto& entry ) { return entry.sym == str; });
 
 	if (it != symbolMap.end())
-		return (Token(str, it->second.first, Arity::CONSTANT, it->second.second));
-	return (Token(str, TokenType::UNKOWN, Arity::CONSTANT, OpKind::NONE));
+		return (Token(std::string(str), it->type, Arity::CONSTANT, it->op));
+	return (Token(std::string(str), TokenType::UNKOWN, Arity::CONSTANT, OpKind::NONE));
 }
 
 std::vector<Token>	tokenize( const std::string& input )
 {
-	static const std::regex 	pattern("([0-9]+(\\.[0-9]+)?)|([a-zA-Z][a-zA-Z0-9_]*)|(\\*\\*|[\\+\\-\\*\\/%\\^\\(\\)=])|([\\[\\]\\,\\;])|(\\?)");
-	auto						words_begin = std::sregex_iterator(input.begin(), input.end(), pattern);
-	auto						words_end	= std::sregex_iterator();
-	std::vector<Token>			tokens;
+	auto				words_begin = std::sregex_iterator(input.begin(), input.end(), tokenPattern);
+	auto				words_end	= std::sregex_iterator();
+	std::vector<Token>	tokens;
 
 	for (std::sregex_iterator i = words_begin; i != words_end; i++)
 	{
