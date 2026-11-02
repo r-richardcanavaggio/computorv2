@@ -80,17 +80,21 @@ void    Evaluator::executeQuery() const
     }
 
     Evaluator::Target   target = parseLHS();
-    if (!target.isFunction()) throw std::runtime_error("Equation resolution expects a function on the left side (e.g. 'f(x) = 0 ?').");
+    if (!target.isFunction())
+        throw std::runtime_error("Equation resolution expects a function on the left side (e.g. 'f(x) = 0 ?').");
 
     auto    it = ctx.find(target.name);
-    if (it == ctx.end()) throw std::runtime_error("Unknown function: '" + target.name + "'");
+    if (it == ctx.end())
+        throw std::runtime_error("Unknown function: '" + target.name + "'");
 
     auto	poly = std::get_if<Polynomial>(&it->second);
-    if (!poly) throw std::runtime_error("'" + target.name + "' is not a polynomial function.");
+    if (!poly)
+        throw std::runtime_error("'" + target.name + "' is not a polynomial function.");
 
     Parser	parser(rhs);
     VarType	rhsResult = parser.parse()->eval(ctx);
-    if (!std::holds_alternative<Real>(rhsResult)) throw std::runtime_error("Equation resolution expects a scalar value on the right side.");
+    if (!std::holds_alternative<Real>(rhsResult))
+        throw std::runtime_error("Equation resolution expects a scalar value on the right side.");
 
     Polynomial	equation = *poly;
 

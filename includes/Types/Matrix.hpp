@@ -75,11 +75,11 @@ class Matrix {
     return at(row, col);
   }
   K& operator[](std::size_t index) {
-    if (index >= size()) throw std::out_of_range("Error: index out of bound.");
+    if (index >= m_elements.size()) throw std::out_of_range("Error: index out of bound.");
     return m_elements[index];
   }
   const K& operator[](std::size_t index) const {
-    if (index >= size()) throw std::out_of_range("Error: index out of bound.");
+    if (index >= m_elements.size()) throw std::out_of_range("Error: index out of bound.");
     return m_elements[index];
   }
 
@@ -181,7 +181,7 @@ class Matrix {
     if (m_rows != other.m_rows || m_cols != other.m_cols)
       throw std::runtime_error(
           "Error: Matrices must have the same dimensions for addition.");
-    for (std::size_t i = 0; i < size(); ++i)
+    for (std::size_t i = 0; i < m_elements.size(); ++i)
       m_elements[i] += other.m_elements[i];
     return *this;
   }
@@ -190,14 +190,14 @@ class Matrix {
     if (m_rows != other.m_rows || m_cols != other.m_cols)
       throw std::runtime_error(
           "Error: Matrices must have the same dimensions for addition");
-    for (std::size_t i = 0; i < size(); ++i)
+    for (std::size_t i = 0; i < m_elements.size(); ++i)
       m_elements[i] -= other.m_elements[i];
     return *this;
   }
 
   Matrix operator-() const {
     Matrix m = *this;
-    for (std::size_t i = 0; i < size(); ++i) m.m_elements[i] = -m.m_elements[i];
+    for (std::size_t i = 0; i < m_elements.size(); ++i) m.m_elements[i] = -m.m_elements[i];
     return m;
   }
 
@@ -207,7 +207,7 @@ class Matrix {
           "Error: dimensions must be identical for element-wise "
           "multiplication");
 
-    for (std::size_t i = 0; i < size(); ++i)
+    for (std::size_t i = 0; i < m_elements.size(); ++i)
       m_elements[i] *= other.m_elements[i];
     return *this;
   }
@@ -221,7 +221,7 @@ class Matrix {
     return a;
   }
   Matrix& operator*=(K factor) {
-    for (std::size_t i = 0; i < size(); ++i) m_elements[i] *= factor;
+    for (std::size_t i = 0; i < m_elements.size(); ++i) m_elements[i] *= factor;
     return *this;
   }
   friend Matrix operator+(Matrix a, const Matrix& b) {

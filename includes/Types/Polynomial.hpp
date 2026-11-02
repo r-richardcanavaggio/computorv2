@@ -12,51 +12,52 @@
 
 class Polynomial
 {
-	private:
-		std::vector<Real>	m_coeffs;
-		std::string			m_variable = "x";
+  private:
+	std::vector<Real>	m_coeffs;
+	std::string			m_var = "x";
 
-		constexpr std::pair<Polynomial, Polynomial>	euclideanDiv( const Polynomial& b ) const
+	Polynomial	euclideanDiv(const Polynomial& b, bool mod = false) const
+	{
+		if (b.m_coeffs.empty())
+			throw std::runtime_error("Error: division by polynomial zero.");
+
+        Polynomial	remainder = *this, quotient, term;
+
+		while (!remainder.m_coeffs.empty() && remainder.degree() >= b.degree())
 		{
-			if (b.empty()) throw std::runtime_error("Error: division by polynomial zero.");
-			Polynomial	quotient;
-			Polynomial	remainder = *this;
+			auto		degDiff = remainder.degree() - b.degree();
+			auto		coefRatio = remainder.m_coeffs.back() / b.m_coeffs.back();
+			
+			term.m_coeffs.resize(degDiff + 1, 0);
+			term.m_coeffs.back() = coefRatio;
 
-			while (!remainder.empty() && remainder.degree() >= b.degree())
-			{
-				auto		degDiff = remainder.degree() - b.degree();
-				auto		coefRatio = remainder.m_coeffs.back() / b.m_coeffs.back();
-				Polynomial	term;
-				
-				term.m_coeffs.resize(degDiff + 1, 0);
-				term.m_coeffs.back() = coefRatio;
+			quotient += term;
+			remainder -= b * term;
 
-				quotient += term;
-				remainder -= b * term;
-
-				remainder.trim();
-			}
-			return {quotient, remainder};
+			remainder.trim();
 		}
+		if (mod) return remainder;
+		return quotient;
+	}
 
-		constexpr SolveResult			solveDegree0() const noexcept
+		SolveResult	solveDegree0() const noexcept
 		{
-			if (empty() || m_coeffs[0] == 0) return SolveResult{ .state = SolveResult::State::Infinite, .degree = 0 };
+			if (m_coeffs.empty() || m_coeffs[0] == 0)
+				return SolveResult{ .state = SolveResult::State::Infinite, .degree = 0 };
 			return SolveResult{ .state = SolveResult::State::None, .degree = 0 };
 		}
-		constexpr SolveResult			solveDegree1() const noexcept
+		SolveResult	solveDegree1() const noexcept
 		{
-			Real	a = m_coeffs[1];
-			Real	b = (m_coeffs.size() > 0) ? m_coeffs[0] : 0;
+			Real	a = m_coeffs[1], b = (m_coeffs.size() > 0) ? m_coeffs[0] : 0;
 			Real	res = -b / a;
 			return SolveResult{ .state = SolveResult::State::Ok, .degree = 1, .roots = {res} };
 		}
-		constexpr SolveResult			solveDegree2() const
+		SolveResult			solveDegree2() const
 		{
 			Real	a = m_coeffs[2];
-			Real	b = size() > 1 ? m_coeffs[1] : 0;
-			Real	c = size() > 0 ? m_coeffs[0] : 0;
-			Real	delta = b.square() - a * 4 * c;
+			Real	b = m_coeffs.size() > 1 ? m_coeffs[1] : 0;
+			Real	c = m_coeffs.size() > 0 ? m_coeffs[0] : 0;
+			Real	delta = square(b) - a * 4 * c;
 
 			SolveResult res{
 				.state = SolveResult::State::Ok,
@@ -83,41 +84,71 @@ class Polynomial
 		}
 
 	public:
-		constexpr Polynomial() = default;
-		constexpr Polynomial( std::initializer_list<Real> list ) : m_coeffs(list) { trim(); }
-		constexpr Polynomial( Real x ) { if (x != 0) m_coeffs.push_back(x); }
+		Polynomial() = default;
+		Polynomial( std::initializer_list<Real> list ) : m_coeffs(list) { trim(); }
+		Polynomial( Real x ) { if (x != 0) m_coeffs.push_back(x); }
 
-		constexpr Polynomial( const Polynomial& ) = default;
-		constexpr Polynomial&	operator=( const Polynomial& ) = default;
-		constexpr Polynomial( Polynomial&& ) noexcept = default;
-		constexpr Polynomial&	operator=( Polynomial&& ) noexcept = default;
+		Polynomial( const Polynomial& ) = default;
+		Polynomial&	operator=( const Polynomial& ) = default;
+		Polynomial( Polynomial&& ) noexcept = default;
+		Polynomial&	operator=( Polynomial&& ) noexcept = default;
 
-		constexpr bool						empty() const noexcept { return m_coeffs.empty(); }
-		constexpr std::size_t				size() const noexcept { return m_coeffs.size(); }
-		constexpr const std::vector<Real>&	getCoeffs() const noexcept { return m_coeffs; }
-		constexpr int						degree() const noexcept { return empty() ? 0 : static_cast<int>(size()) - 1; }
-		constexpr void						trim() noexcept
+		int	degree() const noexcept { return m_coeffs.empty() ? 0 : static_cast<int>(m_coeffs.size()) - 1; }
+		void	trim() noexcept
 		{
 			while (!m_coeffs.empty() && abs(m_coeffs.back()) < maths::eps)
 				m_coeffs.pop_back();
 		}
-		constexpr std::string_view			getName() const noexcept { return m_variable; }
-		constexpr void						setName( std::string_view name ) { m_variable = std::string(name); }
+		void	setName( std::string_view name ) { m_var = std::string(name); }
 
-		friend std::ostream&				operator<<( std::ostream&, const Polynomial& );
+		friend std::ostream&	operator<<(std::ostream& os, const Polynomial& p)
+		{
+			if (p.m_coeffs.empty()) return os << "0";
+
+			bool	printedAny = false;
+
+			for (std::size_t i = p.m_coeffs.size(); i-- > 0;)
+			{
+				Real	coeff = p.m_coeffs[i];
+
+				if (coeff == 0)
+					continue;
+
+				if (printedAny)
+					os << (coeff >= 0 ? " + " : " - ");
+				else if (coeff < 0)
+					os << "-";
+
+				Real	mag = abs(coeff);
+
+				if (i == 0 || mag != 1)
+					os << mag;
+				if (i > 0)
+				{
+					os << p.m_var;
+					if (i > 1)
+						os << "^" << i;
+				}
+				printedAny = true;
+			}
+			if (!printedAny)
+				return (os << "0");
+			return (os);
+
+		}
 
 
 		template<typename T>
-		constexpr T							eval( const T& x ) const
+		T							eval( const T& x ) const
 		{
-			if (empty()) return (T(0));
+			if (m_coeffs.empty()) return (T(0));
 			T	result = m_coeffs.back();
-			for (std::size_t i = size() - 1; i-- > 0;)
+			for (std::size_t i = m_coeffs.size() - 1; i-- > 0;)
 				result = result * x + m_coeffs[i];
 			return result;
 		}
 		template<real_complex K>
-		constexpr Matrix<K>					eval( const Matrix<K>& m ) const
+		Matrix<K>					eval( const Matrix<K>& m ) const
 		{
 			if (m.getRows() != m.getCols())
 				throw std::runtime_error("Error: Evaluation only possible on square matrices");
@@ -138,12 +169,12 @@ class Polynomial
 			return result;
 		}
 
-		constexpr Root						eval( const Root& r ) const
+		Root						eval( const Root& r ) const
 		{
 			return std::visit([this]( const auto& val ) -> Root { return eval(val); }, r);
 		}
 
-		constexpr SolveResult				solve() const
+		SolveResult				solve() const
 		{
 			switch (degree())
 			{
@@ -155,7 +186,7 @@ class Polynomial
 			}
 		}
 
-		constexpr Polynomial				pow( int exp ) const
+		Polynomial				pow( int exp ) const
 		{
 			if (exp < 0) throw std::runtime_error("Math Error: Negative exponent for polynomials not supported.");
 			Polynomial	res(1);
@@ -171,19 +202,19 @@ class Polynomial
 			return res;
 		}
 
-		constexpr Polynomial&		operator+=( const Polynomial& other )
+		Polynomial&		operator+=( const Polynomial& other )
 		{
-			if (size() < other.size()) m_coeffs.resize(other.size(), 0);
+			if (m_coeffs.size() < other.m_coeffs.size()) m_coeffs.resize(other.m_coeffs.size(), 0);
 
-			for (std::size_t i = 0; i < other.size(); i++)
+			for (std::size_t i = 0; i < other.m_coeffs.size(); i++)
 				m_coeffs[i] = m_coeffs[i] + other.m_coeffs[i];
 			trim();
 			return *this;
 		}
-		friend constexpr Polynomial	operator+( Polynomial a, const Polynomial& b ) { a += b; return a; }
-		constexpr Polynomial&		operator+=( Real x )
+		friend Polynomial	operator+( Polynomial a, const Polynomial& b ) { a += b; return a; }
+		Polynomial&		operator+=( Real x )
 		{
-			if (empty())
+			if (m_coeffs.empty())
 			{
 				if (x != 0) m_coeffs.push_back(x);
 				return *this;
@@ -192,22 +223,22 @@ class Polynomial
 			trim();
 			return *this;
 		}
-		friend constexpr Polynomial	operator+( Polynomial p, Real x ) { p += x; return p; }
-		friend constexpr Polynomial	operator+( Real x, Polynomial p ) { p += x; return p; }
+		friend Polynomial	operator+( Polynomial p, Real x ) { p += x; return p; }
+		friend Polynomial	operator+( Real x, Polynomial p ) { p += x; return p; }
 
-		constexpr Polynomial&		operator-=( const Polynomial& other )
+		Polynomial&		operator-=( const Polynomial& other )
 		{
-			if (size() < other.size()) m_coeffs.resize(other.size(), 0);
+			if (m_coeffs.size() < other.m_coeffs.size()) m_coeffs.resize(other.m_coeffs.size(), 0);
 
-			for (std::size_t i = 0; i < other.size(); i++)
+			for (std::size_t i = 0; i < other.m_coeffs.size(); i++)
 				m_coeffs[i] = m_coeffs[i] - other.m_coeffs[i];
 			trim();
 			return *this;
 		}
-		friend constexpr Polynomial	operator-( Polynomial a, const Polynomial& b ) { a -= b; return a; }
-		constexpr Polynomial&		operator-=( Real x )
+		friend Polynomial	operator-( Polynomial a, const Polynomial& b ) { a -= b; return a; }
+		Polynomial&		operator-=( Real x )
 		{
-			if (empty())
+			if (m_coeffs.empty())
 			{
 				if (x != 0) m_coeffs.push_back(-x);
 				return *this;
@@ -216,99 +247,64 @@ class Polynomial
 			trim();
 			return *this;
 		}
-		friend constexpr Polynomial			operator-( Polynomial p, Real x ) { p -= x; return p; }
-		friend constexpr Polynomial			operator-( Real x, Polynomial p ) { return -p + x; }
-		constexpr Polynomial				operator-() const
+		friend Polynomial			operator-( Polynomial p, Real x ) { p -= x; return p; }
+		friend Polynomial			operator-( Real x, Polynomial p ) { return -p + x; }
+		Polynomial				operator-() const
 		{
 			Polynomial	result;
-			result.m_coeffs.reserve(size());
+			result.m_coeffs.reserve(m_coeffs.size());
 			for (auto val : m_coeffs) result.m_coeffs.push_back(-val);
 			return result;
 		}
 
-		constexpr Polynomial&				operator*=( const Polynomial& other )
+		Polynomial&				operator*=( const Polynomial& other )
 		{
-			if (empty() || other.empty())
+			if (m_coeffs.empty() || other.m_coeffs.empty())
 			{
 				m_coeffs.clear();
 				return *this;
 			}
-			const std::size_t	newSize = size() + other.size() - 1;
+			const std::size_t	newSize = m_coeffs.size() + other.m_coeffs.size() - 1;
 			std::vector<Real>	res(newSize, 0);
-			for (std::size_t i = 0; i < size(); ++i)
-				for (std::size_t j = 0; j < other.size(); ++j)
+			for (std::size_t i = 0; i < m_coeffs.size(); ++i)
+				for (std::size_t j = 0; j < other.m_coeffs.size(); ++j)
 					res[i + j] += m_coeffs[i] * other.m_coeffs[j];
 			m_coeffs = std::move(res);
 			trim();
 			return *this;
 		}
-		friend constexpr Polynomial			operator*( Polynomial a, const Polynomial& b ) { a *= b; return a; }
+		friend Polynomial			operator*( Polynomial a, const Polynomial& b ) { a *= b; return a; }
 	
-		constexpr Polynomial&				operator*=( Real x )
+		Polynomial&				operator*=( Real x )
 		{
 			if (x == 0)
 			{
 				m_coeffs.clear();
 				return *this;
 			}
-			for (std::size_t i = 0; i < size(); ++i)
+			for (std::size_t i = 0; i < m_coeffs.size(); ++i)
 				m_coeffs[i] *= x;
 			return *this;
 		}
-		friend constexpr Polynomial			operator*( Polynomial p, Real x ) { p *= x; return p; }
-		friend constexpr Polynomial			operator*( Real x, Polynomial p ) { p *= x; return p; }
+		friend Polynomial			operator*( Polynomial p, Real x ) { p *= x; return p; }
+		friend Polynomial			operator*( Real x, Polynomial p ) { p *= x; return p; }
 		
-		constexpr Polynomial				operator/( const Polynomial& other ) const { return euclideanDiv(other).first; }
-		constexpr Polynomial&				operator/=( const Polynomial& other ) { return *this = euclideanDiv(other).first; }
-		constexpr Polynomial&				operator/=( Real x )
+		Polynomial				operator/( const Polynomial& other ) const { return euclideanDiv(other); }
+		Polynomial&				operator/=( const Polynomial& other ) { return *this = euclideanDiv(other); }
+		Polynomial&				operator/=( Real x )
 		{
 			if (x == 0) throw std::runtime_error("Error: Division by zero.");
-			return *this *= x.inv();
+			return *this *= inv(x);
 		}
-		friend constexpr Polynomial			operator/( Polynomial p, Real x ) { p /= x; return p; }
-		friend constexpr Polynomial			operator/( Real x, const Polynomial& p )
+		friend Polynomial			operator/( Polynomial p, Real x ) { p /= x; return p; }
+		friend Polynomial			operator/( Real x, const Polynomial& p )
 		{
 			if (p.degree() > 0) throw std::runtime_error("Math Error: Division by a polynomial (rational function) is not supported.");
 			return Polynomial(x) / p;
 		}
 
-		constexpr Polynomial				operator%( const Polynomial& other ) const { return euclideanDiv(other).second; }
-		constexpr Polynomial				operator%=( const Polynomial& other ) { return *this = euclideanDiv(other).second; }
+		Polynomial				operator%( const Polynomial& other ) const { return euclideanDiv(other, true); }
+		Polynomial				operator%=( const Polynomial& other ) { return *this = euclideanDiv(other, true); }
 
-		constexpr bool						operator==( const Polynomial& other ) const { return m_coeffs == other.m_coeffs; }
+		bool						operator==( const Polynomial& other ) const { return m_coeffs == other.m_coeffs; }
 };
-
-inline std::ostream&	operator<<( std::ostream& os, const Polynomial& p )
-{
-	if (p.empty()) return (os << "0");
-
-	bool	printedAny = false;
-
-	for (std::size_t i = p.size(); i-- > 0;)
-	{
-		Real	coeff = p.getCoeffs()[i];
-
-		if (coeff == 0)
-			continue;
-
-		if (printedAny)
-			os << (coeff >= 0 ? " + " : " - ");
-		else if (coeff < 0)
-			os << "-";
-
-		Real	mag = abs(coeff);
-
-		if (i == 0 || mag != 1)
-			os << mag;
-		if (i > 0)
-		{
-			os << p.getName();
-			if (i > 1)
-				os << "^" << i;
-		}
-		printedAny = true;
-	}
-	if (!printedAny)
-		return (os << "0");
-	return (os);
-}

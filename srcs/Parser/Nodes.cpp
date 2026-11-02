@@ -105,6 +105,7 @@ VarType FunctionCallNode::eval( Context& ctx ) const
 	if (!child) throw std::runtime_error("Error: Invalid function call.");
 
 	VarType x = child->eval(ctx);
+	std::cout << "DEBUG: " << x << '\n';
 	auto    it = ctx.find(name);
 
 	if (it == ctx.end()) throw std::runtime_error("Error: Unknown function.");

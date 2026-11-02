@@ -111,13 +111,13 @@ class Complex {
 
   friend std::ostream& operator<<(std::ostream& os, Complex z) {
     auto near = [&](Real x, Real target) {
-      return (x - target).abs() < maths::eps;
+      return abs(x - target) < maths::eps;
     };
 
     Real re = z.real, im = z.imag;
 
-    if (im.abs() < maths::eps) return os << re;
-    if (re.abs() < maths::eps) {
+    if (abs(im) < maths::eps) return os << re;
+    if (abs(re) < maths::eps) {
       if (near(im, 1.))
         return os << "i";
       else if (near(im, -1.))
