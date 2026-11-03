@@ -102,20 +102,23 @@ static const std::unordered_map<std::string_view, BuiltinHandler> builtins = {
 
 VarType FunctionCallNode::eval( Context& ctx ) const
 {
-	if (!child) throw std::runtime_error("Error: Invalid function call.");
+	if (!child)
+		throw std::runtime_error("Error: Invalid function call.");
 
-	VarType x = child->eval(ctx);
-	std::cout << "DEBUG: " << x << '\n';
-	auto    it = ctx.find(name);
+	VarType	x = child->eval(ctx);
+	auto	it = ctx.find(name);
 
-	if (it == ctx.end()) throw std::runtime_error("Error: Unknown function.");
+	if (it == ctx.end())
+		throw std::runtime_error("Error: Unknown function.");
 
-	auto    p = std::get_if<Polynomial>(&it->second);
-	if (!p) throw std::runtime_error("Error: Not a function.");
+	const auto   p = std::get_if<Polynomial>(&it->second);
+	if (!p)
+		throw std::runtime_error("Error: Not a function.");
 
-	if (auto v = std::get_if<Real>(&x)) return p->eval(*v);
-	if (auto v = std::get_if<Complex>(&x)) return p->eval(*v);
-	if (auto v = std::get_if<Polynomial>(&x)) return p->eval(*v);
+	if (const auto v = std::get_if<Real>(&x)) return p->eval(*v);	
+	if (const auto v = std::get_if<Complex>(&x)) return p->eval(*v);
+	if (const auto v = std::get_if<Polynomial>(&x)) return p->eval(*v);
+
 	throw std::runtime_error("Error: Invalid function argument.");
 }
 
