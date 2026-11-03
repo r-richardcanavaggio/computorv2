@@ -8,7 +8,16 @@
 #include "Real.hpp"
 #include "Complex.hpp"
 #include "Matrix.hpp"
-#include "SolveResult.hpp"
+
+using Root = std::variant<Real, Complex>;
+
+struct SolveResult
+{
+	std::vector<Root>	roots;
+	short				degree = 0;
+	bool				isInf = false;
+	Real				delta = 0;
+};
 
 class Polynomial
 {
@@ -16,67 +25,14 @@ class Polynomial
 	std::vector<Real>	m_coeffs;
 	std::string			m_var = "x";
 
-	Polynomial	euclideanDiv(const Polynomial& b, bool mod = false) const
+	Polynomial	euclideanDiv( const Polynomial& b, bool mod = false ) const;
+	SolveResult	solveDegree0() const noexcept;
+	SolveResult	solveDegree1() const noexcept;
+	SolveResult	solveDegree2() const;
+	void		trim() noexcept
 	{
-		if (b.m_coeffs.empty())
-			throw std::runtime_error("Error: division by polynomial zero.");
-
-        Polynomial	remainder = *this, quotient, term;
-
-		while (!remainder.m_coeffs.empty() && remainder.degree() >= b.degree())
-		{
-			auto		degDiff = remainder.degree() - b.degree();
-			auto		coefRatio = remainder.m_coeffs.back() / b.m_coeffs.back();
-
-			term.m_coeffs.resize(degDiff + 1, 0);
-			term.m_coeffs.back() = coefRatio;
-
-			quotient += term;
-			remainder -= b * term;
-
-			remainder.trim();
-		}
-		if (mod) return remainder;
-		return quotient;
-	}
-
-	SolveResult	solveDegree0() const noexcept
-	{
-		if (m_coeffs.empty() || m_coeffs[0] == 0)
-			return SolveResult{ .state = SolveResult::State::Infinite, .degree = 0 };
-		return SolveResult{ .state = SolveResult::State::None, .degree = 0 };
-	}
-	SolveResult	solveDegree1() const noexcept
-	{
-		Real	a = m_coeffs[1], b = m_coeffs[0];
-		return SolveResult{ .state = SolveResult::State::Ok, .degree = 1, .roots = {{Real(-b / a)}} };
-	}
-	SolveResult	solveDegree2() const
-	{
-		Real		a = m_coeffs[2], b = m_coeffs[1], c = m_coeffs[0];
-		Real		twoA = 2 * a;
-		Real		delta = square(b) - 4 * a * c;
-		SolveResult	res {
-			.state = SolveResult::State::Ok,
-			.degree = 2,
-			.delta = delta
-		};
-
-		if (delta > 0)
-		{
-			res.roots.push_back((-b - sqrt(delta)) / twoA);
-			res.roots.push_back((-b + sqrt(delta)) / twoA);
-		}
-		else if (delta == 0)
-			res.roots.push_back(-b / twoA);
-		else
-		{
-			Real	re = -b / twoA;
-			Real	im = sqrt(-delta) / twoA;
-			res.roots.push_back(Complex(re, -im));
-			res.roots.push_back(Complex(re, im));
-		}
-		return res;
+		while (!m_coeffs.empty() && abs(m_coeffs.back()) < maths::eps)
+			m_coeffs.pop_back();
 	}
 
   public:
@@ -94,48 +50,8 @@ class Polynomial
 	Polynomial&	operator=(Polynomial&&) noexcept = default;
 
 	std::size_t	degree() const noexcept { return m_coeffs.empty() ? 0 : m_coeffs.size() - 1; }
-	void	trim() noexcept
-	{
-		while (!m_coeffs.empty() && abs(m_coeffs.back()) < maths::eps)
-			m_coeffs.pop_back();
-	}
+
 	void	setName( std::string_view name ) { m_var = std::string(name); }
-
-	friend std::ostream&	operator<<(std::ostream& os, const Polynomial& p)
-	{
-		if (p.m_coeffs.empty()) return os << "0";
-
-		bool	printedAny = false;
-
-		for (std::size_t i = p.m_coeffs.size(); i-- > 0;)
-		{
-			Real	coeff = p.m_coeffs[i];
-
-			if (coeff == 0)
-				continue;
-
-			if (printedAny)
-				os << (coeff >= 0 ? " + " : " - ");
-			else if (coeff < 0)
-				os << "-";
-
-			Real	mag = abs(coeff);
-
-			if (i == 0 || mag != 1)
-				os << mag;
-			if (i > 0)
-			{
-				os << p.m_var;
-				if (i > 1)
-					os << "^" << i;
-			}
-			printedAny = true;
-		}
-		if (!printedAny)
-			return (os << "0");
-		return (os);
-
-	}
 
 	template < typename T >
 	T	eval( const T& x ) const
@@ -202,7 +118,7 @@ class Polynomial
 		return res;
 	}
 
-	Polynomial&	operator+=(const Polynomial& other)
+	Polynomial&	operator+=( const Polynomial& other )
 	{
 		if (m_coeffs.size() < other.m_coeffs.size())
 			m_coeffs.resize(other.m_coeffs.size(), 0);
@@ -308,4 +224,42 @@ class Polynomial
 	Polynomial operator%=( const Polynomial& other ) { return *this = euclideanDiv(other, true); }
 
 	bool operator==( const Polynomial& other ) const { return m_coeffs == other.m_coeffs; }
+
+	friend std::ostream& operator<<( std::ostream& os, const Polynomial& p )
+	{
+		if (p.m_coeffs.empty()) return os << "0";
+
+		bool	printedAny = false;
+
+		for (std::size_t i = p.m_coeffs.size(); i-- > 0;)
+		{
+			Real	coeff = p.m_coeffs[i];
+
+			if (coeff == 0)
+				continue;
+
+			if (printedAny)
+				os << (coeff >= 0 ? " + " : " - ");
+			else if (coeff < 0)
+				os << "-";
+
+			Real	mag = abs(coeff);
+
+			if (i == 0 || mag != 1)
+				os << mag;
+			if (i > 0)
+			{
+				os << p.m_var;
+				if (i > 1)
+					os << "^" << i;
+			}
+			printedAny = true;
+		}
+		if (!printedAny)
+			return (os << "0");
+		return (os);
+	}
 };
+
+std::ostream& operator<<( std::ostream& os, const Polynomial& p );
+std::ostream& operator<<( std::ostream& os, const SolveResult& roots );

@@ -20,6 +20,7 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 
 SRCS_FILES =	main.cpp \
 \
+				Polynomial.cpp \
 				Interpreter/Interpreter.cpp \
 				Interpreter/Commands.cpp \
 				Interpreter/Evaluator.cpp \
