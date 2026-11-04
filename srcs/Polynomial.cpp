@@ -43,8 +43,8 @@ Polynomial  Polynomial::euclideanDiv( const Polynomial& b, bool mod ) const
 
 	while (!remainder.m_coeffs.empty() && remainder.degree() >= b.degree())
 	{
-		auto		degDiff = remainder.degree() - b.degree();
-		auto		coefRatio = remainder.m_coeffs.back() / b.m_coeffs.back();
+		auto	degDiff = remainder.degree() - b.degree();
+		auto	coefRatio = remainder.m_coeffs.back() / b.m_coeffs.back();
 
 		term.m_coeffs.resize(degDiff + 1, 0);
 		term.m_coeffs.back() = coefRatio;

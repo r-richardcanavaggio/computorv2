@@ -1,9 +1,9 @@
+#include <cstdio>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <string>
 #include <optional>
 #include "Interpreter/Interpreter.hpp"
-
 
 namespace
 {
@@ -20,14 +20,14 @@ std::optional<std::string> readLine( std::string_view prompt )
 
 	std::string	line(input);
 
-	if (!line.empty()) add_history(input);
+	if (!line.empty())
+		add_history(input);
 	
 	std::free(input);
 	return line;
 }
 
 }
-
 
 int	main( void )
 {
@@ -37,8 +37,10 @@ int	main( void )
 	{
 		auto line = readLine("> ");
 
-		if (!line) break;
-		if (line->empty()) continue ;
+		if (!line)
+			break;
+		if (line->empty())
+			continue ;
 
 		interpreter.processLine(*line);
 	}

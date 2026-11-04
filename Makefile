@@ -3,7 +3,7 @@
 ################################################################################
 
 NAME		:= computorv2
-CXX			:= g++-16
+CXX			:= c++
 CXXFLAGS	:= -Werror -Wall -Wextra -std=c++20
 LDFLAGS		:= -lreadline
 INCLUDES	:= -Iincludes
@@ -74,7 +74,7 @@ $(OBJS_PATH):
 
 $(NAME): COM_STRING = Linking
 $(NAME): $(OBJS_PATH) $(OBJS)
-	@$(call run_and_test, $(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $@ $(OBJS))
+	@$(call run_and_test, $(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $(OBJS) $(LDFLAGS))
 
 $(OBJS_PATH)%.o: COM_STRING = Compiling
 $(OBJS_PATH)%.o: $(SRCS_PATH)%.cpp
@@ -92,8 +92,5 @@ fclean: clean
 re:
 	@$(MAKE) fclean 
 	@$(MAKE) all
-
-test: all
-	@./run_tests.sh
 
 .PHONY: all clean fclean re"
