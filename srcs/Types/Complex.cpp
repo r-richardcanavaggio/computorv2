@@ -2,7 +2,6 @@
 
 #include "Types/Complex.hpp"
 #include "Constants.hpp"
-#include "Types/Real.hpp"
 
 Complex::Complex( Real r, Real i ) noexcept : real(r), imag(i) {}
 
@@ -41,30 +40,6 @@ Complex& Complex::operator/=( Complex other )
     imag = (oldImag * other.real - oldReal * other.imag) / denom;
     real = (oldReal * other.real + oldImag * other.imag) / denom;
     return *this;
-}
-
-Complex Complex::operator+( Complex other ) const noexcept
-{
-    Complex z = *this;
-    return z += other;
-}
-
-Complex Complex::operator-( Complex other ) const noexcept
-{
-    Complex z = *this;
-    return z -= other;
-}
-
-Complex Complex::operator*( Complex other ) const noexcept
-{
-    Complex z = *this;
-    return z *= other;
-}
-
-Complex Complex::operator/( Complex other ) const
-{
-    Complex z = *this;
-    return z /= other;
 }
 
 Complex Complex::operator-() const noexcept

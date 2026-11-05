@@ -34,15 +34,15 @@ public:
 	Matrix( Matrix&& ) noexcept = default;
 	Matrix& operator=( Matrix&& ) noexcept = default;
 
-	std::size_t	getRows() const noexcept;
- 	std::size_t	getCols() const noexcept;
+	std::size_t				getRows() const noexcept;
+ 	std::size_t				getCols() const noexcept;
 
-	K&			at( std::size_t row, std::size_t col );
-	const K&	at( std::size_t row, std::size_t col ) const;
-  	K&			operator()( std::size_t row, std::size_t col );
-	const K&	operator()( std::size_t row, std::size_t col ) const;
-	K&			operator[]( std::size_t index );
-	const K&	operator[]( std::size_t index ) const;
+	K&						at( std::size_t row, std::size_t col );
+	const K&				at( std::size_t row, std::size_t col ) const;
+  	K&						operator()( std::size_t row, std::size_t col );
+	const K&				operator()( std::size_t row, std::size_t col ) const;
+	K&						operator[]( std::size_t index );
+	const K&				operator[]( std::size_t index ) const;
 
 	std::optional<Matrix>	inverse() const;
 
@@ -51,35 +51,46 @@ public:
 	static Matrix			identity( std::size_t n );
 	Real					norm() const noexcept;
 
-	Matrix&			operator+=( const Matrix& other );
-	Matrix&			operator-=(const Matrix& other);
-	Matrix&			operator*=( const Matrix& other );
-	Matrix			operator-() const;
-	Matrix&			operator*=( K factor );
+	Matrix&					operator+=( const Matrix& other );
+	Matrix&					operator-=(const Matrix& other);
+	Matrix&					operator*=( const Matrix& other );
+	Matrix					operator-() const;
+	Matrix&					operator*=( K factor );
+	Matrix&					operator/=( K factor );
 
-	friend Matrix	operator+( Matrix a, const Matrix& b )
+	friend Matrix			operator+( Matrix a, const Matrix& b )
 	{
 		a += b;
 		return a;
  	}
-	friend Matrix	operator-( Matrix a, const Matrix& b )
+	friend Matrix			operator-( Matrix a, const Matrix& b )
 	{
 		a -= b;
 		return a;
 	}
-	friend Matrix	operator*( Matrix a, const Matrix& b )
+	friend Matrix			operator*( Matrix a, const Matrix& b )
 	{
 		a *= b;
 		return a;
 	}
-	friend Matrix	operator*( Matrix m, K factor )
+	friend Matrix			operator*( Matrix m, K factor )
 	{
 		m *= factor;
 		return m;
 	}
-	friend Matrix operator*( K factor, Matrix m )
+	friend Matrix			operator*( K factor, Matrix m )
 	{
 		m *= factor;
+		return m;
+	}
+	friend Matrix			operator/( K factor, Matrix m )
+	{
+		m /= factor;
+		return m;
+	}
+	friend Matrix			operator/( Matrix m, K factor )
+	{
+		m /= factor;
 		return m;
 	}
 

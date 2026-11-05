@@ -21,14 +21,14 @@ struct Complex
 	Complex& operator*=( Complex other ) noexcept;
 	Complex& operator/=( Complex other );
 
-	Complex operator+( Complex other ) const noexcept;
-	Complex operator-( Complex other ) const noexcept;
-	Complex operator*( Complex other ) const noexcept;
-	Complex operator/( Complex other ) const;
+	friend Complex operator+( Complex a, Complex b ) noexcept { return a += b; }
+	friend Complex operator-( Complex a, Complex b ) noexcept { return a -= b; }
+	friend Complex operator*( Complex a, Complex b ) noexcept { return a *= b; }
+	friend Complex operator/( Complex a, Complex b ) { return a /= b; }
 
 	Complex operator-() const noexcept;
 
-	bool operator==(const Complex &) const noexcept = default;
+	bool operator==( const Complex & ) const noexcept = default;
 };
 
 std::ostream& operator<<( std::ostream &os, Complex z );

@@ -33,9 +33,9 @@ public:
 		if (m_coeffs.empty())
 			return T(0);
 
-		T	result(0);
+		T	result(m_coeffs.back());
 
-		for (std::size_t i = 0; i < m_coeffs.size(); ++i)
+		for (std::size_t i = m_coeffs.size() - 1; i-- > 0;)
 			result = result * x + m_coeffs[i];
 		return result;
 	}
@@ -91,10 +91,8 @@ public:
 
 	friend Polynomial	operator+( Polynomial a, const Polynomial& b ) { a += b; return a; }
 	friend Polynomial	operator+( Polynomial p, Real x ) { p += x; return p; }
-	friend Polynomial	operator+( Real x, Polynomial p ) { p += x; return p; }
 	friend Polynomial	operator-( Polynomial a, const Polynomial& b ) { a -= b; return a; }
 	friend Polynomial	operator-( Polynomial p, Real x ) { p -= x; return p; }
-	friend Polynomial	operator-( Real x, Polynomial p ) { return -p + x; }
 	friend Polynomial	operator*( Polynomial a, const Polynomial& b ) { a *= b; return a; }
 	friend Polynomial	operator*( Polynomial p, Real x ) { p *= x; return p; }
 	friend Polynomial	operator*( Real x, Polynomial p ) { p *= x; return p; }

@@ -22,7 +22,7 @@ std::optional<std::string> readLine( std::string_view prompt )
 
 	if (!line.empty())
 		add_history(input);
-	
+
 	std::free(input);
 	return line;
 }

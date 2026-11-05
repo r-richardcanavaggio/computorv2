@@ -271,3 +271,11 @@ Matrix<K>&  Matrix<K>::operator*=( K factor )
         m_elements[i] *= factor;
     return *this;
 }
+
+template < real_complex K >
+Matrix<K>&  Matrix<K>::operator/=( K factor )
+{
+    for (std::size_t i = 0; i < m_elements.size(); ++i)
+        m_elements[i] /= factor;
+    return *this;
+}

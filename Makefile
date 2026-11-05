@@ -30,7 +30,7 @@ SRCS_FILES =	main.cpp \
 				Interpreter/EvaluatorNormalize.cpp \
 \
 				Parser/Parser.cpp \
-				Parser/Parser_primary.cpp \
+				Parser/ParserPrimary.cpp \
 				Parser/Nodes.cpp \
 				Parser/TokenStream.cpp \
 

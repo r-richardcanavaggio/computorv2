@@ -1,5 +1,4 @@
 #include "Interpreter/Interpreter.hpp"
-#include "Plotter.hpp"
 
 void	Interpreter::commandList( std::span<const Token> args ) const
 {
@@ -69,7 +68,6 @@ void	Interpreter::commandHelp( std::span<const Token> args ) const
 			<< "  list         - List all saved variables and functions\n"
 			<< "  history      - Show the command history\n"
 			<< "  clear <var>  - Delete a specific variable or function\n"
-			<< "  plot <func>  - Plot a function in an ASCII graph\n"
 			<< "  deg / rad    - Switch angle mode for trigonometry\n"
 			<< "  help         - Show this help message\n"
 			<< "  exit / quit  - Exit the program\n"
@@ -94,29 +92,3 @@ void	Interpreter::commandClear( std::span<const Token> args )
 	ctx.erase(it);
 	std::cout << "Variable/Function '" << varToDelete << "' has been deleted.\n";
 }
-
-// void	Interpreter::commandPlot( std::span<const Token> args )
-// {
-// 	auto	targetFunc = args[0].value;
-// 	auto	it = ctx.find(targetFunc);
-
-// 	if (it == ctx.end())
-// 		throw std::runtime_error("Error: Unknown function '" + targetFunc + "'.\n");
-// 	if (!std::holds_alternative<Polynomial>(it->second))
-// 		throw std::runtime_error("Error: '" + targetFunc + "' is not a function/polynomial.\n");
-
-// 	Plotter		canvas(80, 60);
-// 	Polynomial	f = std::get<Polynomial>(it->second); 
-
-// 	canvas.drawLine(0, 30, 80, 30);
-// 	canvas.drawLine(40, 0, 40, 60);
-
-// 	for (float x = -20.0; x <= 20.0; x += 0.1)
-// 	{
-// 		double	y = f.eval(Real(x)).getValue();
-// 		int	px = (x + 20) * 2;
-// 		int	py = (y + 30);
-// 		canvas.set(px, py);
-// 	}
-// 	canvas.display();
-// }
