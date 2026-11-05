@@ -30,32 +30,32 @@ VarType	applyMath( const VarType& arg, auto mathFunc, std::string_view funcName 
 
 VarType builtinCos( const VarType& v, const Context& ctx )
 {
-	return applyMath(v, [&]( const auto& x ) { return cos(toRadians(x, ctx)); }, "cos");
+	return applyMath(v, [&]( const auto& x ) { return maths::cos(toRadians(x, ctx)); }, "cos");
 }
 
 VarType	builtinSin( const VarType& v, const Context& ctx )
 {
-	return applyMath(v, [&]( const auto& x ) { return sin(toRadians(x, ctx)); }, "sin");
+	return applyMath(v, [&]( const auto& x ) { return maths::sin(toRadians(x, ctx)); }, "sin");
 }
 
 VarType builtinTan( const VarType& v, const Context& ctx )
 {
-	return applyMath(v, [&]( const auto& x ) { return tan(toRadians(x, ctx)); }, "tan");
+	return applyMath(v, [&]( const auto& x ) { return maths::tan(toRadians(x, ctx)); }, "tan");
 }
 
 VarType builtinSqrt( const VarType& v, const Context& )
 {
-	return applyMath(v, []( const auto& x ) { return sqrt(x); }, "sqrt");
+	return applyMath(v, []( const auto& x ) { return maths::sqrt(x); }, "sqrt");
 }
 
 VarType builtinAbs( const VarType& v, const Context& )
 {
-	return applyMath(v, []( const auto& x ) { return abs(x); }, "abs");
+	return applyMath(v, []( const auto& x ) { return maths::abs(x); }, "abs");
 }
 
 VarType builtinExp( const VarType& v, const Context& )
 {
-	return applyMath(v, []( const auto& x ) { return exp(x); }, "exp");
+	return applyMath(v, []( const auto& x ) { return maths::exp(x); }, "exp");
 }
 
 VarType	builtinInv( const VarType& v, const Context& )
@@ -66,7 +66,8 @@ VarType	builtinInv( const VarType& v, const Context& )
 
 		if constexpr (std::is_same_v<T, Matrix<Real>> || std::is_same_v<T, Matrix<Complex>>)
 		{
-			if (auto opt = val.inverse()) return *opt;
+			if (auto opt = val.inverse())
+				return *opt;
 			throw std::runtime_error("Error: Matrix is singular.");
 		}
 		throw std::runtime_error("Math Error: inv() requires a Matrix.");
@@ -79,7 +80,8 @@ VarType builtinNorm( const VarType& v, const Context& )
 {
 	auto computNorm = []( const auto& val ) -> VarType
 	{
-		if constexpr (requires { val.norm(); }) return val.norm();
+		if constexpr (requires { val.norm(); })
+			return val.norm();
 		throw std::runtime_error("Math Error: norm() cannor be applied to this type.");
 	};
 	return std::visit(computNorm, v);

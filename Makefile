@@ -6,7 +6,7 @@ NAME		:= computorv2
 CXX			:= c++
 CXXFLAGS	:= -Werror -Wall -Wextra -std=c++20
 LDFLAGS		:= -lreadline
-INCLUDES	:= -Iincludes
+INCLUDES	:= -Iincludes -Isrcs/Types
 
 SRCS_PATH = ./srcs/
 OBJS_PATH = .obj/
@@ -20,7 +20,10 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 
 SRCS_FILES =	main.cpp \
 \
-				Polynomial.cpp \
+				Types/Real.cpp \
+				Types/Complex.cpp \
+				Types/Polynomial.cpp \
+\
 				Interpreter/Interpreter.cpp \
 				Interpreter/Commands.cpp \
 				Interpreter/Evaluator.cpp \

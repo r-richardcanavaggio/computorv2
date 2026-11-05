@@ -68,35 +68,37 @@ Real    Real::operator-() const noexcept
     return Real(-value);
 }
 
-Real operator+( Real a, Real b ) noexcept
+Real Real::operator+( Real other ) const noexcept
 {
-    a += b;
-    return a;
+    return value + other.value;
 }
 
-Real operator-( Real a, Real b ) noexcept
+Real Real::operator-( Real other ) const noexcept
 {
-    a -= b;
-    return a;
+    return value - other.value;
 }
 
-Real operator*( Real a, Real b ) noexcept
+Real Real::operator*( Real other ) const noexcept
 {
-    a *= b;
-    return a;
+    return value * other.value;
 }
 
-Real operator/( Real a, Real b )
+Real Real::operator/( Real other ) const
 {
-    a /= b;
-    return a;
+    if (other.value == 0.)
+        throw std::runtime_error("Error: cannot divide by zero.");
+    return value / other.value;
 }
 
-Real operator%( Real a, Real b )
+Real Real::operator%( Real other ) const
 {
-    a %= b;
-    return a;
+    if (other.value == 0.)
+        throw std::runtime_error("Error: cannot modulo by zero.");
+    return static_cast<long long>(value) % static_cast<long long>(other.value);
 }
+
+namespace maths
+{
 
 Real    abs( Real r )
 {
@@ -120,15 +122,18 @@ Real    norm2( Real r ) noexcept
 
 Real    sqrt( Real r )
 {
-    if (r.value < 0.)
+    if (r < 0.)
         throw std::runtime_error("Math Error: Square root of negative number.");
-    if (r.value == 0.) return 0.;
-    Real guess = r.value / 2.;
+    if (r == 0.)
+        return 0.;
+    Real guess = r / 2.;
+
     while (true)
     {
-        Real next = (guess + r.value / guess) / 2.;
+        Real next = (guess + r / guess) / 2.;
         Real diff = (guess > next) ? (guess - next) : (next - guess);
-        if (diff < maths::eps) return next;
+        if (diff < maths::eps)
+            return next;
         guess = next;
     }
 }
@@ -137,7 +142,7 @@ Real    inv( Real r )
 {
     if (r == 0.)
         throw std::runtime_error("Math Error: inv(0).");
-    return 1. / r;
+    return Real(1) / r;
 }
 
 Real    pow( Real r, int p )
@@ -145,7 +150,7 @@ Real    pow( Real r, int p )
     if (p == 0)
         return 1.;
     if (p < 0)
-        return Real(1.) / pow(r, -p);
+        return inv(pow(r, -p));
     Real half = pow(r, p / 2);
     return (p % 2 == 0) ? square(half) : square(half) * r;
 }
@@ -225,7 +230,7 @@ Real    tan( Real r )
 
 Real    arctan( Real r ) noexcept
 {
-    Real num = (abs(r) <= 1.0) ? abs(r) : (1. / abs(r));
+    Real num = (abs(r) <= 1.0) ? abs(r) : (Real(1) / abs(r));
     Real step = square(num);
     Real sum = 0.;
     int denom = 1, sign = 1;
@@ -236,22 +241,28 @@ Real    arctan( Real r ) noexcept
         denom += 2;
         sign = -sign;
     }
-    if (abs(r) > 1.) sum = (maths::pi / 2) - sum;
-    if (r.value < 0.) sum = -sum;
+    if (abs(r) > 1.)
+        sum = Real((maths::pi / 2)) - sum;
+    if (r.value < 0.)
+        sum = -sum;
     return sum;
 }
 
 Real    arctan2( Real a, Real b ) noexcept
 {
-    if (b == 0.) return (a >= 0.) ? 0. : maths::pi;
-    if (a == 0.) return (b > 0.) ? maths::pi / 2 : -maths::pi / 2;
+    if (b == 0.)
+        return (a >= 0.) ? 0. : maths::pi;
+    if (a == 0.)
+        return (b > 0.) ? maths::pi / 2 : -maths::pi / 2;
 
     Real alpha = arctan(abs(b / a));
 
     if (a > 0. && b > 0.) return alpha;
-    if (a < 0. && b > 0.) return maths::pi - alpha;
-    if (a < 0. && b < 0.) return maths::pi + alpha;
+    if (a < 0. && b > 0.) return Real(maths::pi) - alpha;
+    if (a < 0. && b < 0.) return Real(maths::pi) + alpha;
     return -alpha;
+}
+
 }
 
 Real::Fraction::Fraction( long long num, long long den ) : numerator(num), denominator(den)
@@ -285,7 +296,7 @@ std::optional<Real::Fraction> Real::Fraction::createFraction( Real value )
 
     for (std::size_t i = 0; i < 64; ++i)
     {
-        Real	a = floor(num);
+        Real	a = maths::floor(num);
         
         Real	h = a * h1 + h2;
         Real	k = a * k1 + k2;
@@ -297,13 +308,13 @@ std::optional<Real::Fraction> Real::Fraction::createFraction( Real value )
         {
             Real	approx = h / k;
 
-            if (abs(value - approx) < maths::eps)
+            if (maths::abs(value - approx) < maths::eps)
                 return Fraction(static_cast<long long>(h), static_cast<long long>(k));
         }
         Real	fracPart = num - a;
-        if (abs(fracPart) < maths::eps)
+        if (maths::abs(fracPart) < maths::eps)
             break;
-        num = 1. / fracPart;
+        num = maths::inv(fracPart);
     }
     return std::nullopt;
 }
@@ -315,9 +326,11 @@ std::ostream&   operator<<( std::ostream& os, const Real::Fraction& f )
 
 std::ostream&   operator<<( std::ostream& os, Real r )
 {
-    if (abs(r) < maths::eps) return os << 0;
+    if (maths::abs(r) < maths::eps)
+        return os << 0;
 
-    if (abs(r - round(r)) < maths::eps) return os << round(r).value;
+    if (maths::abs(r - maths::round(r)) < maths::eps)
+        return os << maths::round(r).value;
 
     auto	piFrac = Real::Fraction::createFraction(r.value / maths::pi);
     if (piFrac && piFrac->denominator <= 12)
@@ -333,10 +346,10 @@ std::ostream&   operator<<( std::ostream& os, Real r )
         return os;
     }
 
-    Real rSq = square(r);
-    if (abs(rSq - round(rSq)) < maths::eps)
+    Real rSq = maths::square(r);
+    if (maths::abs(rSq - maths::round(rSq)) < maths::eps)
     {
-        if (round(rSq) > 1. && round(rSq) <= 50)
+        if (maths::round(rSq) > 1. && maths::round(rSq) <= 50.)
         {
             if (r < 0.) os << "-";
             return os << "sqrt(" << rSq.value << ")";

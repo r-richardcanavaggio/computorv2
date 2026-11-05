@@ -32,30 +32,11 @@ struct Real
 	Real&	operator%=( Real other );
 	Real	operator-() const noexcept;
 
-	friend Real	operator+( Real rhs, Real lhs ) noexcept;
-	friend Real	operator-( Real rhs, Real lhs ) noexcept;
-	friend Real	operator*( Real rhs, Real lhs ) noexcept;
-	friend Real	operator/( Real rhs, Real lhs );
-	friend Real	operator%( Real rhs, Real lhs );
-
-	friend Real	abs( Real r );
-	friend Real	norm( Real r );
-	friend Real	square( Real r ) noexcept;
-	friend Real	norm2( Real r ) noexcept;
-	friend Real	sqrt( Real r );
-	friend Real	inv( Real r );
-	friend Real	pow( Real r, int p );
-	friend Real floor( Real r );
-	friend Real ceil( Real r );
-	friend Real round( Real r );
-	friend Real min( Real a, Real b ) noexcept;
-	friend Real max( Real a, Real b ) noexcept;
-	friend Real exp( Real r ) noexcept;
-	friend Real cos( Real r ) noexcept;
-	friend Real sin( Real r ) noexcept;
-	friend Real tan( Real r );
-	friend Real arctan( Real r ) noexcept;
-	friend Real arctan2( Real a, Real b ) noexcept;
+	Real	operator+( Real lhs ) const noexcept;
+	Real	operator-( Real lhs ) const noexcept;
+	Real	operator*( Real lhs ) const noexcept;
+	Real	operator/( Real lhs ) const;
+	Real	operator%( Real lhs ) const;
 
 	auto operator<=>( const Real& ) const = default;
 
@@ -69,5 +50,30 @@ struct Real
 		void	simplify();
 		static std::optional<Fraction>	createFraction( Real value );
 	};
-	friend std::ostream&	operator<<( std::ostream& os, Real r );
 };
+
+std::ostream&	operator<<( std::ostream& os, Real r );
+
+namespace maths
+{
+
+Real	abs( Real r );
+Real	norm( Real r );
+Real	square( Real r ) noexcept;
+Real	norm2( Real r ) noexcept;
+Real	sqrt( Real r );
+Real	inv( Real r );
+Real	pow( Real r, int p );
+Real 	floor( Real r );
+Real	ceil( Real r );
+Real	round( Real r );
+Real	min( Real a, Real b ) noexcept;
+Real	max( Real a, Real b ) noexcept;
+Real	exp( Real r ) noexcept;
+Real	cos( Real r ) noexcept;
+Real	sin( Real r ) noexcept;
+Real	tan( Real r );
+Real	arctan( Real r ) noexcept;
+Real	arctan2( Real a, Real b ) noexcept;
+
+}
