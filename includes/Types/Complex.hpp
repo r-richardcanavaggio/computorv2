@@ -16,6 +16,8 @@ struct Complex
 	Complex& operator=( const Complex& ) noexcept = default;
 	Complex& operator=( Complex && ) noexcept = default;
 
+	bool isStrictlyReal() const noexcept;
+
 	Complex& operator+=( Complex other ) noexcept;
 	Complex& operator-=( Complex other ) noexcept;
 	Complex& operator*=( Complex other ) noexcept;

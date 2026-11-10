@@ -155,22 +155,6 @@ Polynomial&	Polynomial::operator/=( Real x )
 	return *this;
 }
 
-Polynomial	Polynomial::operator/( const Polynomial& other ) const
-{
-	return euclideanDiv(other);
-}
-
-Polynomial	Polynomial::operator/( Real x ) const
-{
-	Polynomial res = *this;
-	return res *= maths::inv(x);
-}
-
-Polynomial	Polynomial::operator%( const Polynomial& other ) const
-{
-	return euclideanDiv(other, true);
-}
-
 Polynomial&	Polynomial::operator%=( const Polynomial& other )
 {
 	*this = euclideanDiv(other, true);

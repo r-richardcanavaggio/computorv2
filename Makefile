@@ -3,7 +3,7 @@
 ################################################################################
 
 NAME		:= computorv2
-CXX			:= c++
+CXX			:= g++-16
 CXXFLAGS	:= -Werror -Wall -Wextra -std=c++20
 LDFLAGS		:= -lreadline
 INCLUDES	:= -Iincludes -Isrcs/Types
@@ -31,6 +31,7 @@ SRCS_FILES =	main.cpp \
 \
 				Parser/Parser.cpp \
 				Parser/ParserPrimary.cpp \
+				Parser/Visitor.cpp \
 				Parser/Nodes.cpp \
 				Parser/TokenStream.cpp \
 

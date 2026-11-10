@@ -52,7 +52,7 @@ public:
 	Real					norm() const noexcept;
 
 	Matrix&					operator+=( const Matrix& other );
-	Matrix&					operator-=(const Matrix& other);
+	Matrix&					operator-=( const Matrix& other );
 	Matrix&					operator*=( const Matrix& other );
 	Matrix					operator-() const;
 	Matrix&					operator*=( K factor );

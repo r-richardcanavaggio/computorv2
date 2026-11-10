@@ -25,7 +25,7 @@ VarType	applyMath( const VarType& arg, auto mathFunc, std::string_view funcName 
 			return mathFunc(val);
 		throw std::runtime_error("Math Error: " + std::string(funcName) + "() requires a scalar (Real or Complex).");
 	};
-	return (std::visit(computeMath, arg));
+	return std::visit(computeMath, arg);
 }
 
 VarType builtinCos( const VarType& v, const Context& ctx )
@@ -164,6 +164,8 @@ VarType MatrixNode::eval( Context& ctx ) const
 VarType	BuiltinFunctionNode::eval( Context& ctx ) const
 {
 	auto	it = builtins.find(name);
-	if (it == builtins.end()) throw std::runtime_error("Unknown builtin function: '" + name + "'");
-	return (it->second(child->eval(ctx), ctx));
+
+	if (it == builtins.end())
+		throw std::runtime_error("Unknown builtin function: '" + name + "'");
+	return it->second(child->eval(ctx), ctx);
 }

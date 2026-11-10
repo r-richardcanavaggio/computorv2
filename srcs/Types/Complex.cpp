@@ -7,6 +7,8 @@ Complex::Complex( Real r, Real i ) noexcept : real(r), imag(i) {}
 
 Complex::Complex( Real r ) noexcept : real(r), imag(0.0) {}
 
+bool    Complex::isStrictlyReal() const noexcept { return imag == 0 ? true : false; }
+
 Complex& Complex::operator+=( Complex other ) noexcept
 {
     real += other.real;

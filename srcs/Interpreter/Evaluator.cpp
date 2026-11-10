@@ -37,12 +37,12 @@ void    Evaluator::evaluate()
 
 std::optional<std::size_t> Evaluator::findEqualIndex() const
 {
-    for (size_t i = 0; i < tokens.size(); i++)
+    for (size_t i = 0; i < tokens.size(); ++i)
     {
         if (tokens[i].type == TokenType::EQUAL)
-            return (i);
+            return i;
     }
-    return (std::nullopt);
+    return std::nullopt;
 }
 
 void    Evaluator::executeExpression() const
@@ -93,6 +93,7 @@ void    Evaluator::executeQuery() const
 
     Parser	parser(rhs);
     VarType	rhsResult = parser.parse()->eval(ctx);
+
     if (!std::holds_alternative<Real>(rhsResult))
         throw std::runtime_error("Equation resolution expects a scalar value on the right side.");
 
@@ -107,10 +108,13 @@ void    Evaluator::executeAssignment()
 {
     Evaluator::Target   target = parseLHS();
 
-    if (Parser::isBuiltinFunction(target.name)) throw std::runtime_error("Forbidden: '" + target.name + "' is a built-in function and cannot be redefined.");
+    if (Parser::isBuiltinFunction(target.name))
+        throw std::runtime_error("Forbidden: '" + target.name + "' is a built-in function and cannot be redefined.");
 
-    if (target.isFunction()) assignFunction(target.name, *target.param);
-    else assignVariable(target.name);
+    if (target.isFunction())
+        assignFunction(target.name, *target.param);
+    else
+        assignVariable(target.name);
 }
 
 void    Evaluator::assignVariable( const std::string& name )
@@ -130,8 +134,10 @@ void    Evaluator::assignFunction( const std::string& name, const std::string& p
     Parser  parser(rhs);
     VarType result = parser.parse()->eval(evalCtx);
 
-    if (std::holds_alternative<Real>(result)) result = Polynomial({std::get<Real>(result)});
-    if (!std::holds_alternative<Polynomial>(result)) throw std::runtime_error("Function must evaluate to a Polynomial.");
+    if (std::holds_alternative<Real>(result))
+        result = Polynomial({std::get<Real>(result)});
+    if (!std::holds_alternative<Polynomial>(result))
+        throw std::runtime_error("Function must evaluate to a Polynomial.");
 
     std::get<Polynomial>(result).setName(param);
     saveResult(name, result);
