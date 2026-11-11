@@ -4,7 +4,22 @@
 
 struct Visitor
 {
-	OpKind	op;
+	OpKind	op = OpKind::NONE;
+
+	Visitor() = default;
+	explicit Visitor( OpKind _op ) : op(_op) {}
+
+	VarType operator()( Real ) const;
+	VarType operator()( Complex ) const;
+	VarType operator()( const Polynomial& ) const;
+
+	template < real_complex K >
+	VarType operator()( const Matrix<K>& m ) const
+	{
+		if (op == OpKind::ADD) return m;
+		if (op == OpKind::SUB) return -m;
+		throw std::runtime_error("Error: Unkown operator.")
+	}
 
 	VarType	operator()( Real, Real ) const;
 	VarType operator()( Complex, Real ) const;
@@ -58,6 +73,14 @@ struct Visitor
 	VarType operator()( const Polynomial&, const Polynomial& ) const;
 	VarType operator()( const Polynomial&, Real ) const;
 	VarType operator()( Real, const Polynomial& ) const;
+
+	template < real_complex K >
+	VarType toRadians( K x, const Context& ctx )
+	{
+		if (ctx.isDegreeMode)
+			return x * maths::pi / 180.0;
+		return x;
+	}
 
 	template < typename T, typename U >
 	VarType operator()( const T&, const U& ) const

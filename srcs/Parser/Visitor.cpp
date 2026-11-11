@@ -1,5 +1,26 @@
 #include "Parser/Visitor.hpp"
 
+VarType Visitor::operator()( Real a ) const
+{
+    if (op == OpKind::ADD) return a;
+    if (op == OpKind::SUB) return -a;
+    throw std::runtime_error("Error: Unknown operator.");
+}
+
+VarType Visitor::operator()( Complex z ) const
+{
+    if (op == OpKind::ADD) return z;
+    if (op == OpKind::SUB) return -z;
+    throw std::runtime_error("Error: Unknown operator.");
+}
+
+VarType Visitor::operator()( const Polynomial& p ) const
+{
+    if (op == OpKind::ADD) return p;
+    if (op == OpKind::SUB) return -p;
+    throw std::runtime_error("Error: Unknown operator.");
+}
+
 VarType Visitor::operator()( Real a, Real b ) const
 {
 	switch (op)

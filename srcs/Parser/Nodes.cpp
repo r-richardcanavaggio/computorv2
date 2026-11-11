@@ -7,8 +7,7 @@
 namespace
 {
 
-template < real_complex K >
-K	toRadians( K x, const Context& ctx )
+VarType	toRadians( const VarType& x, const Context& ctx )
 {
 	if (ctx.isDegreeMode)
 		return x * maths::pi / 180.0;
@@ -27,10 +26,9 @@ VarType	applyMath( const VarType& arg, auto mathFunc, std::string_view funcName 
 	return std::visit(computeMath, arg);
 }
 
-template < real_complex K >
 VarType builtinCos( const VarType& v, const Context& ctx )
 {
-	return applyMath(v, [&]( K x ) { return maths::cos(toRadians(x, ctx)); }, "cos");
+	return applyMath(v, [&]( const VarType& x ) { return maths::cos(toRadians(x, ctx)); }, "cos");
 }
 
 template < real_complex K >
@@ -108,6 +106,16 @@ static const std::unordered_map<std::string_view, BuiltinHandler<K>> builtins = 
 
 }
 
+VarType	UnaryOpNode::eval( Context& ctx ) const
+{
+	return std::visit(Visitor(op), child->eval(ctx));
+}
+
+VarType	BinaryOpNode::eval( Context& ctx ) const
+{
+	return std::visit(Visitor(op), left->eval(ctx), right->eval(ctx));
+}
+
 VarType FunctionCallNode::eval( Context& ctx ) const
 {
 	if (!child)
@@ -169,8 +177,8 @@ VarType MatrixNode::eval( Context& ctx ) const
 
 VarType	BuiltinFunctionNode::eval( Context& ctx ) const
 {
-	auto	it = builtins.find(name);
-
+	if (name == "cos") builtinCos(child->eval(ctx), ctx);
+	if (name == "sin") bui
 	if (it == builtins.end())
 		throw std::runtime_error("Unknown builtin function: '" + name + "'");
 	return it->second(child->eval(ctx), ctx);
