@@ -1,110 +1,7 @@
-#include "Parser/Nodes.hpp"
 #include <type_traits>
-#include <unordered_map>
-#include <functional>
-#include <string>
 
-namespace
-{
-
-VarType	toRadians( const VarType& x, const Context& ctx )
-{
-	if (ctx.isDegreeMode)
-		return x * maths::pi / 180.0;
-	return x;
-}
-
-template < real_complex K >
-VarType	applyMath( const VarType& arg, auto mathFunc, std::string_view funcName )
-{
-	auto	computeMath = [&]( K val ) -> VarType
-	{
-		if constexpr (requires { requires real_complex<K> })
-			return mathFunc(val);
-		throw std::runtime_error("Math Error: " + std::string(funcName) + "() requires a scalar (Real or Complex).");
-	};
-	return std::visit(computeMath, arg);
-}
-
-VarType builtinCos( const VarType& v, const Context& ctx )
-{
-	return applyMath(v, [&]( const VarType& x ) { return maths::cos(toRadians(x, ctx)); }, "cos");
-}
-
-template < real_complex K >
-VarType	builtinSin( const VarType& v, const Context& ctx )
-{
-	return applyMath(v, [&]( K x ) { return maths::sin(toRadians(x, ctx)); }, "sin");
-}
-
-template < real_complex K >
-VarType builtinTan( const VarType& v, const Context& ctx )
-{
-	return applyMath(v, [&]( K x ) { return maths::tan(toRadians(x, ctx)); }, "tan");
-}
-
-template < real_complex K >
-VarType builtinSqrt( const VarType& v, const Context& )
-{
-	return applyMath(v, []( K x ) { return maths::sqrt(x); }, "sqrt");
-}
-
-template < real_complex K >
-VarType builtinAbs( const VarType& v, const Context& )
-{
-	return applyMath(v, []( K x ) { return maths::abs(x); }, "abs");
-}
-
-template < real_complex K >
-VarType builtinExp( const VarType& v, const Context& )
-{
-	return applyMath(v, []( K x ) { return maths::exp(x); }, "exp");
-}
-
-template < real_complex K >
-VarType	builtinInv( const VarType& v, const Context& )
-{
-	auto invert = []( const VarType& val ) -> VarType
-	{	
-		if constexpr (std::same_as<std::remove_cvref_t<decltype(val)>, Matrix<K>>)
-		{
-			if (auto opt = val.inverse())
-				return *opt;
-			throw std::runtime_error("Error: Matrix is singular.");
-		}
-		throw std::runtime_error("Math Error: inv() requires a Matrix.");
-	};
-	return std::visit(invert, v);
-}
-
-template < real_complex K >
-VarType builtinNorm( const VarType& v, const Context& )
-{
-	auto computNorm = []( const VarType& val ) -> VarType
-	{
-		if constexpr (requires { val.norm(); })
-			return val.norm();
-		throw std::runtime_error("Math Error: norm() cannor be applied to this type.");
-	};
-	return std::visit(computNorm, v);
-}
-
-template < real_complex K >
-using BuiltinHandler = VarType (*)( const VarType&, const Context& );
-
-template < real_complex K >
-static const std::unordered_map<std::string_view, BuiltinHandler<K>> builtins = {
-	{"cos",  builtinCos},
-	{"sin",  builtinSin},
-	{"tan",  builtinTan},
-	{"sqrt", builtinSqrt},
-	{"abs",  builtinAbs},
-	{"exp",  builtinExp},
-	{"inv",  builtinInv},
-	{"norm", builtinNorm}
-};
-
-}
+#include "Parser/Nodes.hpp"
+#include "Parser/BuiltinVisitor.hpp"
 
 VarType	UnaryOpNode::eval( Context& ctx ) const
 {
@@ -177,9 +74,5 @@ VarType MatrixNode::eval( Context& ctx ) const
 
 VarType	BuiltinFunctionNode::eval( Context& ctx ) const
 {
-	if (name == "cos") builtinCos(child->eval(ctx), ctx);
-	if (name == "sin") bui
-	if (it == builtins.end())
-		throw std::runtime_error("Unknown builtin function: '" + name + "'");
-	return it->second(child->eval(ctx), ctx);
+	return std::visit(BuiltinVisitor(ctx, name), child->eval(ctx));
 }
