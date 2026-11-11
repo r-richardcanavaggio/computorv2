@@ -2,6 +2,7 @@
 
 #include "Parser/Nodes.hpp"
 #include "Parser/BuiltinVisitor.hpp"
+#include "Parser/PolyEvalVisitor.hpp"
 
 VarType	UnaryOpNode::eval( Context& ctx ) const
 {
@@ -18,7 +19,6 @@ VarType FunctionCallNode::eval( Context& ctx ) const
 	if (!child)
 		throw std::runtime_error("Error: Invalid function call.");
 
-	VarType	x = child->eval(ctx);
 	auto	it = ctx.find(name);
 
 	if (it == ctx.end())
@@ -28,11 +28,7 @@ VarType FunctionCallNode::eval( Context& ctx ) const
 	if (!p)
 		throw std::runtime_error("Error: Not a function.");
 
-	if (const auto v = std::get_if<Real>(&x)) return p->eval(*v);	
-	if (const auto v = std::get_if<Complex>(&x)) return p->eval(*v);
-	if (const auto v = std::get_if<Polynomial>(&x)) return p->eval(*v);
-
-	throw std::runtime_error("Error: Invalid function argument.");
+	return std::visit(PolyEvalVisitor(*p), child->eval(ctx));
 }
 
 VarType MatrixNode::eval( Context& ctx ) const
