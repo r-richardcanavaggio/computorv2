@@ -71,15 +71,14 @@ Interpreter::Interpreter() : running(true)
 	ctx["i"] = Complex(0, 1);
 
 	commands = {
-		{"list",    [this](std::span<const Token> args) { commandList(args); }},
-		{"clear",   [this](std::span<const Token> args) { commandClear(args); }},
-		{"history", [this](std::span<const Token> args) { commandHistory(args); }},
-		{"deg",     [this](std::span<const Token> args) { commandDeg(args); }},
-		{"rad",     [this](std::span<const Token> args) { commandRad(args); }},
-		{"exit",    [this](std::span<const Token> args) { commandExit(args); }},
-		{"quit",    [this](std::span<const Token> args) { commandExit(args); }},
-		{"help",    [this](std::span<const Token> args) { commandHelp(args); }}
-		// {"plot",    [this](std::span<const Token> args) { commandPlot(args); }}
+		{"list",    [this]( std::span<const Token> args ) { commandList(args); }},
+		{"clear",   [this]( std::span<const Token> args ) { commandClear(args); }},
+		{"history", [this]( std::span<const Token> args ) { commandHistory(args); }},
+		{"deg",     [this]( std::span<const Token> args ) { commandDeg(args); }},
+		{"rad",     [this]( std::span<const Token> args ) { commandRad(args); }},
+		{"exit",    [this]( std::span<const Token> args ) { commandExit(args); }},
+		{"quit",    [this]( std::span<const Token> args ) { commandExit(args); }},
+		{"help",    [this]( std::span<const Token> args ) { commandHelp(args); }}
 	};
 }
 
@@ -110,9 +109,12 @@ void	Interpreter::processLine( const std::string& line )
 	try
 	{
 		auto	tokens = Lexer::tokenize(line);
-		if (tokens.empty()) return ;
 
-		if (executeCommand(tokens)) return ;
+		if (tokens.empty())
+			return ;
+
+		if (executeCommand(tokens))
+			return ;
 
 		Evaluator evaluator(ctx, history, std::move(tokens), line);
 		evaluator.evaluate();

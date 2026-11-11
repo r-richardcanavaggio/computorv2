@@ -7,64 +7,68 @@
 namespace
 {
 
-template <typename T>
-T	toRadians( const T& x, const Context& ctx )
+template < real_complex K >
+K	toRadians( K x, const Context& ctx )
 {
 	if (ctx.isDegreeMode)
-		return x * Real(maths::pi / 180.0);
+		return x * maths::pi / 180.0;
 	return x;
 }
 
+template < real_complex K >
 VarType	applyMath( const VarType& arg, auto mathFunc, std::string_view funcName )
 {
-	auto	computeMath = [&]( const auto& val ) -> VarType
+	auto	computeMath = [&]( K val ) -> VarType
 	{
-		using T = std::remove_cvref_t<decltype(val)>;
-
-		if constexpr (std::is_same_v<T, Real> || std::is_same_v<T, Complex>)
+		if constexpr (requires { requires real_complex<K> })
 			return mathFunc(val);
 		throw std::runtime_error("Math Error: " + std::string(funcName) + "() requires a scalar (Real or Complex).");
 	};
 	return std::visit(computeMath, arg);
 }
 
+template < real_complex K >
 VarType builtinCos( const VarType& v, const Context& ctx )
 {
-	return applyMath(v, [&]( const auto& x ) { return maths::cos(toRadians(x, ctx)); }, "cos");
+	return applyMath(v, [&]( K x ) { return maths::cos(toRadians(x, ctx)); }, "cos");
 }
 
+template < real_complex K >
 VarType	builtinSin( const VarType& v, const Context& ctx )
 {
-	return applyMath(v, [&]( const auto& x ) { return maths::sin(toRadians(x, ctx)); }, "sin");
+	return applyMath(v, [&]( K x ) { return maths::sin(toRadians(x, ctx)); }, "sin");
 }
 
+template < real_complex K >
 VarType builtinTan( const VarType& v, const Context& ctx )
 {
-	return applyMath(v, [&]( const auto& x ) { return maths::tan(toRadians(x, ctx)); }, "tan");
+	return applyMath(v, [&]( K x ) { return maths::tan(toRadians(x, ctx)); }, "tan");
 }
 
+template < real_complex K >
 VarType builtinSqrt( const VarType& v, const Context& )
 {
-	return applyMath(v, []( const auto& x ) { return maths::sqrt(x); }, "sqrt");
+	return applyMath(v, []( K x ) { return maths::sqrt(x); }, "sqrt");
 }
 
+template < real_complex K >
 VarType builtinAbs( const VarType& v, const Context& )
 {
-	return applyMath(v, []( const auto& x ) { return maths::abs(x); }, "abs");
+	return applyMath(v, []( K x ) { return maths::abs(x); }, "abs");
 }
 
+template < real_complex K >
 VarType builtinExp( const VarType& v, const Context& )
 {
-	return applyMath(v, []( const auto& x ) { return maths::exp(x); }, "exp");
+	return applyMath(v, []( K x ) { return maths::exp(x); }, "exp");
 }
 
+template < real_complex K >
 VarType	builtinInv( const VarType& v, const Context& )
 {
-	auto invert = []( const auto& val ) -> VarType
-	{
-		using T = std::remove_cvref_t<decltype(val)>;
-
-		if constexpr (std::is_same_v<T, Matrix<Real>> || std::is_same_v<T, Matrix<Complex>>)
+	auto invert = []( const VarType& val ) -> VarType
+	{	
+		if constexpr (std::same_as<std::remove_cvref_t<decltype(val)>, Matrix<K>>)
 		{
 			if (auto opt = val.inverse())
 				return *opt;
@@ -72,13 +76,13 @@ VarType	builtinInv( const VarType& v, const Context& )
 		}
 		throw std::runtime_error("Math Error: inv() requires a Matrix.");
 	};
-
 	return std::visit(invert, v);
 }
 
+template < real_complex K >
 VarType builtinNorm( const VarType& v, const Context& )
 {
-	auto computNorm = []( const auto& val ) -> VarType
+	auto computNorm = []( const VarType& val ) -> VarType
 	{
 		if constexpr (requires { val.norm(); })
 			return val.norm();
@@ -87,9 +91,11 @@ VarType builtinNorm( const VarType& v, const Context& )
 	return std::visit(computNorm, v);
 }
 
+template < real_complex K >
 using BuiltinHandler = VarType (*)( const VarType&, const Context& );
 
-static const std::unordered_map<std::string_view, BuiltinHandler> builtins = {
+template < real_complex K >
+static const std::unordered_map<std::string_view, BuiltinHandler<K>> builtins = {
 	{"cos",  builtinCos},
 	{"sin",  builtinSin},
 	{"tan",  builtinTan},

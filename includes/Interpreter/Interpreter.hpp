@@ -26,7 +26,6 @@ class Interpreter
 		void	commandRad( std::span<const Token> );
 		void	commandExit( std::span<const Token> );
 		void	commandHelp( std::span<const Token> ) const;
-		void	commandPlot( std::span<const Token> );
 
 	public:
 		Interpreter();
