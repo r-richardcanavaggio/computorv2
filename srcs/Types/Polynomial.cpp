@@ -221,19 +221,20 @@ std::ostream&   operator<<( std::ostream& os, const Polynomial::Result& res )
 		return os;
 	}
 	if (res.degree == 1)
-		return os << "The solution is:\n" << res.roots[0] << '\n';
-	Real	delta = res.delta;
+		return os << "The solution is:\n" << (*res.roots)[0] << '\n';
+
+	Real	delta = *res.delta;
 
 	os << "Discriminant is " << delta << '\n';
 	if (delta > 0)
 		os << "Strictly positive, the two solutions are:\n"
-			<< res.roots[0] << '\n' << res.roots[1] << '\n';
+			<< (*res.roots)[0] << '\n' << (*res.roots)[1] << '\n';
 	else if (delta == 0)
 		os << "Discriminant is null, the solution is:\n"
-			<< res.roots[0] << '\n';
+			<< (*res.roots)[0] << '\n';
 	else
 		os << "Strictly negative, the two solutions are:\n"
-			<< res.roots[0] << '\n' << res.roots[1] << '\n';
+			<< (*res.roots)[0] << '\n' << (*res.roots)[1] << '\n';
 	return os;
 }
 
@@ -264,13 +265,15 @@ Polynomial  Polynomial::euclideanDiv( const Polynomial& b, bool mod ) const
 Polynomial::Result	Polynomial::solveDegree0() const noexcept
 {
 	if (m_coeffs.empty() || m_coeffs[0] == 0)
-		return Result{{}, 0, true};
-	return Result{{}, 0, false};
+		return Result(0, true);
+	return Result(0, false);
 }
 
 Polynomial::Result	Polynomial::solveDegree1() const noexcept
 {
-	return {{Real(-m_coeffs[0] / m_coeffs[1])}, 1};
+	std::vector<Root>	root = { -m_coeffs[0] / m_coeffs[1] };
+
+	return Result(1, root);
 }
 
 Polynomial::Result Polynomial::solveDegree2() const
@@ -294,5 +297,5 @@ Polynomial::Result Polynomial::solveDegree2() const
 		res.push_back(Complex(re, -im));
 		res.push_back(Complex(re, im));
 	}
-	return {res, 2, false, delta};
+	return Result(2, res, delta);
 }

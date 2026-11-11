@@ -27,16 +27,12 @@ public:
 
 	void		setName( const std::string& name );
 
-	template < typename T >
-	T			eval( const T& x ) const
+	Real	eval( Real x ) const
 	{
-		if (m_coeffs.empty())
-			return T(0);
+		Real	result;
 
-		T	result(m_coeffs.back());
-
-		for (std::size_t i = m_coeffs.size() - 1; i-- > 0;)
-			result = result * x + m_coeffs[i];
+		for (std::size_t i = 0; i < m_coeffs.size(); ++i)
+			result = m_coeffs[i] * maths::pow(x, i);
 		return result;
 	}
 
@@ -66,10 +62,19 @@ public:
 
 	struct Result
 	{
-		std::vector<Root>	roots;
-		short				degree = 0;
-		bool				isInf = false;
-		Real				delta = 0;
+		short								degree = 0;
+		bool								isInf = false;
+		std::optional<std::vector<Root>>	roots;
+		std::optional<Real>					delta;
+
+		Result( short _degree, bool _isInf )
+			: degree(_degree), isInf(_isInf), roots(std::nullopt), delta(std::nullopt) {}
+
+		Result( short _degree, const std::vector<Root>& _roots )
+			: degree(_degree), roots(_roots), delta(std::nullopt) {}
+
+		Result( short _degree, const std::vector<Root>& _roots, Real _delta )
+			: degree(_degree), roots(_roots), delta(_delta) {}
 	};
 
 	Result		solve() const;
