@@ -1,229 +1,196 @@
-# ComputorV2 — Mathematical Interpreter & Computer Algebra Engine
+# computorv2
 
-[![C++20](https://img.shields.io/badge/Language-C%2B%2B20-00599C?logo=c%2B%2B&logoColor=white)](https://en.cppreference.com/w/cpp/20)
-[![Build](https://img.shields.io/badge/Build-GNU%20Make-informational?logo=gnu)](Makefile)
-[![Compiler Flags](https://img.shields.io/badge/Compiler_Flags---Wall_--Wextra_--Werror-blueviolet)](#)
-[![Zero Libmath](https://img.shields.io/badge/Dependencies-Zero_External_Math_Libs-success)](#)
-[![Architecture](https://img.shields.io/badge/Design-Recursive_Descent_%7C_AST_%7C_Visitor-orange)](#)
+![C++20](https://img.shields.io/badge/C%2B%2B-20-blue?logo=cplusplus)
+![Build](https://img.shields.io/badge/build-Makefile%20%7C%20CMake-green)
+![Deps](https://img.shields.io/badge/stdlib_only-zero_external_deps-orange)
+![readline](https://img.shields.io/badge/links-readline-lightgrey)
+![42 School](https://img.shields.io/badge/school-42-black)
+![Lines](https://img.shields.io/badge/LOC-~3000-informational)
 
-A high-performance interactive Computer Algebra System (CAS) and REPL written in modern **C++20**. It executes symbolic and numerical computations across scalar, complex, matrix, and polynomial domains using a recursive-descent parser, an abstract syntax tree (AST) evaluated via the Visitor pattern, and a custom first-principles numerical mathematics engine with zero external dependencies.
+A **hand-built mathematical interpreter and Computer Algebra System (CAS)** written in C++20 — no Boost, no parser generator, no symbolic math library. The entire pipeline from lexer to algebraic evaluation is implemented from scratch, including every mathematical primitive.
 
 ---
 
 ## 📌 Academic / Project Context
 
-This project is part of the **42 School Post-Common Core curriculum** (Advanced Mathematics / Software Architecture track). It serves as the comprehensive continuation of *ComputorV1*, expanding from single-equation solving to an extensible, context-aware command-line interpreter.
+**computorv2** is a 42 School project (post-common-core curriculum). The assignment specifies:
 
-### Core Engineering Constraints
-- **Zero External Mathematical Libraries**: Standard math library headers (`<cmath>`, `<math.h>`) and external CAS engines are forbidden. All elementary, trigonometric, exponential, linear algebraic, and polynomial algorithms are designed and implemented from first principles.
-- **Strict Modern C++ Idioms**: Compiled under `-Wall -Wextra -Werror -std=c++20`. Employs C++20 concepts, `std::variant`-based algebraic data types, `std::unique_ptr` polymorphic hierarchies, type-safe double-dispatch visitors, and RAII memory lifecycle management.
-- **Multi-Paradigm Domain Algebra**: Simultaneous support for Real numbers (`ℝ`), Complex numbers (`ℂ`), Matrices (`M_{m,n}(ℝ)` / `M_{m,n}(ℂ)`), and Polynomials (`ℝ[X]`) with complete cross-domain operator interop.
+- **Zero external dependencies** for math or parsing — the standard library is the ceiling.
+- Interactive REPL supporting variable assignment, function definition, and polynomial equation resolution.
+- Mandatory support for: real numbers, complex numbers, matrices, and polynomial expressions as first-class types.
+- Support for **implicit multiplication** (e.g. `3x`, `2i`), **function composition**, and **symbolic evaluation** (treating undefined variables as formal polynomial indeterminates).
+- Equation resolution up to degree 2, with discriminant analysis and complex root output.
+
+The only allowed external link is `readline` (line editing and history in the REPL).
 
 ---
 
 ## 🏗️ Architecture & Modules
 
-The pipeline follows a decoupled compiler architecture: raw user input is lexed with regular expressions, preprocessed to resolve grammar ambiguities, converted into an Abstract Syntax Tree (AST) via recursive-descent parsing, and evaluated dynamically against an in-memory execution context through double-dispatch visitors.
-
 ```
-                    +------------------------------------------+
-                    |                User Input                |
-                    |        (CLI via GNU Readline REPL)       |
-                    +--------------------+---------------------+
-                                         |
-                                         v
-                    +--------------------+---------------------+
-                    |               Lexer                      |
-                    | (Regex Tokenization & Op Classification) |
-                    +--------------------+---------------------+
-                                         |
-                                         v
-                    +--------------------+---------------------+
-                    |         Token Preprocessor               |
-                    |  - Contextual Arity Resolution (+ / -)   |
-                    |  - Implicit Multiplication Injection     |
-                    +--------------------+---------------------+
-                                         |
-                                         v
-                    +--------------------+---------------------+
-                    |       Recursive Descent Parser           |
-                    |    (Operator Precedence & Grammar)       |
-                    +--------------------+---------------------+
-                                         |
-                                         v
-                    +--------------------+---------------------+
-                    |        AST Node Representation           |
-                    |   (BaseNode -> Binary, Unary, Matrix,    |
-                    |     Builtin, Variable, FunctionCall)     |
-                    +--------------------+---------------------+
-                                         |
-                                         v
-                    +--------------------+---------------------+
-                    |         Interpreter Engine               |
-                    |  - Evaluation Context (std::map)         |
-                    |  - Double-Dispatch Visitor Pattern       |
-                    |  - VarType (std::variant Heterogeneous)  |
-                    +--------------------+---------------------+
-                                         |
-                                         v
-                    +--------------------+---------------------+
-                    |          Output Formatter                |
-                    |  - Continued Fraction Rational Approxim. |
-                    |  - Exact Radical & Pi Multiplier Scaling |
-                    |  - Unicode Braille (2x4 Subpixel Raster) |
-                    +------------------------------------------+
+┌─────────────────────────────────────────────────────────────────┐
+│                            main.cpp                             │
+│              readline loop → Interpreter::processLine()         │
+└───────────────────────────────┬─────────────────────────────────┘
+                                │
+              ┌─────────────────▼──────────────────┐
+              │             Interpreter            │
+              │  Lexer::tokenize()  (regex-based)  │
+              │  Command dispatch (list/clear/…)   │
+              └────────────────┬───────────────────┘
+                               │
+              ┌────────────────▼──────────────────┐
+              │              Evaluator            │
+              │  resolveOperatorArity()           │
+              │  insertImplicitMultiplications()  │
+              │  LHS/RHS split on '='             │
+              │  → executeExpression()            │
+              │  → executeAssignment()            │
+              │  → executeQuery()   (solve f=rhs) │
+              └──────────────┬────────────────────┘
+                             │
+              ┌──────────────▼─────────────────────┐
+              │               Parser               │
+              │   Recursive-descent (Pratt-style)  │
+              │   parseExpression → parseTerm      │
+              │     → parseFactor → parsePower     │
+              │       → parsePrimary               │
+              │   Produces: NodePtr (AST)          │
+              └──────────────┬─────────────────────┘
+                             │
+              ┌──────────────▼─────────────────────┐
+              │            AST Nodes               │
+              │  NumberNode / ImaginaryNode        │
+              │  VariableNode  (symbolic fallback) │
+              │  UnaryOpNode / BinaryOpNode        │
+              │  FunctionCallNode                  │
+              │  BuiltinFunctionNode               │
+              │  MatrixNode                        │
+              └──────────────┬─────────────────────┘
+                             │  eval(Context&) → VarType
+              ┌──────────────▼─────────────────────┐
+              │            Type System             │
+              │  VarType = variant<                │
+              │    Real, Complex,                  │
+              │    Polynomial, Matrix<Real>,       │
+              │    Matrix<Complex>>                │
+              │                                    │
+              │  Visitor struct (binary dispatch)  │
+              └────────────────────────────────────┘
 ```
 
-### Module Breakdown
+### Component Summary
 
-| Module | Location | Primary Responsibilities |
-| :--- | :--- | :--- |
-| **Lexer & Preprocessor** | [`Lexer.cpp`](srcs/Lexer.cpp), [`TokenPreprocessor.cpp`](srcs/Interpreter/TokenPreprocessor.cpp) | Regex-based token extraction; arity disambiguation (unary vs binary `+`/`-`); implicit multiplication insertion (`2x` → `2 * x`). |
-| **Parser & AST Nodes** | [`Parser.cpp`](srcs/Parser.cpp), [`srcs/Nodes/`](srcs/Nodes/) | Recursive-descent grammar parsing with standard operator precedence; builds AST using `std::unique_ptr<BaseNode>` hierarchy. |
-| **Visitor Evaluator** | [`srcs/Visitors/`](srcs/Visitors/), [`InterpreterEvaluator.cpp`](srcs/Interpreter/InterpreterEvaluator.cpp) | Double-dispatch evaluation via `std::visit` and operator overloads for cross-type operations. |
-| **Numerical Kernel** | [`srcs/Maths/`](srcs/Maths/) | Custom transcendental engine: Taylor series (`sin`, `cos`, `tan`, `exp`), Newton-Raphson square roots, modular range reduction. |
-| **Linear Algebra** | [`Matrix.hpp`](includes/Types/Matrix.hpp), [`Matrix.tpp`](includes/Types/Matrix.tpp) | Templated matrix algebra constrained with C++20 concepts; Gauss-Jordan elimination with partial pivoting; matrix powers (O(log k)). |
-| **Polynomial Engine** | [`srcs/Types/Polynomial/`](srcs/Types/Polynomial/) | Polynomial algebra, Horner evaluation, Euclidean division (quotient & remainder), and analytic root solver (≤ 2nd degree). |
-| **Exact Output & Formatting** | [`Real.cpp`](srcs/Types/Real.cpp), [`Fraction.cpp`](srcs/Fraction.cpp) | Continued fraction approximation (convergents $h_n/k_n$); exact radical/π representation detection. |
-| **Subpixel Terminal Plotter** | [`Plotter.cpp`](srcs/Plotter.cpp) | High-resolution terminal canvas rendering equations onto UTF-8 Braille matrix blocks (2 × 4 subpixels per glyph). |
+| Module | File(s) | Responsibility |
+|---|---|---|
+| **Lexer** | `Interpreter.cpp` | Regex tokenizer; identifies numbers, identifiers, operators, matrix delimiters, `?` query marker |
+| **Evaluator** | `Evaluator.cpp`, `EvaluatorNormalize.cpp` | Pre-processing pass (arity resolution, implicit `*` injection), LHS/RHS splitting, assignment / expression / query dispatch |
+| **Parser** | `Parser.cpp`, `ParserPrimary.cpp`, `TokenStream.cpp` | Recursive-descent parser; produces a typed AST via `unique_ptr<BaseNode>` |
+| **AST Nodes** | `Nodes.cpp`, `Nodes.hpp` | Node hierarchy; each node implements `eval(Context&) → VarType` |
+| **Visitor** | `Visitor.hpp`, `Visitor.cpp` | Binary operator dispatch table over all type pairs; implements `std::visit` overload sets |
+| **Real** | `Real.hpp`, `Real.cpp` | Value wrapper over `double`; full operator set; Taylor series for `exp`, `sin`, `cos`; Newton's method `sqrt`; continued fraction pretty-printer (π, √n, p/q) |
+| **Complex** | `Complex.hpp`, `Complex.cpp` | Algebraic complex arithmetic; Euler-formula trig via `exp(iz)` for complex domain |
+| **Polynomial** | `Polynomial.hpp`, `Polynomial.cpp` | Coefficient vector; full ring operators; binary exponentiation; Euclidean division & modulo; degree-0/1/2 solver with discriminant analysis |
+| **Matrix\<K\>** | `Matrix.hpp`, `Matrix.tpp` | Generic template over `real_complex` concept; Gauss-Jordan inversion; matrix power (binary exp); Frobenius norm; element-wise and dot-product multiplication |
+| **Interpreter** | `Interpreter.hpp`, `Interpreter.cpp`, `Commands.cpp` | REPL driver; session `Context` (variable map + angle mode); command registry via `std::function` map |
 
 ---
 
-## 🧠 Engineering Highlights & Technical Learnings
+## 🧠 Engineering Highlights
 
-### 1. Heterogeneous Type System & Multi-Dispatch via `std::variant`
-Instead of runtime pointer downcasting (`dynamic_cast`) or unsafe type tagging, the interpreter models runtime data types as a closed algebraic sum type:
-```cpp
-using VarType = std::variant<Real, Complex, Polynomial, Matrix<Real>, Matrix<Complex>>;
-```
-Binary and unary operations are evaluated via `std::visit` with specialized visitor structs (`BinaryOpVisitor`, `UnaryOpVisitor`). Overloaded call operators define valid algebraic cross-interactions (e.g., `Matrix<Real> * Real`, `Polynomial + Real`, `Complex / Real`, `Matrix<K> ** Matrix<K>`) at compile time, rejecting illegal combinations with explicit runtime diagnostics while retaining zero heap allocation overhead for scalar evaluation.
+### 1. Zero-dependency math library — Taylor series and Newton-Raphson from scratch
 
-### 2. Zero-`<cmath>` Numerical Kernel & Series Expansions
-Because external math functions were strictly prohibited, all mathematical primitives were engineered from first principles:
-- **Newton-Raphson Root Finding**: Square root extraction for real numbers and complex polar decomposition using iterative quadratic convergence:
-  $$x_{n+1} = \frac{1}{2}\left(x_n + \frac{S}{x_n}\right)$$
-- **Taylor/Maclaurin Series & Range Reduction**: Trigonometric and exponential evaluations use Taylor polynomial expansions. Argument reduction modulo $2\pi$ keeps terms bounded within convergence intervals:
-  $$\sin(x) = \sum_{k=0}^{N} \frac{(-1)^k x^{2k+1}}{(2k+1)!}, \quad \exp(z) = \sum_{k=0}^{N} \frac{z^k}{k!}$$
-- **Complex Analytical Continuation**: Euler's formulas compute complex trigonometric functions without divergence:
-  $$\cos(z) = \frac{e^{iz} + e^{-iz}}{2}, \quad \sin(z) = \frac{e^{iz} - e^{-iz}}{2i}$$
+No `<cmath>` calls are used in the type system. `Real::sqrt` is a Newton-Raphson iterative converger (eps = 1e-9). `maths::exp`, `maths::sin`, `maths::cos` are Taylor series truncated at 50 terms. `maths::arctan` uses a conditionally-inverted Leibniz/Maclaurin series with range reduction. Complex trig is derived from the Euler identity: `cos(z) = (e^(iz) + e^(-iz)) / 2`. This guarantees mathematical consistency across the entire type tower.
 
-### 3. Linear Algebra & Gauss-Jordan Matrix Inversion
-Matrix computations are parameterized using modern C++20 concepts:
-```cpp
-template<typename K>
-concept real_complex = std::same_as<K, Real> || std::same_as<K, Complex>;
+### 2. `std::variant` type dispatch with structured binary overloads
 
-template<real_complex K>
-class Matrix { ... };
-```
-Matrix inversion is solved in O(N³) via **Gauss-Jordan elimination with partial column pivoting** (`findIndexMaxAbsColumn`), guaranteeing numerical stability when handling small pivot values. Fast binary exponentiation computes matrix powers $M^k$ in O(log k) matrix multiplications.
+`VarType = std::variant<Real, Complex, Polynomial, Matrix<Real>, Matrix<Complex>>` is the uniform value type throughout the system. Binary operations between all type pairs are resolved at runtime via `std::visit(Visitor{op}, lhs, rhs)`. The `Visitor` struct provides exhaustive overloads for valid pairs and throws typed runtime errors for semantically invalid combinations (e.g. `Complex ^ Complex`, `Matrix % Real`). This avoids virtual dispatch while keeping the operation table statically verified by the compiler.
 
-### 4. Continued Fraction Rational Approximation & Exact Formatting
-Floating-point outputs are evaluated through a continued fraction expansion algorithm generating best rational convergents:
-$$x = a_0 + \frac{1}{a_1 + \frac{1}{a_2 + \dots}}, \quad h_n = a_n h_{n-1} + h_{n-2}, \quad k_n = a_n k_{n-1} + k_{n-2}$$
-This allows the engine to automatically simplify decimal results (such as `0.333333` → `1/3`, `3.5 + 2.5i` → `7/2 + 5/2i`, and detect integral multiples of π or integer square roots like `sqrt(30)`).
+### 3. Pre-parse normalization: arity resolution and implicit multiplication
 
-### 5. High-Density Subpixel Graphics via Unicode Braille Encoding
-The built-in `plot` command renders arbitrary polynomial curves directly in standard CLI terminals by mapping a continuous 2D coordinate grid to Unicode Braille patterns (`U+2800` through `U+28FF`). Each printed character contains a 2 × 4 binary dot matrix (8 subpixels per character block), yielding 4× higher vertical resolution and 2× higher horizontal resolution compared to standard ASCII character plotting.
+The raw token stream after lexing is ambiguous: `-` can be unary or binary; `3x` is two tokens with no operator. The `Evaluator::normalize()` pass resolves both in a single linear scan. Arity is determined by tracking whether the parser is in "expects operand" state. Implicit `*` tokens are spliced in wherever an expression-end token is immediately followed by an expression-start token (excluding the `f(` case). This yields a fully unambiguous token stream before the recursive-descent parser is ever invoked.
+
+### 4. Symbolic polynomial evaluation and function composition
+
+`VariableNode::eval()` checks the context map; on a miss, it returns `Polynomial({0, 1})` — a fresh indeterminate `x`. This enables symbolic evaluation: `f(x) = 2x^2 + 3x` works because the RHS is parsed in a context where `x` resolves to the polynomial `x`. Function application (`f(g(x))`) uses `Polynomial::eval(const Polynomial&)`, which substitutes the argument polynomial coefficient-by-coefficient via repeated `pow()` and accumulation. Matrix polynomial evaluation (`Polynomial::eval(const Matrix<K>&)`) computes the matrix polynomial using integer matrix powers — only valid for square matrices.
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- C++20 compatible compiler (`clang++` >= 12 or `g++` >= 10)
-- GNU Make
-- `libreadline` development headers
+**Requirements:** C++20-compatible compiler (clang++ / g++), GNU `readline`
 
-### Build & Run
 ```bash
-# Clone the repository
-git clone https://github.com/r-richardcanavaggio/computorv2.git
-cd computorv2
+# Build
+make
 
-# Compile the binary
-make -j
-
-# Launch the interactive REPL
-./computorv2
-```
-
-### Cleanup
-```bash
-# Remove object files
+# Clean objects
 make clean
 
-# Remove object files and binary
-make fclean
-
-# Rebuild from scratch
+# Full rebuild
 make re
+
+# Remove binary + objects
+make fclean
+```
+
+The binary is produced at `./computorv2`. Alternatively, using CMake:
+
+```bash
+cmake -S . -B build
+cmake --build build
 ```
 
 ---
 
 ## 💻 Showcase
 
-### 1. Polynomial Calculus, Euclidean Division & Complex Root Resolution
-```text
-> f(x) = 2x^2 - 4x + 10
-2x^2 - 4x + 10
-> f(x) = 0?
+### Variable assignment, function definition, and equation resolution
+
+```
+> f(x) = x^2 - 4
+x^2 - 4
+> f(x) = 0 ?
 Polynomial degree: 2
-Discriminant is -64
+Discriminant is 16
+Strictly positive, the two solutions are:
+-2
+2
+```
+
+### Complex discriminant — imaginary roots
+
+```
+> f(x) = x^2 + 1
+x^2 + 1
+> f(x) = 0 ?
+Polynomial degree: 2
+Discriminant is -4
 Strictly negative, the two solutions are:
-1 - 2i
-1 + 2i
-> g(x) = x^3 - 2x^2 + x - 5
-x^3 - 2x^2 + x - 5
-> h(x) = x - 1
-x - 1
-> g(x) / h(x)
-x^2 - x
-> g(x) % h(x)
--5
+-i
+i
 ```
 
-### 2. Linear Algebra, Matrix Inversion & Transcendental Functions
-```text
-> m = [[1, 2]; [3, 4]]
-[1, 2]
-[3, 4]
+### Matrix algebra — power and inversion
 
-> inv(m)
-[-2, 1]
-[3/2, -1/2]
-
-> m ** inv(m)
-[1, 0]
-[0, 1]
-
-> norm(m)
-sqrt(30)
-> exp(i * pi)
--1
-> cos(pi / 3)
-1/2
+```
+> A = [[1,2];[3,4]]
+[[1, 2]; [3, 4]]
+> A^2
+[[7, 10]; [15, 22]]
+> inv([[2,1];[5,3]])
+[[3, -1]; [-5, 2]]
 ```
 
-### 3. High-Resolution Terminal Plotting (Braille Subpixel Engine)
-```text
-> f(x) = 0.1 * x^2 - 5
-1/10x^2 - 5
-> plot f
- ⠹⡄                 ⡇                ⢠⠎ 
-  ⠙⣄                ⡇               ⢠⠏  
-   ⠘⢦               ⡇              ⡰⠃   
-    ⠈⢳⡀             ⡇            ⢀⡜⠁    
-      ⠙⣄            ⡇           ⣠⠎      
-       ⠈⠳⣄          ⡇         ⢀⠜⠁       
-         ⠈⠲⣄        ⡇       ⣀⠔⠁         
-⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠚⠓⢶⣒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⢒⡶⠞⠓⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒
-              ⠈⠙⠲⠤⠤⠤⡧⠤⠤⠖⠊⠁              
-                    ⡇                   
-                    ⡇                   
-                    ⡇                   
-                    ⡇                   
-                    ⡇                   
-                    ⡇                   
+### Polynomial composition and implicit multiplication
+
+```
+> f(x) = 3x^2 + 2x
+3x^2 + 2x
+> g(x) = x + 1
+x + 1
+> f(x) + g(x) ?
+3x^2 + 3x + 1
+> f(g(x)) ?
+3x^2 + 8x + 5
 ```
