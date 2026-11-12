@@ -13,6 +13,29 @@ using Root = std::variant<Real, Complex>;
 
 class Polynomial
 {
+private:
+	std::vector<Real>	m_coeffs;
+	std::string			m_var = "x";
+
+	Polynomial	euclideanDiv( const Polynomial& b, bool mod = false ) const;
+	void		trim() noexcept;
+
+	struct Result
+	{
+		const std::vector<Real>&			coeffs;
+
+		short								degree = 0;
+		bool								isInf = false;
+		std::optional<std::vector<Root>>	roots;
+		std::optional<Real>					delta;
+
+		Result( const std::vector<Real>& m_coeffs ) : coeffs(m_coeffs) {}
+		
+		Result&		solveDegree0() noexcept;
+		Result&		solveDegree1();
+		Result&		solveDegree2();
+	};
+
 public:
 	Polynomial() = default;
 	Polynomial( std::initializer_list<Real> list );
@@ -24,17 +47,13 @@ public:
 	Polynomial&	operator=( Polynomial&& ) noexcept = default;
 
 	std::size_t	degree() const noexcept;
-
 	void		setName( const std::string& name );
 
-	Real	eval( Real x ) const
-	{
-		Real	result;
+	Result		solve() const;
+	Polynomial	pow( int exp ) const;
 
-		for (std::size_t i = 0; i < m_coeffs.size(); ++i)
-			result = m_coeffs[i] * maths::pow(x, i);
-		return result;
-	}
+	Real		eval( Real x ) const;
+	Polynomial	eval( const Polynomial& x ) const;
 
 	template < real_complex K >
 	Matrix<K>	eval( const Matrix<K>& m ) const
@@ -57,28 +76,6 @@ public:
 		}
 		return result;
 	}
-
-	Root	eval( const Root& r ) const;
-
-	struct Result
-	{
-		short								degree = 0;
-		bool								isInf = false;
-		std::optional<std::vector<Root>>	roots;
-		std::optional<Real>					delta;
-
-		Result( short _degree, bool _isInf )
-			: degree(_degree), isInf(_isInf), roots(std::nullopt), delta(std::nullopt) {}
-
-		Result( short _degree, const std::vector<Root>& _roots )
-			: degree(_degree), roots(_roots), delta(std::nullopt) {}
-
-		Result( short _degree, const std::vector<Root>& _roots, Real _delta )
-			: degree(_degree), roots(_roots), delta(_delta) {}
-	};
-
-	Result		solve() const;
-	Polynomial	pow( int exp ) const;
 
 	Polynomial&			operator+=( const Polynomial& other );
 	Polynomial&			operator+=( Real x );
@@ -104,17 +101,5 @@ public:
 	bool	operator==( const Polynomial& other ) const noexcept = default;
 
 	friend std::ostream& operator<<( std::ostream& os, const Polynomial& p );
-
-private:
-	std::vector<Real>	m_coeffs;
-	std::string			m_var = "x";
-
-	Polynomial	euclideanDiv( const Polynomial& b, bool mod = false ) const;
-	Result		solveDegree0() const noexcept;
-	Result		solveDegree1() const noexcept;
-	Result		solveDegree2() const;
-	void		trim() noexcept;
+	friend std::ostream& operator<<( std::ostream& os, const Polynomial::Result& roots );
 };
-
-std::ostream& operator<<( std::ostream& os, const Polynomial& p );
-std::ostream& operator<<( std::ostream& os, const Polynomial::Result& roots );

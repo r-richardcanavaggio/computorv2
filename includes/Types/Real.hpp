@@ -32,11 +32,11 @@ struct Real
 	Real&	operator%=( Real other );
 	Real	operator-() const noexcept;
 
-	Real	operator+( Real lhs ) const noexcept;
-	Real	operator-( Real lhs ) const noexcept;
-	Real	operator*( Real lhs ) const noexcept;
-	Real	operator/( Real lhs ) const;
-	Real	operator%( Real lhs ) const;
+	friend Real	operator+( Real rhs, Real lhs ) noexcept { rhs += lhs; return rhs; }
+	friend Real	operator-( Real rhs, Real lhs ) noexcept { rhs -= lhs; return rhs; }
+	friend Real	operator*( Real rhs, Real lhs ) noexcept { rhs *= lhs; return rhs; }
+	friend Real	operator/( Real rhs, Real lhs ) { rhs /= lhs; return rhs; }
+	friend Real	operator%( Real rhs, Real lhs ) { rhs %= lhs; return rhs; }
 
 	auto operator<=>( const Real& ) const = default;
 

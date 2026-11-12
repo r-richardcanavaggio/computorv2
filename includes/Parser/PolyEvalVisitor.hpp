@@ -12,6 +12,8 @@ public:
 
     VarType operator()( Real v ) const { return p.eval(v); }
 
+    VarType operator()( const Polynomial& other ) const { return p.eval(other); }
+
     template < real_complex K >
     VarType operator()( const Matrix<K>& m ) const { return p.eval(m); }
 

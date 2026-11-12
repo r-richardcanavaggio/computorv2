@@ -50,6 +50,7 @@ Real&   Real::operator/=( Real other )
 {
     if (other.value == 0)
         throw std::runtime_error("Error: cannot divide by zero.");
+
     value /= other.value;
     return *this;
 }
@@ -58,7 +59,9 @@ Real&   Real::operator%=( Real other )
 {
     if (other.value == 0)
         throw std::runtime_error("Error: modulo by zero.");
+
     long long quotient = static_cast<long long>(value / other.value);
+
     value -= static_cast<double>(quotient) * other.value;
     return *this;
 }
@@ -66,35 +69,6 @@ Real&   Real::operator%=( Real other )
 Real    Real::operator-() const noexcept
 {
     return Real(-value);
-}
-
-Real Real::operator+( Real other ) const noexcept
-{
-    return value + other.value;
-}
-
-Real Real::operator-( Real other ) const noexcept
-{
-    return value - other.value;
-}
-
-Real Real::operator*( Real other ) const noexcept
-{
-    return value * other.value;
-}
-
-Real Real::operator/( Real other ) const
-{
-    if (other.value == 0.)
-        throw std::runtime_error("Error: cannot divide by zero.");
-    return value / other.value;
-}
-
-Real Real::operator%( Real other ) const
-{
-    if (other.value == 0.)
-        throw std::runtime_error("Error: cannot modulo by zero.");
-    return static_cast<long long>(value) % static_cast<long long>(other.value);
 }
 
 namespace maths
@@ -159,7 +133,9 @@ Real    floor( Real r )
 { 
     if (r.value >= 4503599627370496.0 || r.value <= -4503599627370496.0)
         return r;
+
     long long i = static_cast<long long>(r.value);
+
     if (r.value < 0. && r.value != static_cast<double>(i))
         return Real(static_cast<double>(i - 1));
     return Real(static_cast<double>(i));
@@ -196,25 +172,35 @@ Real    exp( Real r ) noexcept
 }
 
 Real    cos( Real r ) noexcept
-	{
-		Real x = r;
-		while (x < 0.) x += 2 * maths::pi;
-		while (x > 2. * maths::pi) x -= 2. * maths::pi;
-		Real result = 1., term = 1.;
-		for (std::size_t k = 1; k < maths::terms; ++k)
-		{
-			term *= -x * x / ((2 * k) * (2 * k - 1));
-			result += term;
-		}
-		return result;
-	}
+{
+    Real x = r;
+
+    while (x < 0.)
+        x += 2 * maths::pi;
+    while (x > 2. * maths::pi)
+        x -= 2. * maths::pi;
+
+    Real result = 1., term = 1.;
+
+    for (std::size_t k = 1; k < maths::terms; ++k)
+    {
+        term *= -x * x / ((2 * k) * (2 * k - 1));
+        result += term;
+    }
+    return result;
+}
 
 Real    sin( Real r ) noexcept
 {
     Real x = r;
-    while (x < -maths::pi) x += 2. * maths::pi;
-    while (x > maths::pi) x -= 2. * maths::pi;
+
+    while (x < -maths::pi)
+        x += 2. * maths::pi;
+    while (x > maths::pi)
+        x -= 2. * maths::pi;
+
     Real result = x, term = x;
+
     for (std::size_t k = 1; k < maths::terms; ++k)
     {
         term *= -x * x / ((2 * k) * (2 * k + 1));
@@ -235,7 +221,8 @@ Real    arctan( Real r ) noexcept
     Real sum = 0.;
     int denom = 1, sign = 1;
 
-    for (std::size_t k = 0; k < maths::terms; ++k) {
+    for (std::size_t k = 0; k < maths::terms; ++k)
+    {
         sum += Real(sign) * num / denom;
         num *= step;
         denom += 2;
@@ -347,15 +334,18 @@ std::ostream&   operator<<( std::ostream& os, Real r )
     }
 
     Real rSq = maths::square(r);
+
     if (maths::abs(rSq - maths::round(rSq)) < maths::eps)
     {
         if (maths::round(rSq) > 1. && maths::round(rSq) <= 50.)
         {
-            if (r < 0.) os << "-";
+            if (r < 0.)
+                os << "-";
             return os << "sqrt(" << rSq.value << ")";
         }
     }
     auto f = Real::Fraction::createFraction(r.value);
+
     if (f && f->denominator != 1 && f->denominator <= 100)
         return os << *f;
     return os << r.value;
