@@ -3,17 +3,16 @@
 #include <sstream>
 
 Evaluator::Evaluator( Context& _ctx, std::vector<std::string>& _history, std::vector<Token> _tokens, const std::string& line )
-    : ctx(_ctx), history(_history), tokens(_tokens), rawLine(line), isQuery(false), hasEqual(false) {}
+    : ctx(_ctx), history(_history), tokens(std::move(_tokens)), rawLine(line), isQuery(false), hasEqual(false) {}
 
 void    Evaluator::evaluate()
 {
-    if (!tokens.empty() && tokens.back().type == TokenType::QUERY)
+    if (!tokens.empty() && tokens.back().type == Token::Type::QUERY)
     {
         isQuery = true;
         tokens.pop_back();
         if (tokens.empty())
             throw std::runtime_error("Error: missing statement.");
-
     }
 
     normalize();
@@ -39,7 +38,7 @@ std::optional<std::size_t> Evaluator::findEqualIndex() const
 {
     for (size_t i = 0; i < tokens.size(); ++i)
     {
-        if (tokens[i].type == TokenType::EQUAL)
+        if (tokens[i].type == Token::Type::EQUAL)
             return i;
     }
     return std::nullopt;
@@ -55,13 +54,13 @@ void    Evaluator::executeExpression() const
 
 Evaluator::Target	Evaluator::parseLHS() const
 {
-    if (lhs.size() == 1 && lhs[0].type == TokenType::VARIABLE)
-        return (Target(lhs[0].value, std::nullopt));
+    if (lhs.size() == 1 && lhs[0].type == Token::Type::VARIABLE)
+        return (Target(lhs[0].value));
     if (lhs.size() == 4 && 
-        lhs[0].type == TokenType::VARIABLE 	  &&
-        lhs[1].type == TokenType::BRACKET_OPEN &&
-        lhs[2].type == TokenType::VARIABLE     &&
-        lhs[3].type == TokenType::BRACKET_CLOSE)
+        lhs[0].type == Token::Type::VARIABLE 	  &&
+        lhs[1].type == Token::Type::BRACKET_OPEN &&
+        lhs[2].type == Token::Type::VARIABLE     &&
+        lhs[3].type == Token::Type::BRACKET_CLOSE)
     {
         return (Target(lhs[0].value, lhs[2].value));
     }
@@ -104,17 +103,15 @@ void    Evaluator::executeQuery() const
     std::cout << equation.solve();
 }
 
-void    Evaluator::executeAssignment()
+void    Evaluator::saveResult( const std::string& name, const VarType& result )
 {
-    Evaluator::Target   target = parseLHS();
+    ctx[name] = result;
 
-    if (Parser::isBuiltinFunction(target.name))
-        throw std::runtime_error("Forbidden: '" + target.name + "' is a built-in function and cannot be redefined.");
+    std::ostringstream oss;
+    oss << result;
+    history.push_back(rawLine + " -> " + oss.str());
 
-    if (target.isFunction())
-        assignFunction(target.name, *target.param);
-    else
-        assignVariable(target.name);
+    std::cout << result << "\n";
 }
 
 void    Evaluator::assignVariable( const std::string& name )
@@ -129,7 +126,7 @@ void    Evaluator::assignFunction( const std::string& name, const std::string& p
 {
     Context evalCtx = ctx;
 
-    evalCtx[param] = Polynomial({0, 1});
+    evalCtx[name] = Polynomial({0, 1});
 
     Parser  parser(rhs);
     VarType result = parser.parse()->eval(evalCtx);
@@ -143,13 +140,15 @@ void    Evaluator::assignFunction( const std::string& name, const std::string& p
     saveResult(name, result);
 }
 
-void    Evaluator::saveResult( const std::string& name, const VarType& result )
+void    Evaluator::executeAssignment()
 {
-    ctx[name] = result;
+    Evaluator::Target   target = parseLHS();
 
-    std::ostringstream oss;
-    oss << result;
-    history.push_back(rawLine + " -> " + oss.str());
+    if (Parser::isBuiltinFunction(target.name))
+        throw std::runtime_error("Forbidden: '" + target.name + "' is a built-in function and cannot be redefined.");
 
-    std::cout << result << "\n";
+    if (target.isFunction())
+        assignFunction(target.name, target.param);
+    else
+        assignVariable(target.name);
 }

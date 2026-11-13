@@ -7,19 +7,19 @@
 
 class TokenStream
 {
-    private:
-        std::span<const Token>  tokens;
-        std::size_t             pos;
+private:
+    std::span<const Token> tokens;
+    std::size_t pos;
 
-    public:
-        explicit TokenStream( std::span<const Token> );
+public:
+    explicit TokenStream( std::span<const Token> );
 
-        bool                    isAtEnd() const;
-        const Token&            peek() const;
-        const Token&            advance();
-        bool                    check( TokenType ) const;
-        bool                    match( TokenType );
-        bool                    matchOp( OpKind );
-        std::optional<OpKind>   matchAnyOp( std::initializer_list<OpKind> );
-        const Token&            consume( TokenType );
+    bool                            isAtEnd() const;
+    const Token&                    peek() const;
+    const Token&                    advance();
+    bool                            check( Token::Type ) const;
+    bool                            match( Token::Type );
+    bool                            matchOp( Token::Operator );
+    std::optional<Token::Operator>  matchAnyOp( std::initializer_list<Token::Operator> );
+    const Token&                    consume( Token::Type );
 };

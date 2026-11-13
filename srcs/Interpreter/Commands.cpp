@@ -1,10 +1,7 @@
 #include "Interpreter/Interpreter.hpp"
 
-void	Interpreter::commandList( std::span<const Token> args ) const
+void	Interpreter::commandList( const Token& ) const
 {
-	if (!args.empty())
-		throw std::runtime_error("Usage: list (takes no arguments)\n");
-
 	if (ctx.empty())
 		std::cout << "No Variables.\n";
 	else
@@ -14,11 +11,8 @@ void	Interpreter::commandList( std::span<const Token> args ) const
 	}
 }
 
-void	Interpreter::commandHistory( std::span<const Token> args ) const
+void	Interpreter::commandHistory( const Token& ) const
 {
-	if (!args.empty())
-		throw std::runtime_error("Usage: history (takes no arguments)\n");
-
 	if (history.empty())
 		std::cout << "History is empty.\n";
 	else
@@ -28,40 +22,28 @@ void	Interpreter::commandHistory( std::span<const Token> args ) const
 	}
 }
 
-void	Interpreter::commandDeg( std::span<const Token> args )
+void	Interpreter::commandDeg( const Token& )
 {
-	if (!args.empty())
-		throw std::runtime_error("Usage: deg (takes no arguments)\n");
-
 	ctx.isDegreeMode = true;
 
 	std::cout << "Angle mode switched to: DEGREES" << std::endl;
 }
 
-void	Interpreter::commandRad( std::span<const Token> args)
+void	Interpreter::commandRad( const Token& )
 {
-	if (!args.empty())
-		throw std::runtime_error("Usage: rad (takes no arguments)\n");
-
 	ctx.isDegreeMode = false;
 
 	std::cout << "Angle mode switched to: RADIANS" << std::endl;
 }
 
-void	Interpreter::commandExit( std::span<const Token> args )
+void	Interpreter::commandExit( const Token& )
 {
-	if (!args.empty())
-		throw std::runtime_error("Usage: exit/quit (takes no arguments)\n");
-
 	std::cout << "Exiting ComputorV2, Goodbye!\n";
 	running = false;
 }
 
-void	Interpreter::commandHelp( std::span<const Token> args ) const
+void	Interpreter::commandHelp( const Token& ) const
 {
-	if (!args.empty())
-		throw std::runtime_error("Usage: Help (takes no arguments)\n");
-
 	std::cout << "=========================================\n"
 			<< "          ComputorV2 - Help Menu         \n"
 			<< "=========================================\n"
@@ -78,17 +60,16 @@ void	Interpreter::commandHelp( std::span<const Token> args ) const
 			<< "\n";
 }
 
-void	Interpreter::commandClear( std::span<const Token> args )
+void	Interpreter::commandClear( const Token& arg )
 {
-	if (args.size() != 1 || args[0].type != TokenType::VARIABLE)
+	if (arg.type != Token::Type::VARIABLE)
 		throw std::runtime_error("Usage: clear <variable>\n");
 	
-	auto	varToDelete = args[0].value;
-	auto	it = ctx.find(varToDelete);
+	auto	it = ctx.find(arg.value);
 
 	if (it == ctx.end())
-		throw std::runtime_error("Error: '" + varToDelete + "' is not defined.\n");
+		throw std::runtime_error("Error: '" + arg.value + "' is not defined.\n");
 
 	ctx.erase(it);
-	std::cout << "Variable/Function '" << varToDelete << "' has been deleted.\n";
+	std::cout << "Variable/Function '" << arg.value << "' has been deleted.\n";
 }

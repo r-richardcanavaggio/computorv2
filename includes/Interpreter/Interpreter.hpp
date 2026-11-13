@@ -7,25 +7,25 @@
 #include <span>
 #include <functional>
 
-using CommandHandler = std::function<void(std::span<const Token>)>;
+using CommandHandler = std::function< void ( const Token& ) >;
 
 class Interpreter
 {
 	private:
-		Context									ctx;
-		std::vector<std::string>				history;
-		std::map<std::string, CommandHandler>	commands;
+		Context												ctx;
+		std::vector<std::string>							history;
+		std::map<std::string, CommandHandler, std::less<>>	commands;
 
-		bool									running;
+		bool												running;
 
-		bool	executeCommand( const std::vector<Token>& );
-		void	commandList( std::span<const Token> ) const;
-		void	commandClear( std::span<const Token> );
-		void	commandHistory( std::span<const Token> ) const;
-		void	commandDeg( std::span<const Token> );
-		void	commandRad( std::span<const Token> );
-		void	commandExit( std::span<const Token> );
-		void	commandHelp( std::span<const Token> ) const;
+		bool	executeCommand( std::span<const Token> );
+		void	commandList( const Token& ) const;
+		void	commandClear( const Token& );
+		void	commandHistory( const Token& ) const;
+		void	commandDeg( const Token& );
+		void	commandRad( const Token& );
+		void	commandExit( const Token& );
+		void	commandHelp( const Token& ) const;
 
 	public:
 		Interpreter();

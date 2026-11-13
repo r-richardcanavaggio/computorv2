@@ -7,34 +7,34 @@
 struct BaseNode
 {
     virtual ~BaseNode() = default;
-    virtual VarType	eval( Context& ) const = 0;
+    virtual VarType eval(Context &) const = 0;
 };
 
 using NodePtr = std::unique_ptr<BaseNode>;
 
 struct NumberNode : public BaseNode
 {
-    Real	value;
+    Real value;
 
-    explicit NumberNode( Real r ) : value(r) {}
+    explicit NumberNode(Real r) : value(r) {}
 
-    VarType	eval( Context& ) const override { return value; }
+    VarType eval(Context &) const override { return value; }
 };
 
 struct ImaginaryNode : public BaseNode
 {
-	VarType	eval( Context& ) const override { return Complex(0, 1); }
+    VarType eval(Context &) const override { return Complex(0, 1); }
 };
 
-struct VariableNode: public BaseNode
+struct VariableNode : public BaseNode
 {
-    std::string	name;
+    std::string name;
 
-    explicit VariableNode( const std::string& s ) : name(s) {}
+    explicit VariableNode(const std::string &s) : name(s) {}
 
-    VarType	eval( Context& ctx ) const override
+    VarType eval(Context &ctx) const override
     {
-        auto    it = ctx.find(name);
+        auto it = ctx.find(name);
 
         if (it != ctx.end())
             return it->second;
@@ -47,32 +47,32 @@ struct VariableNode: public BaseNode
 
 struct UnaryOpNode : public BaseNode
 {
-    OpKind	op;
-    NodePtr	child;
+    Token::Operator op;
+    NodePtr         child;
 
-    UnaryOpNode( OpKind o, NodePtr c ) : op(o), child(std::move(c)) {}
+    UnaryOpNode(Token::Operator o, NodePtr c) : op(o), child(std::move(c)) {}
 
-    VarType	eval( Context& ctx ) const override;
+    VarType eval( Context& ctx ) const override;
 };
 
 struct BinaryOpNode : public BaseNode
 {
-    OpKind	op;
-    NodePtr	left, right;
+    Token::Operator op;
+    NodePtr         left, right;
 
-    BinaryOpNode( OpKind o, NodePtr l, NodePtr r ) : op(o), left(std::move(l)), right(std::move(r)) {}
-    
-    VarType	eval( Context& ctx ) const override;
+    BinaryOpNode( Token::Operator o, NodePtr l, NodePtr r ) : op(o), left(std::move(l)), right(std::move(r)) {}
+
+    VarType eval( Context& ctx ) const override;
 };
 
 struct FunctionCallNode : public BaseNode
 {
-    std::string	name;
-    NodePtr		child;
+    std::string name;
+    NodePtr     child;
 
     FunctionCallNode( const std::string& s, NodePtr c ) : name(s), child(std::move(c)) {}
 
-    VarType	eval( Context& ctx ) const override;
+    VarType eval( Context& ctx ) const override;
 };
 
 struct MatrixNode : public BaseNode
@@ -82,16 +82,16 @@ struct MatrixNode : public BaseNode
     std::vector<NodePtr>    elements;
 
     explicit MatrixNode( std::size_t r, std::size_t c, std::vector<NodePtr> elems ) : rows(r), cols(c), elements(std::move(elems)) {}
-    
-    VarType eval( Context& ) const override;
+
+    VarType eval( Context & ) const override;
 };
 
 struct BuiltinFunctionNode : public BaseNode
 {
-    std::string	name;
-    NodePtr		child;
+    std::string name;
+    NodePtr     child;
 
     BuiltinFunctionNode( const std::string& s, NodePtr c ) : name(s), child(std::move(c)) {}
 
-    VarType	eval( Context& ) const override;
+    VarType eval( Context& ) const override;
 };

@@ -9,10 +9,11 @@ class Evaluator
 	private:
 		struct Target
 		{
-			std::string                 name;
-			std::optional<std::string>	param;
+			std::string	name;
+			std::string	param;
 
-			bool    isFunction() const { return param.has_value(); }
+			bool    isFunction() const { return !param.empty(); }
+			Target( const std::string& _name, const std::string& _param = "" ) : name(_name), param(_param) {}
 		};
 
 		Context&					ctx;

@@ -17,9 +17,9 @@ std::size_t	Polynomial::degree() const noexcept
     return m_coeffs.empty() ? 0 : m_coeffs.size() - 1;
 }
 
-void	Polynomial::setName( const std::string& name )
+void	Polynomial::setName( std::string_view name )
 {
-    m_var = name;
+    m_var = std::string(name);
 }
 
 Real	Polynomial::eval( Real x ) const

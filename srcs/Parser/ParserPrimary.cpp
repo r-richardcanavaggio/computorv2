@@ -16,18 +16,18 @@ NodePtr Parser::parseParenthesized()
 {
     stream.advance();
     auto    expr = parseExpression();
-    stream.consume(TokenType::BRACKET_CLOSE);
+    stream.consume(Token::Type::BRACKET_CLOSE);
     return expr;
 }
 
 NodePtr Parser::parseVariableOrCall()
 {
-    std::string name = stream.advance().value;
+    std::string name(stream.advance().value);
 
-    if (stream.match(TokenType::BRACKET_OPEN))
+    if (stream.match(Token::Type::BRACKET_OPEN))
     {
         auto expr = parseExpression();
-        stream.consume(TokenType::BRACKET_CLOSE);
+        stream.consume(Token::Type::BRACKET_CLOSE);
 
         if (isBuiltinFunction(name))
             return std::make_unique<BuiltinFunctionNode>(name, std::move(expr));
@@ -38,7 +38,7 @@ NodePtr Parser::parseVariableOrCall()
 
 NodePtr	Parser::parseMatrix()
 {
-    stream.consume(TokenType::BRACKET_MATRIX_OPEN);
+    stream.consume(Token::Type::BRACKET_MATRIX_OPEN);
 
     std::size_t             rows = 0;
     std::size_t             cols = 0;
@@ -46,28 +46,29 @@ NodePtr	Parser::parseMatrix()
 
     auto parseRow = [&]()
     {
-        stream.consume(TokenType::BRACKET_MATRIX_OPEN);
+        stream.consume(Token::Type::BRACKET_MATRIX_OPEN);
         std::size_t count = 0;
         elements.push_back(parseExpression());
         ++count;
-        while (stream.match(TokenType::COMMA))
+        while (stream.match(Token::Type::COMMA))
         {
             elements.push_back(parseExpression());
             ++count;
         }
-        stream.consume(TokenType::BRACKET_MATRIX_CLOSE);
+        stream.consume(Token::Type::BRACKET_MATRIX_CLOSE);
         return count;
     };
 
     cols = parseRow();
     ++rows;
 
-	while (stream.match(TokenType::SEMICOLON))
+	while (stream.match(Token::Type::SEMICOLON))
 	{
         std::size_t currentCols = parseRow();
-        if (currentCols != cols) throw std::runtime_error("Error: Inconsistent row size in matrix definition.");
+        if (currentCols != cols)
+            throw std::runtime_error("Error: Inconsistent row size in matrix definition.");
         ++rows;
     }
-	stream.consume(TokenType::BRACKET_MATRIX_CLOSE);
+	stream.consume(Token::Type::BRACKET_MATRIX_CLOSE);
 	return std::make_unique<MatrixNode>(rows, cols, std::move(elements));
 }

@@ -47,7 +47,7 @@ public:
 	Polynomial&	operator=( Polynomial&& ) noexcept = default;
 
 	std::size_t	degree() const noexcept;
-	void		setName( const std::string& name );
+	void		setName( std::string_view );
 
 	Result		solve() const;
 	Polynomial	pow( int exp ) const;
