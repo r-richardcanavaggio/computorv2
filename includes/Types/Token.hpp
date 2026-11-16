@@ -50,36 +50,40 @@ struct Token
 	Token( Type t, Operator o = Operator::NONE, std::string sv = "", Arity a = Arity::CONSTANT )
 		: type(t), op(o), value(sv), arity(a) {}
 	
+	bool	operator==( const Token& other ) const = default;
+	
 	friend std::ostream& operator<<( std::ostream& os, const Token& token )
 	{
 		switch (token.type)
 		{
-			case Token::Type::NUMBER: os << "NUMBER"; break;
-			case Token::Type::VARIABLE: os << "VARIABLE"; break;
-			case Token::Type::IMAGINARY: os << "IMAGINARY"; break;
-			case Token::Type::OPERATOR: os << "OP"; break;
-			case Token::Type::EQUAL: os << "EQ"; break;
-			case Token::Type::BRACKET_OPEN: os << "BRACKET_OPEN"; break;
-			case Token::Type::BRACKET_MATRIX_OPEN: os << "BRACKET_MATRIX_OPEN"; break;
-			case Token::Type::BRACKET_CLOSE: os << "BRACKET_CLOSE"; break;
-			case Token::Type::BRACKET_MATRIX_CLOSE: os << "BRACKET_MATRIX_CLOSE"; break;
-			case Token::Type::COMMA: os << "COMMA"; break;
-			case Token::Type::SEMICOLON: os << "SEMICOLON"; break;
-			case Token::Type::QUERY: os << "QUERY"; break;
-			default: os << "UNKOWN"; break;
+			case Token::Type::NUMBER: os << "Num"; break;
+			case Token::Type::VARIABLE: os << "Var"; break;
+			case Token::Type::IMAGINARY: os << "Imaginary"; break;
+			case Token::Type::OPERATOR: os << "Operator"; break;
+			case Token::Type::EQUAL: os << "Equal"; break;
+			case Token::Type::BRACKET_OPEN: os << "Bracket open"; break;
+			case Token::Type::BRACKET_MATRIX_OPEN: os << "Bracket matrix open"; break;
+			case Token::Type::BRACKET_CLOSE: os << "Bracket close"; break;
+			case Token::Type::BRACKET_MATRIX_CLOSE: os << "Bracket matrix close"; break;
+			case Token::Type::COMMA: os << "Comma"; break;
+			case Token::Type::SEMICOLON: os << "Semicolon"; break;
+			case Token::Type::QUERY: os << "Query"; break;
+			default: os << "Unkown Token"; break;
 		}
 		os << " ";
 		switch (token.op)
 		{
-			case Token::Operator::ADD: os << "ADD"; break;
-			case Token::Operator::SUB: os << "SUB"; break;
-			case Token::Operator::MUL: os << "MUL"; break;
-			case Token::Operator::DIV: os << "DIV"; break;
-			case Token::Operator::MOD: os << "MOD"; break;
-			case Token::Operator::POW: os << "POW"; break;
-			case Token::Operator::DOT: os << "DOT"; break;
+			case Token::Operator::ADD: os << "Add"; break;
+			case Token::Operator::SUB: os << "Sub"; break;
+			case Token::Operator::MUL: os << "Mul"; break;
+			case Token::Operator::DIV: os << "Div"; break;
+			case Token::Operator::MOD: os << "Mod"; break;
+			case Token::Operator::POW: os << "Pow"; break;
+			case Token::Operator::DOT: os << "Dot"; break;
 			default: break;
 		}
+		if (!token.value.empty())
+			std::cout << "(\"" << token.value << "\")";
 		os << '\n';
 		return os;
 	}

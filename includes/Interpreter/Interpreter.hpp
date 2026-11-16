@@ -12,9 +12,9 @@ using CommandHandler = std::function< void ( const Token& ) >;
 class Interpreter
 {
 	private:
-		Context												ctx;
-		std::vector<std::string>							history;
-		std::map<std::string, CommandHandler, std::less<>>	commands;
+		Context									ctx;
+		std::vector<std::string>				history;
+		std::map<std::string, CommandHandler>	commands;
 
 		bool												running;
 
