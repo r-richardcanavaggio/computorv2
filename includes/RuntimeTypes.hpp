@@ -10,9 +10,9 @@
 #include "Types/Token.hpp"
 #include "Types/Polynomial.hpp"
 
-using VarType = std::variant<Real, Complex, Polynomial, Matrix<Real>, Matrix<Complex>>;
+using VarType = std::variant< Real, Complex, Polynomial, Matrix< Real >, Matrix< Complex > >;
 
-struct Context : std::map<std::string, VarType>
+struct Context : std::map< std::string, VarType >
 {
 	bool	isDegreeMode = false;
 };

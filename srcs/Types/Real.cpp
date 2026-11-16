@@ -296,7 +296,16 @@ std::optional<Real::Fraction> Real::Fraction::createFraction( Real value )
             Real	approx = h / k;
 
             if (maths::abs(value - approx) < maths::eps)
+            {
+                long long temp_q = static_cast<long long>(k);
+
+                while (temp_q % 2 == 0) temp_q /= 2;
+                while (temp_q % 5 == 0) temp_q /= 5;
+
+                if (temp_q == 1)
+                    break;
                 return Fraction(static_cast<long long>(h), static_cast<long long>(k));
+            }
         }
         Real	fracPart = num - a;
         if (maths::abs(fracPart) < maths::eps)
