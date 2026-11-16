@@ -78,24 +78,19 @@ public:
 	}
 
 	Polynomial&			operator+=( const Polynomial& other );
-	Polynomial&			operator+=( Real x );
 	Polynomial&			operator-=( const Polynomial& other );
-	Polynomial&			operator-=( Real x );
 	Polynomial			operator-() const;
 	Polynomial&			operator*=( const Polynomial& other );
-	Polynomial&			operator*=( Real x );
+
 	Polynomial&			operator/=( const Polynomial& other );
-	Polynomial&			operator/=( Real x );
+	// Polynomial&			operator/=( Real x );
 	Polynomial&			operator%=( const Polynomial& other );
 
 	friend Polynomial	operator+( Polynomial a, const Polynomial& b ) { a += b; return a; }
-	friend Polynomial	operator+( Polynomial p, Real x ) { p += x; return p; }
 	friend Polynomial	operator-( Polynomial a, const Polynomial& b ) { a -= b; return a; }
-	friend Polynomial	operator-( Polynomial p, Real x ) { p -= x; return p; }
 	friend Polynomial	operator*( Polynomial a, const Polynomial& b ) { a *= b; return a; }
-	friend Polynomial	operator*( Polynomial p, Real x ) { p *= x; return p; }
+	// friend Polynomial	operator/( Polynomial p, Real x ) { p /= x; return p; }
 	friend Polynomial	operator/( Polynomial a, const Polynomial& b ) { a /= b; return a; }
-	friend Polynomial	operator/( Polynomial p, Real x ) { p /= x; return p; }
 	friend Polynomial	operator%( Polynomial a, const Polynomial& b ) { a %= b; return a; }
 
 	bool	operator==( const Polynomial& other ) const noexcept = default;

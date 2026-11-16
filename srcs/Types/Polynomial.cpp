@@ -83,18 +83,18 @@ Polynomial&	Polynomial::operator+=( const Polynomial& other )
     return *this;
 }
 
-Polynomial&	Polynomial::operator+=( Real x )
-{
-    if (m_coeffs.empty())
-    {
-        if (x != 0)
-            m_coeffs.push_back(x);
-        return *this;
-    }
-    m_coeffs[0] += x;
-    trim();
-    return *this;
-}
+// Polynomial&	Polynomial::operator+=( Real x )
+// {
+//     if (m_coeffs.empty())
+//     {
+//         if (x != 0)
+//             m_coeffs.push_back(x);
+//         return *this;
+//     }
+//     m_coeffs[0] += x;
+//     trim();
+//     return *this;
+// }
 
 Polynomial&	Polynomial::operator-=( const Polynomial& other )
 {
@@ -107,18 +107,18 @@ Polynomial&	Polynomial::operator-=( const Polynomial& other )
     return *this;
 }
 
-Polynomial&	Polynomial::operator-=( Real x )
-{
-    if (m_coeffs.empty())
-    {
-        if (x != 0)
-            m_coeffs.push_back(-x);
-        return *this;
-    }
-    m_coeffs[0] -= x;
-    trim();
-    return *this;
-}
+// Polynomial&	Polynomial::operator-=( Real x )
+// {
+//     if (m_coeffs.empty())
+//     {
+//         if (x != 0)
+//             m_coeffs.push_back(-x);
+//         return *this;
+//     }
+//     m_coeffs[0] -= x;
+//     trim();
+//     return *this;
+// }
 
 Polynomial	Polynomial::operator-() const
 {
@@ -150,17 +150,17 @@ Polynomial&	Polynomial::operator*=( const Polynomial& other )
     return *this;
 }
 
-Polynomial&	Polynomial::operator*=( Real x )
-{
-    if (x == 0)
-    {
-        m_coeffs.clear();
-        return *this;
-    }
-    for (std::size_t i = 0; i < m_coeffs.size(); ++i)
-        m_coeffs[i] *= x;
-    return *this;
-}
+// Polynomial&	Polynomial::operator*=( Real x )
+// {
+//     if (x == 0)
+//     {
+//         m_coeffs.clear();
+//         return *this;
+//     }
+//     for (std::size_t i = 0; i < m_coeffs.size(); ++i)
+//         m_coeffs[i] *= x;
+//     return *this;
+// }
 
 Polynomial&	Polynomial::operator/=( const Polynomial& other )
 {
@@ -168,11 +168,11 @@ Polynomial&	Polynomial::operator/=( const Polynomial& other )
     return *this;
 }
 
-Polynomial&	Polynomial::operator/=( Real x )
-{
-    *this *= maths::inv(x);
-    return *this;
-}
+// Polynomial&	Polynomial::operator/=( Real x )
+// {
+//     *this *= maths::inv(x);
+//     return *this;
+// }
 
 Polynomial&	Polynomial::operator%=( const Polynomial& other )
 {
@@ -325,4 +325,9 @@ Polynomial::Result&	Polynomial::Result::solveDegree2()
     roots = res;
     this->delta = delta;
     return *this;
+}
+
+Polynomial  operator/( Real scl, const Polynomial& p )
+{
+    
 }

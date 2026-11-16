@@ -49,7 +49,7 @@ Real&   Real::operator*=( Real other ) noexcept
 Real&   Real::operator/=( Real other )
 {
     if (other.value == 0)
-        throw std::runtime_error("Error: cannot divide by zero.");
+        throw std::runtime_error("Math Error: Can't divide by zero.");
 
     value /= other.value;
     return *this;
@@ -115,8 +115,8 @@ Real    sqrt( Real r )
 Real    inv( Real r )
 {
     if (r == 0.)
-        throw std::runtime_error("Math Error: inv(0).");
-    return Real(1) / r;
+        throw std::runtime_error("Math Error: Can't divide by zero.");
+    return 1. / r;
 }
 
 Real    pow( Real r, int p )
