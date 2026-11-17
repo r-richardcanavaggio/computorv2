@@ -9,8 +9,9 @@
 #include "Types/Real.hpp"
 #include "Types/Token.hpp"
 #include "Types/Polynomial.hpp"
+#include "Types/RationalFunction.hpp"
 
-using VarType = std::variant< Real, Complex, Polynomial, Matrix< Real >, Matrix< Complex > >;
+using VarType = std::variant< Real, Complex, Polynomial, RationalFunction, Matrix< Real >, Matrix< Complex > >;
 
 struct Context : std::map< std::string, VarType >
 {

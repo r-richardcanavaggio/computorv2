@@ -2,10 +2,10 @@
 #include "Parser/Parser.hpp"
 #include <sstream>
 
-Evaluator::Evaluator( Context& _ctx, std::vector<std::string>& _history, std::vector<Token> _tokens, const std::string& line )
+Evaluator::Evaluator(Context &_ctx, std::vector<std::string> &_history, std::vector<Token> _tokens, const std::string &line)
     : ctx(_ctx), history(_history), tokens(std::move(_tokens)), rawLine(line), isQuery(false), hasEqual(false) {}
 
-void    Evaluator::evaluate()
+void Evaluator::evaluate()
 {
     if (!tokens.empty() && tokens.back().type == Token::Type::QUERY)
     {
@@ -44,22 +44,22 @@ std::optional<std::size_t> Evaluator::findEqualIndex() const
     return std::nullopt;
 }
 
-void    Evaluator::executeExpression() const
+void Evaluator::executeExpression() const
 {
-    Parser  parser(tokens);
+    Parser parser(tokens);
     VarType result = parser.parse()->eval(ctx);
 
     std::cout << result << "\n";
 }
 
-Evaluator::Target	Evaluator::parseLHS() const
+Evaluator::Target Evaluator::parseLHS() const
 {
     if (lhs.size() == 1 && lhs[0].type == Token::Type::VARIABLE)
         return (Target(lhs[0].value));
-    if (lhs.size() == 4 && 
-        lhs[0].type == Token::Type::VARIABLE 	  &&
+    if (lhs.size() == 4 &&
+        lhs[0].type == Token::Type::VARIABLE &&
         lhs[1].type == Token::Type::BRACKET_OPEN &&
-        lhs[2].type == Token::Type::VARIABLE     &&
+        lhs[2].type == Token::Type::VARIABLE &&
         lhs[3].type == Token::Type::BRACKET_CLOSE)
     {
         return (Target(lhs[0].value, lhs[2].value));
@@ -67,43 +67,42 @@ Evaluator::Target	Evaluator::parseLHS() const
     throw std::runtime_error("Error: Left side must be a variable ('x') or function declaration ('f(x)').");
 }
 
-
-void    Evaluator::executeQuery() const
+void Evaluator::executeQuery() const
 {
     if (rhs.empty())
     {
-        Parser  parser(lhs);
+        Parser parser(lhs);
 
         std::cout << parser.parse()->eval(ctx) << "\n";
-        return ;
+        return;
     }
 
-    Evaluator::Target   target = parseLHS();
+    Evaluator::Target target = parseLHS();
     if (!target.isFunction())
         throw std::runtime_error("Equation resolution expects a function on the left side (e.g. 'f(x) = 0 ?').");
 
-    auto    it = ctx.find(target.name);
+    auto it = ctx.find(target.name);
     if (it == ctx.end())
         throw std::runtime_error("Unknown function: '" + target.name + "'");
 
-    auto	poly = std::get_if<Polynomial>(&it->second);
+    auto poly = std::get_if<Polynomial>(&it->second);
     if (!poly)
         throw std::runtime_error("'" + target.name + "' is not a polynomial function.");
 
-    Parser	parser(rhs);
-    VarType	rhsResult = parser.parse()->eval(ctx);
+    Parser parser(rhs);
+    VarType rhsResult = parser.parse()->eval(ctx);
 
     if (!std::holds_alternative<Real>(rhsResult))
         throw std::runtime_error("Equation resolution expects a scalar value on the right side.");
 
-    Polynomial	equation = *poly;
+    Polynomial equation = *poly;
 
     equation -= std::get<Real>(rhsResult);
 
     std::cout << equation.solve();
 }
 
-void    Evaluator::saveResult( const std::string& name, const VarType& result )
+void Evaluator::saveResult(const std::string &name, const VarType &result)
 {
     ctx[name] = result;
 
@@ -114,35 +113,40 @@ void    Evaluator::saveResult( const std::string& name, const VarType& result )
     std::cout << result << "\n";
 }
 
-void    Evaluator::assignVariable( const std::string& name )
+void Evaluator::assignVariable(const std::string &name)
 {
-    Parser  parser(rhs);
+    Parser parser(rhs);
     VarType result = parser.parse()->eval(ctx);
 
     saveResult(name, result);
 }
 
-void    Evaluator::assignFunction( const std::string& name, const std::string& param )
+void Evaluator::assignFunction(const std::string &name, const std::string &param)
 {
     Context evalCtx = ctx;
 
     evalCtx[name] = Polynomial({0, 1});
 
-    Parser  parser(rhs);
+    Parser parser(rhs);
     VarType result = parser.parse()->eval(evalCtx);
 
-    if (std::holds_alternative<Real>(result))
-        result = Polynomial({std::get<Real>(result)});
-    if (!std::holds_alternative<Polynomial>(result))
-        throw std::runtime_error("Function must evaluate to a Polynomial.");
+    if (const auto value = std::get_if<Real>(&result))
+        result = Polynomial(*value);
 
-    std::get<Polynomial>(result).setName(param);
-    saveResult(name, result);
+    if (const auto value = std::get_if<Polynomial>(&result))
+    {
+        value->setName(param);
+        saveResult(name, *value);
+    }
+    else if (const auto value = std::get_if<RationalFunction>(&result))
+        saveResult(name, *value);
+    else
+        throw std::runtime_error("Error: Function must evaluate to a Polynomial or Rational Function.");
 }
 
-void    Evaluator::executeAssignment()
+void Evaluator::executeAssignment()
 {
-    Evaluator::Target   target = parseLHS();
+    Evaluator::Target target = parseLHS();
 
     if (Parser::isBuiltinFunction(target.name))
         throw std::runtime_error("Forbidden: '" + target.name + "' is a built-in function and cannot be redefined.");

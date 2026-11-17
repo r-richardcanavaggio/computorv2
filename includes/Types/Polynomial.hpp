@@ -50,6 +50,11 @@ public:
 	std::size_t	degree() const noexcept;
 	void		setName( std::string_view );
 
+	bool		null() const noexcept
+	{
+		return m_coeffs.empty() || (m_coeffs.size() == 1 && m_coeffs[0] == 0);
+	}
+
 	static Polynomial	createSymbolicPolynomial( std::string varName );
 
 	Result		solve() const;
@@ -86,17 +91,25 @@ public:
 	Polynomial&			operator*=( const Polynomial& other );
 	Polynomial&			operator+=( Real );
 	Polynomial&			operator-=( Real );
+	Polynomial&			operator*=( Real );
+	Polynomial&			operator/=( Real );
 
 	Polynomial&			operator/=( const Polynomial& other );
 	Polynomial&			operator%=( const Polynomial& other );
 
 	friend Polynomial	operator+( Polynomial a, const Polynomial& b ) { a += b; return a; }
-	friend Polynomial	operator+( Polynomial a, Real scl ) { a += scl; return a; }
-	friend Polynomial	operator+( Real scl, Polynomial a ) { a += scl; return a; }
 	friend Polynomial	operator-( Polynomial a, const Polynomial& b ) { a -= b; return a; }
 	friend Polynomial	operator*( Polynomial a, const Polynomial& b ) { a *= b; return a; }
 	friend Polynomial	operator/( Polynomial a, const Polynomial& b ) { a /= b; return a; }
 	friend Polynomial	operator%( Polynomial a, const Polynomial& b ) { a %= b; return a; }
+
+	friend Polynomial	operator+( Polynomial a, Real scl ) { a += scl; return a; }
+	friend Polynomial	operator+( Real scl, Polynomial a ) { a += scl; return a; }
+	friend Polynomial	operator-( Polynomial a, Real scl ) { a -= scl; return a; }
+	friend Polynomial	operator-( Real scl, Polynomial a ) { a -= scl; return a; }
+	friend Polynomial	operator*( Polynomial a, Real scl ) { a *= scl; return a; }
+	friend Polynomial	operator*( Real scl, Polynomial a ) { a *= scl; return a; }
+	friend Polynomial	operator/( Polynomial a, Real scl ) { a /= scl; return a; }
 
 	bool	operator==( const Polynomial& other ) const noexcept = default;
 

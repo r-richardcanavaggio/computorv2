@@ -5,7 +5,7 @@
 class PolyEvalVisitor
 {
 private:
-    const Polynomial&   p;
+    const Polynomial&       p;
 
 public:
     PolyEvalVisitor( const Polynomial& _p ) : p(_p) {}

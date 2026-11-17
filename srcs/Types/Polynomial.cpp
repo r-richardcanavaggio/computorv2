@@ -65,16 +65,13 @@ Polynomial		Polynomial::pow( int exp ) const
     if (exp < 0)
         throw std::runtime_error("Math Error: Negative exponent for polynomials not supported.");
 
-    Polynomial	res(1);
-    Polynomial	base = *this;
+	if (exp == 0)
+		return Polynomial(1);
 
-    while (exp > 0)
-    {
-        if (exp % 2 == 1)
-            res = res * base;
-        base *= base;
-        exp /= 2;
-    }
+	Polynomial	res = *this;
+
+	for (int i = 1; i < exp; ++i)
+		res *= *this;
     return res;
 }
 
@@ -85,28 +82,6 @@ Polynomial&		Polynomial::operator+=( const Polynomial& other )
 
 	for (std::size_t i = 0; i < other.m_coeffs.size(); i++)
 		m_coeffs[i] += other.m_coeffs[i];
-	trim();
-	return *this;
-}
-
-Polynomial&		Polynomial::operator+=( Real scl )
-{
-	if (m_coeffs.empty())
-	{
-		m_coeffs.push_back(scl);
-		return *this;
-	}
-	m_coeffs.back() += scl;
-	trim();
-	return *this;
-}
-
-Polynomial&		Polynomial::operator+=( Real scl )
-{
-	if (m_coeffs.empty())
-		return ;
-
-	m_coeffs[0] -= scl;
 	trim();
 	return *this;
 }
@@ -148,6 +123,52 @@ Polynomial&	Polynomial::operator*=( const Polynomial& other )
 			res[i + j] += m_coeffs[i] * other.m_coeffs[j];
 	}
 	m_coeffs = std::move(res);
+	trim();
+	return *this;
+}
+
+Polynomial&		Polynomial::operator+=( Real scl )
+{
+	if (m_coeffs.empty())
+	{
+		m_coeffs.push_back(scl);
+		return *this;
+	}
+	m_coeffs[0] += scl;
+	trim();
+	return *this;
+}
+
+Polynomial&		Polynomial::operator-=( Real scl )
+{
+	if (m_coeffs.empty())
+	{
+		m_coeffs.push_back(scl);
+		return *this;
+	}
+	m_coeffs[0] -= scl;
+	trim();
+	return *this;
+}
+
+Polynomial&		Polynomial::operator*=( Real scl )
+{
+	if (m_coeffs.empty())
+		return *this;
+
+	for (auto& coef : m_coeffs)
+		coef *= scl;
+	trim();
+	return *this;
+}
+
+Polynomial&		Polynomial::operator/=( Real scl )
+{
+	if (m_coeffs.empty())
+		return *this;
+
+	for (auto& coef : m_coeffs)
+		coef /= scl;
 	trim();
 	return *this;
 }

@@ -12,6 +12,7 @@ struct Visitor
 	VarType operator()( Real ) const;
 	VarType operator()( Complex ) const;
 	VarType operator()( const Polynomial& ) const;
+	VarType operator()( const RationalFunction& ) const;
 
 	template < real_complex K >
 	VarType operator()( const Matrix<K>& m ) const
@@ -75,6 +76,8 @@ struct Visitor
 	VarType operator()( const Polynomial&, const Polynomial& ) const;
 	VarType operator()( const Polynomial&, Real ) const;
 	VarType operator()( Real, const Polynomial& ) const;
+
+	VarType	operator()( const RationalFunction&, const RationalFunction& ) const;
 
 	template < typename T, typename U >
 	VarType operator()( const T&, const U& ) const
