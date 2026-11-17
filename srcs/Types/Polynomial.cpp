@@ -89,6 +89,28 @@ Polynomial&		Polynomial::operator+=( const Polynomial& other )
 	return *this;
 }
 
+Polynomial&		Polynomial::operator+=( Real scl )
+{
+	if (m_coeffs.empty())
+	{
+		m_coeffs.push_back(scl);
+		return *this;
+	}
+	m_coeffs.back() += scl;
+	trim();
+	return *this;
+}
+
+Polynomial&		Polynomial::operator+=( Real scl )
+{
+	if (m_coeffs.empty())
+		return ;
+
+	m_coeffs[0] -= scl;
+	trim();
+	return *this;
+}
+
 Polynomial&		Polynomial::operator-=( const Polynomial& other )
 {
 	if (m_coeffs.size() < other.m_coeffs.size())

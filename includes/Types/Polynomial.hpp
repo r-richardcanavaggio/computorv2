@@ -38,8 +38,9 @@ private:
 
 public:
 	Polynomial() = default;
+
 	Polynomial( std::initializer_list<Real>, std::string varName = "x" );
-	Polynomial( Real x );
+	explicit Polynomial( Real x );
 
 	Polynomial( const Polynomial& ) = default;
 	Polynomial( Polynomial&& ) noexcept = default;
@@ -83,11 +84,15 @@ public:
 	Polynomial&			operator-=( const Polynomial& other );
 	Polynomial			operator-() const;
 	Polynomial&			operator*=( const Polynomial& other );
+	Polynomial&			operator+=( Real );
+	Polynomial&			operator-=( Real );
 
 	Polynomial&			operator/=( const Polynomial& other );
 	Polynomial&			operator%=( const Polynomial& other );
 
 	friend Polynomial	operator+( Polynomial a, const Polynomial& b ) { a += b; return a; }
+	friend Polynomial	operator+( Polynomial a, Real scl ) { a += scl; return a; }
+	friend Polynomial	operator+( Real scl, Polynomial a ) { a += scl; return a; }
 	friend Polynomial	operator-( Polynomial a, const Polynomial& b ) { a -= b; return a; }
 	friend Polynomial	operator*( Polynomial a, const Polynomial& b ) { a *= b; return a; }
 	friend Polynomial	operator/( Polynomial a, const Polynomial& b ) { a /= b; return a; }
