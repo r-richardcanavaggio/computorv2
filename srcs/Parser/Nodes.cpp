@@ -14,6 +14,16 @@ VarType	BinaryOpNode::eval( Context& ctx ) const
 	return std::visit(Visitor(op), left->eval(ctx), right->eval(ctx));
 }
 
+VarType VariableNode::eval( Context& ctx ) const
+{
+	auto	it = ctx.find(name);
+
+	if (it != ctx.end())
+		return it->second;
+
+	return Polynomial::createSymbolicPolynomial(name);
+}
+
 VarType FunctionCallNode::eval( Context& ctx ) const
 {
 	if (!child)

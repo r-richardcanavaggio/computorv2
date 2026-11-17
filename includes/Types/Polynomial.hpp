@@ -30,7 +30,7 @@ private:
 		std::optional<Real>					delta;
 
 		Result( const std::vector<Real>& m_coeffs ) : coeffs(m_coeffs) {}
-		
+
 		Result&		solveDegree0() noexcept;
 		Result&		solveDegree1();
 		Result&		solveDegree2();
@@ -38,7 +38,7 @@ private:
 
 public:
 	Polynomial() = default;
-	Polynomial( std::initializer_list<Real> list );
+	Polynomial( std::initializer_list<Real>, std::string varName = "x" );
 	Polynomial( Real x );
 
 	Polynomial( const Polynomial& ) = default;
@@ -49,8 +49,10 @@ public:
 	std::size_t	degree() const noexcept;
 	void		setName( std::string_view );
 
+	static Polynomial	createSymbolicPolynomial( std::string varName );
+
 	Result		solve() const;
-	Polynomial	pow( int exp ) const;
+	Polynomial	pow( int ) const;
 
 	Real		eval( Real x ) const;
 	Polynomial	eval( const Polynomial& x ) const;
@@ -83,13 +85,11 @@ public:
 	Polynomial&			operator*=( const Polynomial& other );
 
 	Polynomial&			operator/=( const Polynomial& other );
-	// Polynomial&			operator/=( Real x );
 	Polynomial&			operator%=( const Polynomial& other );
 
 	friend Polynomial	operator+( Polynomial a, const Polynomial& b ) { a += b; return a; }
 	friend Polynomial	operator-( Polynomial a, const Polynomial& b ) { a -= b; return a; }
 	friend Polynomial	operator*( Polynomial a, const Polynomial& b ) { a *= b; return a; }
-	// friend Polynomial	operator/( Polynomial p, Real x ) { p /= x; return p; }
 	friend Polynomial	operator/( Polynomial a, const Polynomial& b ) { a /= b; return a; }
 	friend Polynomial	operator%( Polynomial a, const Polynomial& b ) { a %= b; return a; }
 

@@ -7,7 +7,7 @@
 struct BaseNode
 {
     virtual ~BaseNode() = default;
-    virtual VarType eval(Context &) const = 0;
+    virtual VarType eval( Context& ) const = 0;
 };
 
 using NodePtr = std::unique_ptr<BaseNode>;
@@ -18,12 +18,12 @@ struct NumberNode : public BaseNode
 
     explicit NumberNode(Real r) : value(r) {}
 
-    VarType eval(Context &) const override { return value; }
+    VarType eval( Context& ) const override { return value; }
 };
 
 struct ImaginaryNode : public BaseNode
 {
-    VarType eval(Context &) const override { return Complex(0, 1); }
+    VarType eval( Context& ) const override { return Complex(0, 1); }
 };
 
 struct VariableNode : public BaseNode
@@ -32,17 +32,7 @@ struct VariableNode : public BaseNode
 
     explicit VariableNode(const std::string &s) : name(s) {}
 
-    VarType eval(Context &ctx) const override
-    {
-        auto it = ctx.find(name);
-
-        if (it != ctx.end())
-            return it->second;
-
-        Polynomial sym({0, 1});
-        sym.setName(name);
-        return sym;
-    }
+    VarType eval( Context& ctx ) const override;
 };
 
 struct UnaryOpNode : public BaseNode
