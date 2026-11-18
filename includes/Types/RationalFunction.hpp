@@ -13,12 +13,27 @@ public:
 	{
 		if (m_denominator.null())
 			throw std::runtime_error("Math Error: Rational function denominator can't be null.");
+		normalize();
 	}
 
 	RationalFunction( Real numerator, Polynomial denominator ) : m_numerator(numerator), m_denominator(std::move(denominator))
 	{
 		if (m_denominator.null())
 			throw std::runtime_error("Math Error: Rational function denominator can't be null.");
+		normalize();
+	}
+
+	/// @brief RationalFunction representation of a Polynomial
+	/// @param numerator 
+	RationalFunction( Polynomial numerator ) : m_numerator(numerator), m_denominator(1) { normalize(); }
+
+	/// @brief RationalFnction representation of a Real
+	/// @param numerator 
+	RationalFunction( Real numerator ) : m_numerator(numerator), m_denominator(1)
+	{
+		if (m_denominator.null())
+			throw std::runtime_error("Math Error: Rational function denominator can't be null.");
+		normalize();
 	}
 
 	RationalFunction() = default;
@@ -28,6 +43,27 @@ public:
 	RationalFunction&	operator=( const RationalFunction& ) = default;
 	RationalFunction&	operator=( RationalFunction&& ) noexcept = default;
 
+	void	normalize()
+	{
+		Polynomial	G = PGCD(m_numerator, m_denominator);
+
+		if (G.degree() > 0)
+		{
+			m_numerator = euclideanDiv(m_numerator, G).first;
+			m_denominator = euclideanDiv(m_denominator, G).first;
+		}
+		if (m_denominator.getCoef(m_denominator.degree()) < 0)
+		{
+			m_numerator = -m_numerator;
+			m_denominator = -m_denominator;
+		}
+		m_numerator = m_numerator / m_denominator.leadCoef();
+		m_denominator = m_denominator / m_denominator.leadCoef();
+	}
+
+	const Polynomial&	getNumerator() const { return m_numerator; }
+	const Polynomial&	getDenominator() const { return m_denominator; }
+
 	RationalFunction&	operator+=( const RationalFunction& other )
 	{
 		RationalFunction	res;
@@ -35,6 +71,7 @@ public:
 		res.m_numerator = (m_numerator * other.m_denominator) + (m_denominator * other.m_numerator);
 		res.m_denominator = m_denominator * other.m_denominator;
 		*this = std::move(res);
+		normalize();
 		return	*this;
 	}
 	RationalFunction&	operator-=( const RationalFunction& other )
@@ -44,18 +81,24 @@ public:
 		res.m_numerator = (m_numerator * other.m_denominator) - (m_denominator * other.m_numerator);
 		res.m_denominator = m_denominator * other.m_denominator;
 		*this = std::move(res);
+		normalize();
 		return	*this;
 	}
 	RationalFunction&	operator*=( const RationalFunction& other )
 	{
 		m_numerator *= other.m_numerator;
 		m_denominator *= other.m_denominator;
+		normalize();
 		return *this;
 	}
 	RationalFunction&	operator/=( const RationalFunction& other )
 	{
+		if (other.m_numerator.null())
+			throw std::runtime_error("Math Error: Can't divide by zero.");
+
 		m_numerator *= other.m_denominator;
 		m_denominator *= other.m_numerator;
+		normalize();
 		return *this;
 	}
 	RationalFunction	operator-() const
@@ -73,15 +116,49 @@ public:
 
 	friend std::ostream&	operator<<( std::ostream& os, const RationalFunction& rf )
 	{
-		return os << rf.m_numerator << "/" << rf.m_denominator;
+		if (rf.m_numerator.degree() > 0 && !rf.m_numerator.hasOnlyNullCoeffs())
+			os << "(" << rf.m_numerator << ")";
+		else
+			os << rf.m_numerator;
+
+		os << "/";
+
+		if (rf.m_denominator.degree() > 0 && !rf.m_denominator.hasOnlyNullCoeffs())
+			os << "(" << rf.m_denominator << ")";
+		else
+			os << rf.m_denominator;
+
+		return os;
 	}
 
 	Real	eval( Real b ) const
 	{
 		return m_numerator.eval(b) / m_denominator.eval(b);
 	}
+
 	RationalFunction	eval( const Polynomial& p ) const
 	{
 		return RationalFunction(m_numerator.eval(p), m_denominator.eval(p));
 	}
+
+	RationalFunction	eval( const RationalFunction& other ) const
+	{
+		RationalFunction	res(*this);
+		return res / other;
+	}
 };
+
+namespace maths
+{
+
+inline RationalFunction	pow( const RationalFunction& f, int n )
+{
+	if (n < 0)
+		throw std::runtime_error("Error: Can't compute negative power on rational function. (for now)");
+	if (n == 0)
+		return Polynomial(1);
+
+	return RationalFunction(maths::pow(f.getNumerator(), n), maths::pow(f.getDenominator(), n));
+}
+
+}
