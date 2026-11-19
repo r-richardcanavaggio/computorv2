@@ -4,6 +4,7 @@
 #include <string>
 #include <variant>
 #include <array>
+#include <optional>
 
 #include "Types/Real.hpp"
 #include "Types/Complex.hpp"
@@ -83,10 +84,16 @@ public:
 	Polynomial&	operator=( const Polynomial& ) = default;
 	Polynomial&	operator=( Polynomial&& ) noexcept = default;
 
-	std::size_t	degree() const noexcept;
-	const Real&	leadCoef() const noexcept { return m_coeffs.back(); }
+	std::optional<std::size_t>	degree() const noexcept
+	{
+		if (m_coeffs.empty())
+			return std::nullopt;
+		return m_coeffs.size() - 1;
+	}
 
-	void		setName( std::string_view );
+	const Real&					leadCoef() const noexcept { return m_coeffs.back(); }
+
+	void						setName( std::string_view );
 
 	bool		null() const noexcept
 	{
@@ -154,9 +161,9 @@ public:
 
 		Polynomial	remainder(a), quotient, term;
 
-		while (!remainder.m_coeffs.empty() && remainder.degree() >= b.degree())
+		while (!remainder.m_coeffs.empty() && remainder.degree().value() >= b.degree().value())
 		{
-			auto degDiff = remainder.degree() - b.degree();
+			auto degDiff = remainder.degree().value() - b.degree().value();
 			auto coefRatio = remainder.m_coeffs.back() / b.m_coeffs.back();
 
 			term.m_coeffs.resize( degDiff + 1, 0 );

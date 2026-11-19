@@ -47,12 +47,12 @@ public:
 	{
 		Polynomial	G = PGCD(m_numerator, m_denominator);
 
-		if (G.degree() > 0)
+		if (G.degree().value() > 0)
 		{
 			m_numerator = euclideanDiv(m_numerator, G).first;
 			m_denominator = euclideanDiv(m_denominator, G).first;
 		}
-		if (m_denominator.getCoef(m_denominator.degree()) < 0)
+		if (m_denominator.getCoef(m_denominator.degree().value()) < 0)
 		{
 			m_numerator = -m_numerator;
 			m_denominator = -m_denominator;
@@ -116,14 +116,14 @@ public:
 
 	friend std::ostream&	operator<<( std::ostream& os, const RationalFunction& rf )
 	{
-		if (rf.m_numerator.degree() > 0 && !rf.m_numerator.hasOnlyNullCoeffs())
+		if (rf.m_numerator.degree().value() > 0 && !rf.m_numerator.hasOnlyNullCoeffs())
 			os << "(" << rf.m_numerator << ")";
 		else
 			os << rf.m_numerator;
 
 		os << "/";
 
-		if (rf.m_denominator.degree() > 0 && !rf.m_denominator.hasOnlyNullCoeffs())
+		if (rf.m_denominator.degree().value() > 0 && !rf.m_denominator.hasOnlyNullCoeffs())
 			os << "(" << rf.m_denominator << ")";
 		else
 			os << rf.m_denominator;
@@ -141,10 +141,18 @@ public:
 		return RationalFunction(m_numerator.eval(p), m_denominator.eval(p));
 	}
 
+	friend RationalFunction	compose( const Polynomial& p, const RationalFunction& f )
+	{
+		RationalFunction	res(f);
+
+		for (std::size_t i = 0; i <= p.degree().value(); ++i)
+			res += p.getCoef(i) * maths::pow(f, i);
+		return res;
+	}
+
 	RationalFunction	eval( const RationalFunction& other ) const
 	{
-		RationalFunction	res(*this);
-		return res / other;
+		return	RationalFunction(compose(m_numerator, other) / compose(m_denominator, other));
 	}
 };
 
@@ -159,6 +167,11 @@ inline RationalFunction	pow( const RationalFunction& f, int n )
 		return Polynomial(1);
 
 	return RationalFunction(maths::pow(f.getNumerator(), n), maths::pow(f.getDenominator(), n));
+}
+
+inline RationalFunction	inv( const RationalFunction& f )
+{
+	return RationalFunction(f.getDenominator(), f.getNumerator());
 }
 
 }
