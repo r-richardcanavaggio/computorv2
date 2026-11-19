@@ -31,6 +31,7 @@ struct Complex
 	Complex operator-() const noexcept;
 
 	bool operator==( const Complex & ) const noexcept = default;
+	void	type() const noexcept { std::cout << "Complex"; }
 };
 
 std::ostream& operator<<( std::ostream &os, Complex z );

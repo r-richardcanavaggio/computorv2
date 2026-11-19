@@ -50,6 +50,8 @@ struct Real
 		void	simplify();
 		static std::optional<Fraction>	createFraction( Real value );
 	};
+
+	void	type() const noexcept { std::cout << "Real"; }
 };
 
 std::ostream&	operator<<( std::ostream& os, Real r );

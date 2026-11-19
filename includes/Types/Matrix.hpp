@@ -116,6 +116,8 @@ public:
 		os << "]";
 		return os;
 	}
+
+	void	type() const noexcept { std::cout << "Matrix"; }
 };
 
 #include "Matrix.tpp"

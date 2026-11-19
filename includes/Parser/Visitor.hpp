@@ -260,7 +260,7 @@ struct Visitor
 			case Token::Operator::DIV:
 				return a / scl;
 			case Token::Operator::POW:
-				return maths::pow(a, static_cast<int>(scl));
+				return pow(a, static_cast<int>(scl));
 			default:
 				throw std::runtime_error("Error: Operation not supported between RationalFunction and Real types.");
 		}

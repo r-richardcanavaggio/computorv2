@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 #include <variant>
-#include <array>
 #include <optional>
 
 #include "Types/Real.hpp"
@@ -110,7 +109,7 @@ public:
 		return true;
 	}
 
-	static Polynomial	createSymbolicPolynomial( std::string varName );
+	static Polynomial	createSymbolicPolynomial( const std::string& varName );
 
 	Result		solve() const;
 
@@ -190,6 +189,7 @@ public:
 	bool	operator==( const Polynomial& other ) const noexcept = default;
 
 	friend std::ostream& operator<<( std::ostream& os, const Polynomial& p );
+	void    type() const noexcept { std::cout << "Polynomial"; }
 };
 
 namespace maths

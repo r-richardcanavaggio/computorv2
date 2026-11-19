@@ -36,7 +36,7 @@ public:
 		normalize();
 	}
 
-	RationalFunction() = default;
+	RationalFunction() : m_numerator(0), m_denominator(1) {}
 
 	RationalFunction( const RationalFunction& ) = default;
 	RationalFunction( RationalFunction&& ) noexcept = default;
@@ -114,12 +114,37 @@ public:
 	friend RationalFunction	operator*( RationalFunction a, const RationalFunction& b ) { a *= b; return a; }
 	friend RationalFunction	operator/( RationalFunction a, const RationalFunction& b ) { a /= b; return a; }
 
+	friend RationalFunction pow( const RationalFunction& f, int n )
+	{
+		if (n < 0)
+			throw std::runtime_error("Error: Can't compute negative power on rational function. (for now)");
+		if (n == 0)
+			return Polynomial(1);
+
+		return RationalFunction(maths::pow(f.m_numerator, n), maths::pow(f.m_denominator, n));
+	}
+
+	friend RationalFunction	compose( const Polynomial& p, const RationalFunction& f )
+	{
+		RationalFunction	res;
+
+		if (!p.degree())
+			return res;
+
+		for (std::size_t i = 0; i <= *p.degree(); ++i)
+			res += p.getCoef(i) * pow(f, i);
+		return res;
+	}
+
 	friend std::ostream&	operator<<( std::ostream& os, const RationalFunction& rf )
 	{
 		if (rf.m_numerator.degree().value() > 0 && !rf.m_numerator.hasOnlyNullCoeffs())
 			os << "(" << rf.m_numerator << ")";
 		else
 			os << rf.m_numerator;
+
+		if (rf.m_denominator.degree().value() == 0 && rf.m_denominator.getCoef(0) == 1)
+			return os;
 
 		os << "/";
 
@@ -141,33 +166,17 @@ public:
 		return RationalFunction(m_numerator.eval(p), m_denominator.eval(p));
 	}
 
-	friend RationalFunction	compose( const Polynomial& p, const RationalFunction& f )
-	{
-		RationalFunction	res(f);
-
-		for (std::size_t i = 0; i <= p.degree().value(); ++i)
-			res += p.getCoef(i) * maths::pow(f, i);
-		return res;
-	}
-
 	RationalFunction	eval( const RationalFunction& other ) const
 	{
-		return	RationalFunction(compose(m_numerator, other) / compose(m_denominator, other));
+		RationalFunction	num = compose(m_numerator, other);
+		RationalFunction	denum = compose (m_denominator, other);
+		return	RationalFunction( compose(m_numerator, other) / compose(m_denominator, other) );
 	}
+	void	type() const noexcept { std::cout << "RationalFunction"; }
 };
 
 namespace maths
 {
-
-inline RationalFunction	pow( const RationalFunction& f, int n )
-{
-	if (n < 0)
-		throw std::runtime_error("Error: Can't compute negative power on rational function. (for now)");
-	if (n == 0)
-		return Polynomial(1);
-
-	return RationalFunction(maths::pow(f.getNumerator(), n), maths::pow(f.getDenominator(), n));
-}
 
 inline RationalFunction	inv( const RationalFunction& f )
 {

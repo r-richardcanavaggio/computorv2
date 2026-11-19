@@ -7,7 +7,11 @@ void	Interpreter::commandList( const Token& ) const
 	else
 	{
 		for (const auto& pair : ctx)
-			std::cout << pair.first << ": " << pair.second << "\n";
+		{
+			std::cout << pair.first << ": ";
+			std::visit([](auto& arg) { arg.type(); }, pair.second);
+			std::cout << " = " << pair.second << '\n';
+		}
 	}
 }
 

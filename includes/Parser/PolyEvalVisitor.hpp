@@ -17,6 +17,8 @@ public:
     template < real_complex K >
     VarType operator()( const Matrix<K>& m ) const { return p.eval(m); }
 
+    VarType operator()( const RationalFunction& f ) const { return compose(p, f); }
+
     template < typename T >
     VarType operator()( const T& ) const
     {

@@ -6,15 +6,11 @@ Polynomial::Polynomial( std::initializer_list<Real> list, std::string varName ) 
 	trim();
 }
 
-Polynomial::Polynomial( Real x )
-{
-	if (x != 0)
-		m_coeffs.push_back( x );
-}
+Polynomial::Polynomial( Real x ) : m_coeffs({x}) {}
 
-Polynomial Polynomial::createSymbolicPolynomial( std::string varName )
+Polynomial Polynomial::createSymbolicPolynomial( const std::string& varName )
 {
-	return Polynomial( { 0, 1 }, std::move( varName ) );
+	return Polynomial({ 0, 1 }, varName);
 }
 
 void Polynomial::setName( std::string_view name )
