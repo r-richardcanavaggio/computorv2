@@ -11,14 +11,14 @@ private:
 public:
 	explicit RationalFunction( Polynomial numerator, Polynomial denominator ) : m_numerator(std::move(numerator)), m_denominator(std::move(denominator))
 	{
-		if (m_denominator.null())
+		if (m_denominator.isZero())
 			throw std::runtime_error("Math Error: Rational function denominator can't be null.");
 		normalize();
 	}
 
 	RationalFunction( Real numerator, Polynomial denominator ) : m_numerator(numerator), m_denominator(std::move(denominator))
 	{
-		if (m_denominator.null())
+		if (m_denominator.isZero())
 			throw std::runtime_error("Math Error: Rational function denominator can't be null.");
 		normalize();
 	}
@@ -27,11 +27,11 @@ public:
 	/// @param numerator 
 	RationalFunction( Polynomial numerator ) : m_numerator(numerator), m_denominator(1) { normalize(); }
 
-	/// @brief RationalFnction representation of a Real
+	/// @brief RationalFunction representation of a Real
 	/// @param numerator 
 	RationalFunction( Real numerator ) : m_numerator(numerator), m_denominator(1)
 	{
-		if (m_denominator.null())
+		if (m_denominator.isZero())
 			throw std::runtime_error("Math Error: Rational function denominator can't be null.");
 		normalize();
 	}
@@ -47,12 +47,12 @@ public:
 	{
 		Polynomial	G = PGCD(m_numerator, m_denominator);
 
-		if (G.degree().value() > 0)
+		if (G.degree() >= 0)
 		{
 			m_numerator = euclideanDiv(m_numerator, G).first;
 			m_denominator = euclideanDiv(m_denominator, G).first;
 		}
-		if (m_denominator.getCoef(m_denominator.degree().value()) < 0)
+		if (m_denominator.getCoef(m_denominator.degree()) < 0)
 		{
 			m_numerator = -m_numerator;
 			m_denominator = -m_denominator;
@@ -93,7 +93,7 @@ public:
 	}
 	RationalFunction&	operator/=( const RationalFunction& other )
 	{
-		if (other.m_numerator.null())
+		if (other.m_numerator.isZero())
 			throw std::runtime_error("Math Error: Can't divide by zero.");
 
 		m_numerator *= other.m_denominator;
@@ -128,27 +128,24 @@ public:
 	{
 		RationalFunction	res;
 
-		if (!p.degree())
-			return res;
-
-		for (std::size_t i = 0; i <= *p.degree(); ++i)
+		for (int i = 0; i <= p.degree(); ++i)
 			res += p.getCoef(i) * pow(f, i);
 		return res;
 	}
 
 	friend std::ostream&	operator<<( std::ostream& os, const RationalFunction& rf )
 	{
-		if (rf.m_numerator.degree().value() > 0 && !rf.m_numerator.hasOnlyNullCoeffs())
+		if (rf.m_numerator.degree() > 0 && !rf.m_numerator.hasOnlyNullCoeffs())
 			os << "(" << rf.m_numerator << ")";
 		else
 			os << rf.m_numerator;
 
-		if (rf.m_denominator.degree().value() == 0 && rf.m_denominator.getCoef(0) == 1)
+		if (rf.m_denominator.degree() == 0 && rf.m_denominator.getCoef(0) == 1)
 			return os;
 
 		os << "/";
 
-		if (rf.m_denominator.degree().value() > 0 && !rf.m_denominator.hasOnlyNullCoeffs())
+		if (rf.m_denominator.degree() > 0 && !rf.m_denominator.hasOnlyNullCoeffs())
 			os << "(" << rf.m_denominator << ")";
 		else
 			os << rf.m_denominator;
@@ -170,8 +167,10 @@ public:
 	{
 		RationalFunction	num = compose(m_numerator, other);
 		RationalFunction	denum = compose (m_denominator, other);
-		return	RationalFunction( compose(m_numerator, other) / compose(m_denominator, other) );
+
+		return	compose(m_numerator, other) / compose(m_denominator, other);
 	}
+
 	void	type() const noexcept { std::cout << "RationalFunction"; }
 };
 

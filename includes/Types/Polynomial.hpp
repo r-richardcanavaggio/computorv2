@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <string>
 #include <variant>
 #include <optional>
 
@@ -23,16 +21,24 @@ private:
 	std::vector<Real>	m_coeffs;
 	std::string			m_var = "x";
 
-	void		trim() noexcept;
+	template < typename T >
+	using Optional = std::optional<T>;
+	using size_t = std::size_t;
+
+	void		trim() noexcept
+	{
+		while (!m_coeffs.empty() && maths::abs(m_coeffs.back()) < maths::eps)
+			m_coeffs.pop_back();
+	}
 
 	struct Result
 	{
-		const std::vector<Real>&			coeffs;
+		const std::vector<Real>&	coeffs;
 
-		short								degree = 0;
-		bool								isInf = false;
-		std::optional<std::vector<Root>>	roots;
-		std::optional<Real>					delta;
+		short						degree = 0;
+		bool						isInf = false;
+		Optional<std::vector<Root>>	roots;
+		Optional<Real>				delta;
 
 		Result( const std::vector<Real>& m_coeffs ) : coeffs(m_coeffs) {}
 
@@ -75,41 +81,113 @@ private:
 public:
 	Polynomial() = default;
 
-	Polynomial( std::initializer_list<Real>, std::string varName = "x" );
-	Polynomial( Real x );
+	Polynomial( std::initializer_list<Real> list, const std::string& varName = "x" )
+		: m_coeffs(list), m_var(varName) { trim(); }
+
+	Polynomial( Real x ) : m_coeffs({x}) {}
+
+	static Polynomial	createSymbolicPolynomial( const std::string& varName ) { return Polynomial({0, 1}, varName); }
 
 	Polynomial( const Polynomial& ) = default;
 	Polynomial( Polynomial&& ) noexcept = default;
 	Polynomial&	operator=( const Polynomial& ) = default;
 	Polynomial&	operator=( Polynomial&& ) noexcept = default;
 
-	std::optional<std::size_t>	degree() const noexcept
+	bool	operator==( const Polynomial& ) const noexcept = default;
+
+	void				type() const noexcept
 	{
-		if (m_coeffs.empty())
-			return std::nullopt;
+		std::cout << "Polynomial";
+	}
+
+	bool				isZero() const
+	{
+		return m_coeffs.empty();
+	}
+
+	int	degree() const
+	{
+		if (isZero())
+			return -1;
+
 		return m_coeffs.size() - 1;
 	}
 
-	const Real&					leadCoef() const noexcept { return m_coeffs.back(); }
-
-	void						setName( std::string_view );
-
-	bool		null() const noexcept
+	const Real&			leadCoef() const noexcept
 	{
-		return m_coeffs.empty() || (m_coeffs.size() == 1 && m_coeffs[0] == 0);
+		return m_coeffs.back();
 	}
 
-	const Real&	getCoef( int coef ) const { return m_coeffs.at(coef); }
-
-	bool	hasOnlyNullCoeffs() const
+	void				setName( const std::string& name )
 	{
-		for (std::size_t i = 0; i < m_coeffs.size() - 1; ++i)
+		m_var = name;
+	}
+
+	const Real&			getCoef( int coef ) const
+	{
+		return m_coeffs.at(coef);
+	}
+
+	bool				hasOnlyNullCoeffs() const
+	{
+		for (size_t i = 0; i < m_coeffs.size() - 1; ++i)
 			if (m_coeffs[i] != 0)
 				return false;
 		return true;
 	}
 
-	static Polynomial	createSymbolicPolynomial( const std::string& varName );
+	Polynomial			operator-() const;
+
+	Polynomial&			operator+=( const Polynomial& other );
+	Polynomial&			operator-=( const Polynomial& other );
+	Polynomial&			operator*=( const Polynomial& other );
+
+	friend Polynomial	operator+( Polynomial a, const Polynomial& b ) { a += b; return a; }
+	friend Polynomial	operator-( Polynomial a, const Polynomial& b ) { a -= b; return a; }
+	friend Polynomial	operator*( Polynomial a, const Polynomial& b ) { a *= b; return a; }
+	friend Polynomial	operator/( Polynomial a, Real scl ) { a *= maths::inv(scl); return a; }
+	friend Polynomial	operator%( const Polynomial& a, const Polynomial& b ) { return euclideanDiv(a, b).second; }
+
+	/// @brief Performs euclidean division on A(x) and B(x)
+	/// @param const Polynomial& a
+	///	@param const Polynomial& b
+	/// @return std::pair<Polynomial, Polynomial>, first is quotient Q(x), second is rest R(x)
+	friend std::pair<Polynomial, Polynomial>	euclideanDiv( const Polynomial& a, const Polynomial& b )
+	{
+		if (b.isZero())
+			throw std::runtime_error("Error: division by polynomial zero.");
+
+		Polynomial	remainder(a), quotient;
+		remainder.trim();
+
+		while (!remainder.isZero() && remainder.degree() >= b.degree())
+		{
+			int		degDiff = remainder.degree() - b.degree();
+			Real	coefRatio = remainder.m_coeffs.back() / b.m_coeffs.back();
+			Polynomial	term;
+
+			term.m_coeffs.resize(degDiff + 1, 0);
+			term.m_coeffs.back() = coefRatio;
+
+			quotient += term;
+			remainder -= b * term;
+			remainder.trim();
+		}
+		return { quotient, remainder };
+	}
+
+	friend Polynomial	PGCD( Polynomial A, Polynomial B )
+	{
+		while (!B.isZero())
+		{
+			auto	res = euclideanDiv(A, B);
+			A = B;
+			B = res.second;
+		}
+		return A / A.m_coeffs.back();
+	}
+
+	friend std::ostream& operator<<( std::ostream& os, const Polynomial& p );
 
 	Result		solve() const;
 
@@ -137,77 +215,11 @@ public:
 		}
 		return result;
 	}
-
-	Polynomial&			operator+=( const Polynomial& other );
-	Polynomial&			operator-=( const Polynomial& other );
-	Polynomial&			operator*=( const Polynomial& other );
-	Polynomial			operator-() const;
-
-	friend Polynomial	operator+( Polynomial a, const Polynomial& b ) { a += b; return a; }
-	friend Polynomial	operator-( Polynomial a, const Polynomial& b ) { a -= b; return a; }
-	friend Polynomial	operator*( Polynomial a, const Polynomial& b ) { a *= b; return a; }
-	friend Polynomial	operator/( Polynomial a, Real scl ) { a *= maths::inv(scl); return a; }
-	friend Polynomial	operator%( const Polynomial& a, const Polynomial& b ) { return euclideanDiv(a, b).second; }
-
-	/// @brief Performs euclidean division on A(x) and B(x)
-	/// @param const Polynomial& a
-	///	@param const Polynomial& b
-	/// @return std::pair<Polynomial, Polynomial>, first is quotient Q(x), second is rest R(x)
-	friend std::pair<Polynomial, Polynomial>	euclideanDiv( const Polynomial& a, const Polynomial& b )
-	{
-		if (b.m_coeffs.empty())
-			throw std::runtime_error( "Error: division by polynomial zero." );
-
-		Polynomial	remainder(a), quotient, term;
-
-		while (!remainder.m_coeffs.empty() && remainder.degree().value() >= b.degree().value())
-		{
-			auto degDiff = remainder.degree().value() - b.degree().value();
-			auto coefRatio = remainder.m_coeffs.back() / b.m_coeffs.back();
-
-			term.m_coeffs.resize( degDiff + 1, 0 );
-			term.m_coeffs.back() = coefRatio;
-
-			quotient += term;
-			remainder -= b * term;
-
-			remainder.trim();
-		}
-		return { quotient, remainder };
-	}
-	friend Polynomial	PGCD( Polynomial A, Polynomial B )
-	{
-		while (!B.null())
-		{
-			auto	res = euclideanDiv(A, B);
-			A = B;
-			B = res.second;
-		}
-		return A / A.m_coeffs.back();
-	}
-
-	bool	operator==( const Polynomial& other ) const noexcept = default;
-
-	friend std::ostream& operator<<( std::ostream& os, const Polynomial& p );
-	void    type() const noexcept { std::cout << "Polynomial"; }
 };
 
 namespace maths
 {
 
-inline Polynomial	pow( const Polynomial& p, int n )
-{
-	if (n < 0)
-		throw std::runtime_error( "Math Error: Negative exponent for polynomials not supported." );
-
-	if (n == 0)
-		return Polynomial(1);
-
-	Polynomial	res(p);
-
-	for (int i = 1; i < n; ++i)
-		res *= p;
-	return res;
-}
+Polynomial	pow( const Polynomial&, int );
 
 }

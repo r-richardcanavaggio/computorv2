@@ -1,21 +1,76 @@
 #include "Types/Polynomial.hpp"
 #include "Constants.hpp"
 
-Polynomial::Polynomial( std::initializer_list<Real> list, std::string varName ) : m_coeffs( list ), m_var( std::move( varName ) )
+Polynomial Polynomial::operator-() const
 {
+	Polynomial result;
+
+	result.m_coeffs.reserve( m_coeffs.size() );
+	for (auto val : m_coeffs)
+		result.m_coeffs.push_back(-val);
+	return result;
+}
+
+Polynomial& Polynomial::operator+=( const Polynomial& other )
+{
+	if (m_coeffs.size() < other.m_coeffs.size())
+		m_coeffs.resize(other.m_coeffs.size(), 0);
+
+	for (std::size_t i = 0; i < other.m_coeffs.size(); i++)
+		m_coeffs[i] += other.m_coeffs[i];
 	trim();
+	return *this;
 }
 
-Polynomial::Polynomial( Real x ) : m_coeffs({x}) {}
-
-Polynomial Polynomial::createSymbolicPolynomial( const std::string& varName )
+Polynomial& Polynomial::operator-=( const Polynomial& other )
 {
-	return Polynomial({ 0, 1 }, varName);
+	if (m_coeffs.size() < other.m_coeffs.size())
+		m_coeffs.resize(other.m_coeffs.size(), 0);
+
+	for (std::size_t i = 0; i < other.m_coeffs.size(); i++)
+		m_coeffs[i] -= other.m_coeffs[i];
+	trim();
+	return *this;
 }
 
-void Polynomial::setName( std::string_view name )
+Polynomial& Polynomial::operator*=( const Polynomial& other )
 {
-	m_var = std::string( name );
+	if (m_coeffs.empty() || other.m_coeffs.empty())
+	{
+		m_coeffs.clear();
+		return *this;
+	}
+	std::size_t		  newSize = m_coeffs.size() + other.m_coeffs.size() - 1;
+	std::vector<Real> res( newSize, 0 );
+
+	for (std::size_t i = 0; i < m_coeffs.size(); ++i)
+	{
+		for (std::size_t j = 0; j < other.m_coeffs.size(); ++j)
+			res[i + j] += m_coeffs[i] * other.m_coeffs[j];
+	}
+	m_coeffs = std::move(res);
+	trim();
+	return *this;
+}
+
+namespace maths
+{
+
+Polynomial	pow( const Polynomial& p, int n )
+{
+	if (n < 0)
+		throw std::runtime_error( "Math Error: Negative exponent for polynomials not supported." );
+
+	if (n == 0)
+		return Polynomial(1);
+
+	Polynomial	res(p);
+
+	for (int i = 1; i < n; ++i)
+		res *= p;
+	return res;
+}
+
 }
 
 Real Polynomial::eval( Real x ) const
@@ -38,74 +93,16 @@ Polynomial Polynomial::eval( const Polynomial& p ) const
 
 Polynomial::Result Polynomial::solve() const
 {
-	Result res( m_coeffs );
+	Result	res(m_coeffs);
 
-	if (degree() == 0)
-		return res.solveDegree0();
-	else if (degree() == 1)
-		return res.solveDegree1();
-	else if (degree() == 2)
-		return res.solveDegree2();
-	else
-		throw std::runtime_error( "Math Error: Polynomial evaluation for degree > 2 not supported." );
-}
-
-Polynomial& Polynomial::operator+=( const Polynomial& other )
-{
-	if (m_coeffs.size() < other.m_coeffs.size())
-		m_coeffs.resize( other.m_coeffs.size(), 0 );
-
-	for (std::size_t i = 0; i < other.m_coeffs.size(); i++)
-		m_coeffs[i] += other.m_coeffs[i];
-	trim();
-	return *this;
-}
-
-Polynomial& Polynomial::operator-=( const Polynomial& other )
-{
-	if (m_coeffs.size() < other.m_coeffs.size())
-		m_coeffs.resize( other.m_coeffs.size(), 0 );
-
-	for (std::size_t i = 0; i < other.m_coeffs.size(); i++)
-		m_coeffs[i] = m_coeffs[i] - other.m_coeffs[i];
-	trim();
-	return *this;
-}
-
-Polynomial Polynomial::operator-() const
-{
-	Polynomial result;
-
-	result.m_coeffs.reserve( m_coeffs.size() );
-	for (auto val : m_coeffs)
-		result.m_coeffs.push_back( -val );
-	return result;
-}
-
-Polynomial& Polynomial::operator*=( const Polynomial& other )
-{
-	if (m_coeffs.empty() || other.m_coeffs.empty())
+	switch (degree())
 	{
-		m_coeffs.clear();
-		return *this;
+		case 0: return res.solveDegree0();
+		case 1: return res.solveDegree1();
+		case 2: return res.solveDegree2();
+		default: 
+			throw std::runtime_error("Math Error: Polynomial evaluation for degree > 2 not supported.");
 	}
-	std::size_t		  newSize = m_coeffs.size() + other.m_coeffs.size() - 1;
-	std::vector<Real> res( newSize, 0 );
-
-	for (std::size_t i = 0; i < m_coeffs.size(); ++i)
-	{
-		for (std::size_t j = 0; j < other.m_coeffs.size(); ++j)
-			res[i + j] += m_coeffs[i] * other.m_coeffs[j];
-	}
-	m_coeffs = std::move( res );
-	trim();
-	return *this;
-}
-
-void Polynomial::trim() noexcept
-{
-	while (!m_coeffs.empty() && maths::abs( m_coeffs.back() ) < maths::eps)
-		m_coeffs.pop_back();
 }
 
 std::ostream& operator<<( std::ostream& os, const Polynomial& p )
