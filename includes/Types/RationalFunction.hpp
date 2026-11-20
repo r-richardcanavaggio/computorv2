@@ -171,6 +171,11 @@ public:
 		return	compose(m_numerator, other) / compose(m_denominator, other);
 	}
 
+	Polynomial::Result	solve() const
+	{
+		return m_numerator.solve();
+	}
+
 	void	type() const noexcept { std::cout << "RationalFunction"; }
 };
 

@@ -2,6 +2,7 @@
 
 #include <variant>
 #include <optional>
+#include <span>
 
 #include "Types/Real.hpp"
 #include "Types/Complex.hpp"
@@ -30,53 +31,6 @@ private:
 		while (!m_coeffs.empty() && maths::abs(m_coeffs.back()) < maths::eps)
 			m_coeffs.pop_back();
 	}
-
-	struct Result
-	{
-		const std::vector<Real>&	coeffs;
-
-		short						degree = 0;
-		bool						isInf = false;
-		Optional<std::vector<Root>>	roots;
-		Optional<Real>				delta;
-
-		Result( const std::vector<Real>& m_coeffs ) : coeffs(m_coeffs) {}
-
-		Result&		solveDegree0() noexcept;
-		Result&		solveDegree1();
-		Result&		solveDegree2();
-
-		friend std::ostream& operator<<( std::ostream& os, const Result& res )
-		{
-			os << "Polynomial degree: " << res.degree << '\n';
-
-			if (res.degree == 0)
-			{
-				if (res.isInf)
-					os << "All real numbers are solution\n";
-				else
-					os << "No solution\n";
-				return os;
-			}
-			if (res.degree == 1)
-				return os << "The solution is:\n" << res.roots.value()[0] << '\n';
-
-			Real	delta = res.delta.value();
-
-			os << "Discriminant is " << delta << '\n';
-
-			if (delta > 0)
-				os << "Strictly positive, the two solutions are:\n"
-					<< res.roots.value()[0] << '\n' << res.roots.value()[1] << '\n';
-			else if (delta == 0)
-				os << "Discriminant is null, the solution is:\n"
-					<< res.roots.value()[0] << '\n';
-			else
-				os << "Strictly negative, the two solutions are:\n"
-					<< res.roots.value()[0] << '\n' << res.roots.value()[1] << '\n';
-			return os;
-		}
-	};
 
 public:
 	Polynomial() = default;
@@ -188,6 +142,85 @@ public:
 	}
 
 	friend std::ostream& operator<<( std::ostream& os, const Polynomial& p );
+
+	struct Result
+	{
+		int					degree = 0;
+		bool				isInf = false;
+		std::vector<Root>	roots;
+		Real				delta;
+
+		// Result() = default;
+		// Result( const Result& ) = default;
+		// Result( const Result&& ) noexcept = default;
+		// Result& operator=( const Result& ) = default;
+		// Result& operator=( const Result&& ) noexcept = default;
+
+		static Result	solveDegree0( std::span<const Real> coeffs ) noexcept
+		{
+			if (coeffs.empty() || coeffs[0] == 0)
+				return { .isInf = false };
+			return { .isInf = true };
+		}
+		static Result	solveDegree1( std::span<const Real> coeffs )
+		{
+			return { .degree = 1, .roots = { -coeffs[0] / coeffs[1] }};
+		}
+		static Result		solveDegree2( std::span<const Real> coeffs )
+		{
+			Real			  a = coeffs[2], b = coeffs[1], c = coeffs[0];
+			Real			  twoA = 2. * a;
+			Real			  delta = maths::square(b) - 4. * a * c;
+			std::vector<Root> res;
+
+			if (delta > 0)
+			{
+				res.push_back((-b - maths::sqrt(delta)) / twoA);
+				res.push_back((-b + maths::sqrt(delta)) / twoA);
+			}
+			else if (delta == 0)
+				res.push_back(-b / twoA);
+			else
+			{
+				Real re = -b / twoA;
+				Real im = maths::sqrt(-delta) / twoA;
+				res.push_back(Complex(re, -im));
+				res.push_back( Complex(re, im));
+			}
+			return { .degree = 2, .roots = res, .delta = delta };
+		}
+
+		friend std::ostream& operator<<( std::ostream& os, const Result& res )
+		{
+			os << "Polynomial degree: " << res.degree << '\n';
+
+			if (res.degree == 0)
+			{
+				if (res.isInf)
+					os << "All real numbers are solution\n";
+				else
+					os << "No solution\n";
+				return os;
+			}
+			if (res.degree == 1)
+				return os << "The solution is:\n" << res.roots[0] << '\n';
+
+			Real	delta = res.delta;
+
+			os << "Discriminant is " << delta << '\n';
+
+			if (delta > 0)
+				os << "Strictly positive, the two solutions are:\n"
+					<< res.roots[0] << '\n' << res.roots[1] << '\n';
+			else if (delta == 0)
+				os << "Discriminant is null, the solution is:\n"
+					<< res.roots[0] << '\n';
+			else
+				os << "Strictly negative, the two solutions are:\n"
+					<< res.roots[0] << '\n' << res.roots[1] << '\n';
+			return os;
+		}
+	};
 
 	Result		solve() const;
 

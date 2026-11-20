@@ -19,3 +19,15 @@ struct FunctionEvalVisitor
         throw std::runtime_error("Error: Rational function argument only takes Real/Polynomial types.");
     }
 };
+
+struct  FunctionSolveVisitor
+{
+    Polynomial::Result operator()( const Polynomial& p ) const { return p.solve(); }
+    Polynomial::Result operator()( const RationalFunction& f ) const { return f.solve(); }
+
+    template < typename T >
+    Polynomial::Result operator()( const T& ) const
+    {
+        throw std::runtime_error("Error: what are you doing ?");
+    }
+};

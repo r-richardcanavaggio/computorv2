@@ -93,13 +93,11 @@ Polynomial Polynomial::eval( const Polynomial& p ) const
 
 Polynomial::Result Polynomial::solve() const
 {
-	Result	res(m_coeffs);
-
 	switch (degree())
 	{
-		case 0: return res.solveDegree0();
-		case 1: return res.solveDegree1();
-		case 2: return res.solveDegree2();
+		case 0: return Result::solveDegree0(m_coeffs);
+		case 1: return Result::solveDegree1(m_coeffs);
+		case 2: return Result::solveDegree2(m_coeffs);
 		default: 
 			throw std::runtime_error("Math Error: Polynomial evaluation for degree > 2 not supported.");
 	}
@@ -139,48 +137,4 @@ std::ostream& operator<<( std::ostream& os, const Polynomial& p )
 	if (!printedAny)
 		return ( os << "0" );
 	return ( os );
-}
-
-Polynomial::Result& Polynomial::Result::solveDegree0() noexcept
-{
-	if (coeffs.empty() || coeffs[0] == 0)
-	{
-		degree = 0;
-		isInf = true;
-	}
-	return *this;
-}
-
-Polynomial::Result& Polynomial::Result::solveDegree1()
-{
-	degree = 1;
-	roots = { -coeffs[0] / coeffs[1] };
-	return *this;
-}
-
-Polynomial::Result& Polynomial::Result::solveDegree2()
-{
-	Real			  a = coeffs[2], b = coeffs[1], c = coeffs[0];
-	Real			  twoA = 2. * a;
-	Real			  delta = maths::square( b ) - 4. * a * c;
-	std::vector<Root> res;
-
-	if (delta > 0)
-	{
-		res.push_back( ( -b - maths::sqrt( delta ) ) / twoA );
-		res.push_back( ( -b + maths::sqrt( delta ) ) / twoA );
-	}
-	else if (delta == 0)
-		res.push_back( -b / twoA );
-	else
-	{
-		Real re = -b / twoA;
-		Real im = maths::sqrt( -delta ) / twoA;
-		res.push_back( Complex( re, -im ) );
-		res.push_back( Complex( re, im ) );
-	}
-	degree = 2;
-	roots = res;
-	this->delta = delta;
-	return *this;
 }
