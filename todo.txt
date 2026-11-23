@@ -1,1 +1,0 @@
-[[x, y]] printed as [[x, y]]. should be [x, y] since it's 1D matrice.

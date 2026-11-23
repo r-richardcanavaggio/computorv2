@@ -26,16 +26,18 @@ private:
 	void						addRowMultiple( std::size_t dest, std::size_t src, K factor );
 
 public:
-	Matrix( std::size_t rows, std::size_t cols );
-	Matrix( std::size_t n );
+	Matrix( std::size_t rows, std::size_t cols )
+		: m_elements(rows * cols, K(0)), m_rows(rows), m_cols(cols) {}
+
+	Matrix( std::size_t n ) : Matrix(n, n) {}
 
 	Matrix( const Matrix& ) = default;
 	Matrix& operator=( const Matrix& ) = default;
 	Matrix( Matrix&& ) noexcept = default;
 	Matrix& operator=( Matrix&& ) noexcept = default;
 
-	std::size_t				getRows() const noexcept;
- 	std::size_t				getCols() const noexcept;
+	std::size_t				getRows() const noexcept { return m_rows; }
+ 	std::size_t				getCols() const noexcept { return m_cols; }
 
 	K&						at( std::size_t row, std::size_t col );
 	const K&				at( std::size_t row, std::size_t col ) const;
@@ -99,7 +101,8 @@ public:
 		if (m.m_elements.empty())
 			return os << "[]";
 
-		os << "[";
+		if (m.m_rows > 1)
+			os << "[";
 		for (std::size_t r = 0; r < m.m_rows; ++r)
 		{
 			os << "[";
@@ -113,7 +116,8 @@ public:
 			if (r + 1 < m.m_rows)
 				os << "; ";
 		}
-		os << "]";
+		if (m.m_rows > 1)
+			os << "]";
 		return os;
 	}
 

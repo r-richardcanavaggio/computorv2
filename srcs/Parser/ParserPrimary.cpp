@@ -44,9 +44,8 @@ NodePtr	Parser::parseMatrix()
     std::size_t             cols = 0;
     std::vector<NodePtr>    elements;
 
-    auto parseRow = [&]()
+    auto parseElements = [&]()
     {
-        stream.consume(Token::Type::BRACKET_MATRIX_OPEN);
         std::size_t count = 0;
         elements.push_back(parseExpression());
         ++count;
@@ -55,9 +54,24 @@ NodePtr	Parser::parseMatrix()
             elements.push_back(parseExpression());
             ++count;
         }
+        return count;
+    };
+
+    auto    parseRow = [&]()
+    {
+        stream.consume(Token::Type::BRACKET_MATRIX_OPEN);
+        std::size_t count = parseElements();
         stream.consume(Token::Type::BRACKET_MATRIX_CLOSE);
         return count;
     };
+
+    if (stream.peek().type != Token::Type::BRACKET_MATRIX_OPEN)
+    {
+        rows = 1;
+        cols = parseElements();
+        stream.consume(Token::Type::BRACKET_MATRIX_CLOSE);
+        return std::make_unique<MatrixNode>(rows, cols, std::move(elements));
+    }
 
     cols = parseRow();
     ++rows;

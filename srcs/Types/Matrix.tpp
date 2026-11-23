@@ -46,25 +46,6 @@ void    Matrix<K>::addRowMultiple( std::size_t dest, std::size_t src, K factor )
 }
 
 template < real_complex K >
-Matrix<K>::Matrix( std::size_t rows, std::size_t cols )
-    : m_elements(rows * cols, K(0)), m_rows(rows), m_cols(cols) {}
-
-template < real_complex K >
-Matrix<K>::Matrix( std::size_t n ) : Matrix(n, n) {}
-
-template < real_complex K >
-std::size_t Matrix<K>::getRows() const noexcept
-{
-    return m_rows;
-}
-
-template < real_complex K >
-std::size_t Matrix<K>::getCols() const noexcept
-{
-    return m_cols;
-}
-
-template < real_complex K >
 K&  Matrix<K>::at(std::size_t row, std::size_t col)
 {
     if (row >= m_rows || col >= m_cols)
