@@ -20,19 +20,18 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 
 SRCS_FILES =	main.cpp \
 \
-				Types/Real.cpp \
 				Types/Complex.cpp \
 				Types/Polynomial.cpp \
+				Types/Real.cpp \
 \
-				Interpreter/Interpreter.cpp \
 				Interpreter/Commands.cpp \
 				Interpreter/Evaluator.cpp \
 				Interpreter/EvaluatorNormalize.cpp \
+				Interpreter/Interpreter.cpp \
 \
+				Parser/Nodes.cpp \
 				Parser/Parser.cpp \
 				Parser/ParserPrimary.cpp \
-				Parser/Visitor.cpp \
-				Parser/Nodes.cpp \
 				Parser/TokenStream.cpp \
 
 ################################################################################

@@ -155,8 +155,8 @@ public:
 	{
 		int					degree = 0;
 		bool				isInf = false;
-		std::vector<Root>	roots;
-		Real				delta;
+		std::vector<Root>	roots{};
+		Real				delta{};
 
 		bool	hasRealRoots() const
 		{

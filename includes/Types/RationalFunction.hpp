@@ -174,6 +174,18 @@ public:
 		return	compose(m_numerator, other) / compose(m_denominator, other);
 	}
 
+	template < real_complex K >
+	Matrix<K>	eval( const Matrix<K>& m ) const
+	{
+		Matrix<K>	num = m_numerator.eval(m);
+		Matrix<K>	den = m_denominator.eval(m);
+		auto		invDen = den.inverse();
+	
+		if (!invDen)
+			throw std::runtime_error("Math Error: Denominator matrix is singular.");
+		return num.dot(*invDen);
+	}
+
 	struct Result;
 
 	Result	solve() const;

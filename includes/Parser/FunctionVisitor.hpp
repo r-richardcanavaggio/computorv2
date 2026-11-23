@@ -23,6 +23,9 @@ struct FunctionEvalVisitor
     VarType operator()( const RationalFunction& f, const Polynomial& p ) const { return f.eval(p); }
     VarType operator()( const RationalFunction& f, const RationalFunction& other ) const { return f.eval(other); }
 
+    template < real_complex K >
+    VarType operator()( const RationalFunction& f, const Matrix<K>& m ) const { return f.eval(m); }
+
     template < typename Arg >
     VarType operator()( const Polynomial&, const Arg& ) const
     {
