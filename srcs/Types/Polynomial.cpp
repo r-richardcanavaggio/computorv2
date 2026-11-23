@@ -7,11 +7,14 @@ Polynomial Polynomial::operator-() const
 	result.m_coeffs.reserve( m_coeffs.size() );
 	for (auto val : m_coeffs)
 		result.m_coeffs.push_back(-val);
+	result.m_var = m_var;
 	return result;
 }
 
 Polynomial& Polynomial::operator+=( const Polynomial& other )
 {
+	mergeVar(other);
+
 	if (m_coeffs.size() < other.m_coeffs.size())
 		m_coeffs.resize(other.m_coeffs.size(), 0);
 
@@ -23,6 +26,8 @@ Polynomial& Polynomial::operator+=( const Polynomial& other )
 
 Polynomial& Polynomial::operator-=( const Polynomial& other )
 {
+	mergeVar(other);
+
 	if (m_coeffs.size() < other.m_coeffs.size())
 		m_coeffs.resize(other.m_coeffs.size(), 0);
 
@@ -34,6 +39,8 @@ Polynomial& Polynomial::operator-=( const Polynomial& other )
 
 Polynomial& Polynomial::operator*=( const Polynomial& other )
 {
+	mergeVar(other);
+
 	if (m_coeffs.empty() || other.m_coeffs.empty())
 	{
 		m_coeffs.clear();
@@ -58,7 +65,7 @@ namespace maths
 Polynomial	pow( const Polynomial& p, int n )
 {
 	if (n < 0)
-		throw std::runtime_error( "Math Error: Negative exponent for polynomials not supported." );
+		throw std::runtime_error("Math Error: Negative exponent for polynomials not supported.");
 
 	if (n == 0)
 		return Polynomial(1);

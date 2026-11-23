@@ -87,6 +87,14 @@ public:
 		return true;
 	}
 
+	void				mergeVar( const Polynomial& other )
+	{
+		if (degree() <= 0 && other.degree() > 0)
+			m_var = other.m_var;
+		else if (degree() > 0 && other.degree() > 0 && m_var != other.m_var)
+			throw std::runtime_error("Error: Multi-variable polynomials are not supported.");
+	}
+
 	Polynomial			operator-() const;
 
 	Polynomial&			operator+=( const Polynomial& other );
@@ -110,6 +118,7 @@ public:
 			throw std::runtime_error("Error: division by polynomial zero.");
 
 		Polynomial	remainder(a), quotient;
+		quotient.m_var = a.m_var;
 		remainder.trim();
 
 		while (!remainder.isZero() && remainder.degree() >= b.degree())
@@ -118,6 +127,7 @@ public:
 			Real	coefRatio = remainder.m_coeffs.back() / b.m_coeffs.back();
 			Polynomial	term;
 
+			term.m_var = a.m_var;
 			term.m_coeffs.resize(degDiff + 1, 0);
 			term.m_coeffs.back() = coefRatio;
 

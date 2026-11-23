@@ -48,8 +48,8 @@ std::optional<std::size_t> Evaluator::findEqualIndex() const
 
 void Evaluator::executeExpression() const
 {
-	Parser parser(tokens);
-	VarType result = parser.parse()->eval(ctx);
+	Parser	parser(tokens);
+	VarType	result = parser.parse()->eval(ctx);
 
 	std::cout << result << "\n";
 }
@@ -118,23 +118,18 @@ void Evaluator::assignFunction( const std::string& name, const std::string& para
 {
 	Context evalCtx = ctx;
 
-	evalCtx[name] = Polynomial({0, 1});
+	evalCtx[name] = Polynomial::createSymbolicPolynomial(param);
 
 	Parser	parser(rhs);
 	VarType	result = parser.parse()->eval(evalCtx);
 
-	if (const auto value = std::get_if<Real>(&result))
+	if (const Real* value = std::get_if<Real>(&result))
 		result = Polynomial(*value);
 
-	if (const auto value = std::get_if<Polynomial>(&result))
-	{
-		value->setName(param);
-		saveResult(name, *value);
-	}
-	else if (const auto value = std::get_if<RationalFunction>(&result))
-		saveResult(name, *value);
-	else
+	if (!std::holds_alternative<Polynomial>(result) &&
+		!std::holds_alternative<RationalFunction>(result))
 		throw std::runtime_error("Error: Function must evaluate to a Polynomial or Rational Function.");
+	saveResult(name, result);
 }
 
 void Evaluator::executeAssignment()
