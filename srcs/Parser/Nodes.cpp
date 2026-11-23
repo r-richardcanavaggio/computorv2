@@ -1,9 +1,8 @@
 #include <type_traits>
 
-#include "Parser/BuiltinVisitor.hpp"
-#include "Parser/FunctionEvalVisitor.hpp"
 #include "Parser/Nodes.hpp"
-#include "Parser/PolyEvalVisitor.hpp"
+#include "Parser/BuiltinVisitor.hpp"
+#include "Parser/FunctionVisitor.hpp"
 
 VarType	UnaryOpNode::eval( Context& ctx ) const
 {
@@ -28,19 +27,13 @@ VarType	VariableNode::eval( Context& ctx ) const
 VarType	FunctionCallNode::eval( Context& ctx ) const
 {
 	if (!child)
-		throw std::runtime_error( "Error: Invalid function call." );
+		throw std::runtime_error("Error: Invalid function call.");
 
-	auto	it = ctx.find( name );
-
+	auto	it = ctx.find(name);
 	if (it == ctx.end())
-		throw std::runtime_error( "Error: Unknown function." );
+		throw std::runtime_error("Error: Unknown function.");
 
-	if (Polynomial* p = std::get_if<Polynomial>( &it->second ))
-		return std::visit( PolyEvalVisitor( *p ), child->eval( ctx ) );
-	if (RationalFunction* f = std::get_if<RationalFunction>( &it->second ))
-		return std::visit( FunctionEvalVisitor{ f }, child->eval( ctx ) );
-
-	throw std::runtime_error( "Error: Not a function." );
+	return std::visit(FunctionEvalVisitor{}, it->second, child->eval(ctx));
 }
 
 VarType MatrixNode::eval( Context& ctx ) const

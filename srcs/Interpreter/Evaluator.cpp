@@ -2,9 +2,9 @@
 
 #include "Interpreter/Evaluator.hpp"
 #include "Parser/Parser.hpp"
-#include "Parser/FunctionEvalVisitor.hpp"
+#include "Parser/FunctionVisitor.hpp"
 
-Evaluator::Evaluator(Context &_ctx, std::vector<std::string> &_history, std::vector<Token> _tokens, const std::string &line)
+Evaluator::Evaluator( Context& _ctx, std::vector<std::string>& _history, std::vector<Token> _tokens, const std::string& line )
 	: ctx(_ctx), history(_history), tokens(std::move(_tokens)), rawLine(line), isQuery(false), hasEqual(false) {}
 
 void Evaluator::evaluate()
