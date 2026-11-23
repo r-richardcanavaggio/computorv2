@@ -1,6 +1,5 @@
 #include "Interpreter/Interpreter.hpp"
 #include "Interpreter/Evaluator.hpp"
-#include <regex>
 
 namespace Lexer
 {
@@ -98,8 +97,12 @@ std::vector<Token> tokenize( std::string_view input )
 				if (isVarStart(c))
 				{
 					auto	variable = scanVariable(input, i);
+
 					if (variable)
                     {
+						for (char& i : *variable)
+							i = std::towlower(static_cast<unsigned char>(i));
+
                         if (*variable == "i")
                             tokens.push_back({Token::Type::IMAGINARY});
                         else
