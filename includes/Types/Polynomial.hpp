@@ -11,7 +11,7 @@ using Root = std::variant<Real, Complex>;
 
 inline std::ostream&	operator<<( std::ostream& os, const Root& r )
 {
-	std::visit( [&os]< real_complex K >( K val ) { os << val; }, r );
+	std::visit([&os]< real_complex K >( K val ) { os << val; }, r);
 	return os;
 }
 
@@ -35,7 +35,7 @@ public:
 	Polynomial( std::initializer_list<Real> list, const std::string& varName = "x" )
 		: m_coeffs(list), m_var(varName) { trim(); }
 
-	Polynomial( Real x ) : m_coeffs({x}) {}
+	Polynomial( Real x ) : m_coeffs({x}) { trim(); }
 
 	static Polynomial	createSymbolicPolynomial( const std::string& varName ) { return Polynomial({0, 1}, varName); }
 
@@ -92,11 +92,12 @@ public:
 	Polynomial&			operator+=( const Polynomial& other );
 	Polynomial&			operator-=( const Polynomial& other );
 	Polynomial&			operator*=( const Polynomial& other );
+	Polynomial&			operator/=( const Real scl ) { *this *= maths::inv(scl); return *this; }
 
 	friend Polynomial	operator+( Polynomial a, const Polynomial& b ) { a += b; return a; }
 	friend Polynomial	operator-( Polynomial a, const Polynomial& b ) { a -= b; return a; }
 	friend Polynomial	operator*( Polynomial a, const Polynomial& b ) { a *= b; return a; }
-	friend Polynomial	operator/( Polynomial a, Real scl ) { a *= maths::inv(scl); return a; }
+	friend Polynomial	operator/( Polynomial a, Real scl ) { a /= scl; return a; }
 	friend Polynomial	operator%( const Polynomial& a, const Polynomial& b ) { return euclideanDiv(a, b).second; }
 
 	/// @brief Performs euclidean division on A(x) and B(x)
@@ -147,11 +148,21 @@ public:
 		std::vector<Root>	roots;
 		Real				delta;
 
+		bool	hasRealRoots() const
+		{
+			for (const auto& root : roots)
+			{
+				if (const auto ptr = std::get_if<Real>(&root))
+					return true;
+			}
+			return false;
+		}
+
 		static Result	solveDegree0( std::span<const Real> coeffs ) noexcept
 		{
 			if (coeffs.empty() || coeffs[0] == 0)
-				return { .isInf = false };
-			return { .isInf = true };
+				return { .isInf = true };
+			return {};
 		}
 		static Result	solveDegree1( std::span<const Real> coeffs )
 		{
@@ -176,7 +187,7 @@ public:
 				Real re = -b / twoA;
 				Real im = maths::sqrt(-delta) / twoA;
 				res.push_back(Complex(re, -im));
-				res.push_back( Complex(re, im));
+				res.push_back(Complex(re, im));
 			}
 			return { .degree = 2, .roots = res, .delta = delta };
 		}
@@ -213,7 +224,18 @@ public:
 		}
 	};
 
-	Result		solve() const;
+	Result		solve() const
+	{
+		switch (degree())
+		{
+			case -1:
+			case 0: return Result::solveDegree0(m_coeffs);
+			case 1: return Result::solveDegree1(m_coeffs);
+			case 2: return Result::solveDegree2(m_coeffs);
+			default: 
+				throw std::runtime_error("Math Error: Polynomial evaluation for degree > 2 not supported.");
+		}
+	}
 
 	Real		eval( Real x ) const;
 	Polynomial	eval( const Polynomial& x ) const;

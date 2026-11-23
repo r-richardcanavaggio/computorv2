@@ -2,6 +2,14 @@
 
 #include "RuntimeTypes.hpp"
 
+using SolveResult = std::variant<Polynomial::Result, RationalFunction::Result>;
+
+inline std::ostream& operator<<( std::ostream& os, const SolveResult& res )
+{
+    std::visit([&os]< typename T >( const T& r ) { os << r; }, res);
+    return os;
+}
+
 struct FunctionEvalVisitor
 {
     VarType operator()( const Polynomial& p, Real v ) const { return p.eval(v); }
@@ -34,11 +42,11 @@ struct FunctionEvalVisitor
 
 struct  FunctionSolveVisitor
 {
-    Polynomial::Result operator()( const Polynomial& p ) const { return p.solve(); }
-    Polynomial::Result operator()( const RationalFunction& f ) const { return f.solve(); }
+    SolveResult operator()( const Polynomial& p ) const { return p.solve(); }
+    SolveResult operator()( const RationalFunction& f ) const { return f.solve(); }
 
     template < typename T >
-    Polynomial::Result operator()( const T& ) const
+    SolveResult operator()( const T& ) const
     {
         throw std::runtime_error("Error: Equation cannot be solved.");
     }

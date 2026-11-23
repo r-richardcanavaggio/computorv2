@@ -45,20 +45,23 @@ public:
 
 	void	normalize()
 	{
-		Polynomial	G = PGCD(m_numerator, m_denominator);
-
-		if (G.degree() >= 0)
+		if (!m_numerator.isZero())
 		{
-			m_numerator = euclideanDiv(m_numerator, G).first;
-			m_denominator = euclideanDiv(m_denominator, G).first;
+			Polynomial	G = PGCD(m_numerator, m_denominator);
+	
+			if (G.degree() >= 0)
+			{
+				m_numerator = euclideanDiv(m_numerator, G).first;
+				m_denominator = euclideanDiv(m_denominator, G).first;
+			}
 		}
-		if (m_denominator.getCoef(m_denominator.degree()) < 0)
+		if (m_denominator.leadCoef() < 0)
 		{
 			m_numerator = -m_numerator;
 			m_denominator = -m_denominator;
 		}
-		m_numerator = m_numerator / m_denominator.leadCoef();
-		m_denominator = m_denominator / m_denominator.leadCoef();
+		m_numerator /= m_denominator.leadCoef();
+		m_denominator /= m_denominator.leadCoef();
 	}
 
 	const Polynomial&	getNumerator() const { return m_numerator; }
@@ -171,13 +174,66 @@ public:
 		return	compose(m_numerator, other) / compose(m_denominator, other);
 	}
 
-	Polynomial::Result	solve() const
-	{
-		return m_numerator.solve();
-	}
+	struct Result;
+
+	Result	solve() const;
 
 	void	type() const noexcept { std::cout << "RationalFunction"; }
 };
+
+struct RationalFunction::Result
+{
+	RationalFunction	reduced;
+	Polynomial::Result	numRes;
+	Polynomial::Result	denomRes;
+
+	friend std::ostream& operator<<( std::ostream& os, const Result& res )
+	{
+		std::vector<Root>	excluded;
+
+		os << "Reduced form: " << res.reduced << " = 0\n";
+
+		if (res.reduced.getDenominator().degree() >= 1)
+		{
+			if (res.reduced.getDenominator().degree() > 2)
+				os << "Note: denominator degree > 2, excluded values not computed.\n";
+			else if (!res.denomRes.hasRealRoots())
+				os << "Domain: all real numbers.\n";
+			else
+			{
+				excluded = res.denomRes.roots;
+
+				os << "Excluded values (denominator = 0): ";
+				if (excluded.size() == 1)
+					os << excluded[0];
+				else
+					os << excluded[0] << ", " << excluded[1];
+				os << '\n';
+			}
+		}
+		if (res.reduced.getNumerator().isZero())
+		{
+			if (excluded.empty())
+				return os << "All real numbers are solutions\n";
+			os << "All real numbers except { ";
+			if (excluded.size() == 1)
+				os << excluded[0];
+			else
+				os << excluded[0] << ", " << excluded[1];
+			os << " } are solutions.\n";
+			return os;
+		}
+		if (res.reduced.getNumerator().degree() == 0)
+			return os << "No solution\n";
+		os << "Solving numerator: " << res.reduced.getNumerator() << " = 0\n" << res.numRes;
+		return os;
+	}
+};
+
+inline RationalFunction::Result	RationalFunction::solve() const
+{
+	return { .reduced = *this, .numRes = m_numerator.solve(), .denomRes = m_denominator.solve() };
+}
 
 namespace maths
 {

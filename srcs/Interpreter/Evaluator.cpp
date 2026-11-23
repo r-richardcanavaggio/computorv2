@@ -106,22 +106,22 @@ void Evaluator::saveResult( const std::string& name, const VarType& result )
 	std::cout << result << "\n";
 }
 
-void Evaluator::assignVariable(const std::string &name)
+void Evaluator::assignVariable( const std::string& name )
 {
-	Parser parser(rhs);
-	VarType result = parser.parse()->eval(ctx);
+	Parser	parser(rhs);
+	VarType	result = parser.parse()->eval(ctx);
 
 	saveResult(name, result);
 }
 
-void Evaluator::assignFunction(const std::string &name, const std::string &param)
+void Evaluator::assignFunction( const std::string& name, const std::string& param )
 {
 	Context evalCtx = ctx;
 
 	evalCtx[name] = Polynomial({0, 1});
 
-	Parser parser(rhs);
-	VarType result = parser.parse()->eval(evalCtx);
+	Parser	parser(rhs);
+	VarType	result = parser.parse()->eval(evalCtx);
 
 	if (const auto value = std::get_if<Real>(&result))
 		result = Polynomial(*value);

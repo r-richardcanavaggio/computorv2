@@ -1,5 +1,4 @@
 #include "Types/Polynomial.hpp"
-#include "Constants.hpp"
 
 Polynomial Polynomial::operator-() const
 {
@@ -91,18 +90,6 @@ Polynomial Polynomial::eval( const Polynomial& p ) const
 	return result;
 }
 
-Polynomial::Result Polynomial::solve() const
-{
-	switch (degree())
-	{
-		case 0: return Result::solveDegree0(m_coeffs);
-		case 1: return Result::solveDegree1(m_coeffs);
-		case 2: return Result::solveDegree2(m_coeffs);
-		default: 
-			throw std::runtime_error("Math Error: Polynomial evaluation for degree > 2 not supported.");
-	}
-}
-
 std::ostream& operator<<( std::ostream& os, const Polynomial& p )
 {
 	if (p.m_coeffs.empty())
@@ -135,6 +122,6 @@ std::ostream& operator<<( std::ostream& os, const Polynomial& p )
 		printedAny = true;
 	}
 	if (!printedAny)
-		return ( os << "0" );
-	return ( os );
+		return os << "0";
+	return os;
 }
