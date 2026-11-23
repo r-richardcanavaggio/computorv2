@@ -140,6 +140,10 @@ struct Visitor
 			case Token::Operator::MUL:
 				return a * b;
 			case Token::Operator::DOT:
+				if (a.getRows() == 1 && b.getRows() == 1 && a.getCols() == b.getCols())
+					return a.dot(b.transpose())(0, 0);
+				if (a.getCols() != b.getRows() && b.getRows() == 1 && a.getCols() == b.getCols())
+					return a.dot(b.transpose()).transpose();
 				return a.dot(b);
 			default:
 				throw std::runtime_error("Error: Operation not supported between Matrix and Matrix types.");
@@ -167,6 +171,8 @@ struct Visitor
 				if (scl < 0. || Real(static_cast<int>(scl)) != scl)
 					throw std::runtime_error("Math Error: Exponent must be a positive integer.");
 				return m.pow(static_cast<int>(scl));
+			case Token::Operator::DIV:
+				return m / scl;
 			default:
 				throw std::runtime_error("Error: Operation not supported between Matrix and Real types.");
 		}

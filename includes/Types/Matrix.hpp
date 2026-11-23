@@ -52,6 +52,17 @@ public:
 	Matrix					pow( int p ) const;
 	static Matrix			identity( std::size_t n );
 	Real					norm() const noexcept;
+	Matrix 					transpose() const
+	{
+		Matrix	result(m_cols, m_rows);
+
+		for (size_t j = 0; j < m_cols; ++j)
+		{
+			for (size_t i = 0; i < m_rows; ++i)
+				result(j, i) = at(i, j);
+		}
+		return result;
+	}
 
 	Matrix&					operator+=( const Matrix& other );
 	Matrix&					operator-=( const Matrix& other );
@@ -83,11 +94,6 @@ public:
 	friend Matrix			operator*( K factor, Matrix m )
 	{
 		m *= factor;
-		return m;
-	}
-	friend Matrix			operator/( K factor, Matrix m )
-	{
-		m /= factor;
 		return m;
 	}
 	friend Matrix			operator/( Matrix m, K factor )
