@@ -1,7 +1,6 @@
 #pragma once
 
 #include <variant>
-#include <optional>
 #include <span>
 
 #include "Types/Real.hpp"
@@ -12,7 +11,7 @@ using Root = std::variant<Real, Complex>;
 
 inline std::ostream&	operator<<( std::ostream& os, const Root& r )
 {
-	std::visit( [&os]( const Root& val ) { os << val; }, r );
+	std::visit( [&os]< real_complex K >( K val ) { os << val; }, r );
 	return os;
 }
 
@@ -22,8 +21,6 @@ private:
 	std::vector<Real>	m_coeffs;
 	std::string			m_var = "x";
 
-	template < typename T >
-	using Optional = std::optional<T>;
 	using size_t = std::size_t;
 
 	void		trim() noexcept
@@ -149,12 +146,6 @@ public:
 		bool				isInf = false;
 		std::vector<Root>	roots;
 		Real				delta;
-
-		// Result() = default;
-		// Result( const Result& ) = default;
-		// Result( const Result&& ) noexcept = default;
-		// Result& operator=( const Result& ) = default;
-		// Result& operator=( const Result&& ) noexcept = default;
 
 		static Result	solveDegree0( std::span<const Real> coeffs ) noexcept
 		{

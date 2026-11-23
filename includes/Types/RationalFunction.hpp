@@ -166,7 +166,7 @@ public:
 	RationalFunction	eval( const RationalFunction& other ) const
 	{
 		RationalFunction	num = compose(m_numerator, other);
-		RationalFunction	denum = compose (m_denominator, other);
+		RationalFunction	denum = compose(m_denominator, other);
 
 		return	compose(m_numerator, other) / compose(m_denominator, other);
 	}
