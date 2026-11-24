@@ -14,7 +14,6 @@ add_executable(computorv2
     srcs/main.cpp
     srcs/Types/Real.cpp
     srcs/Types/Complex.cpp
-    srcs/Types/Polynomial.cpp
     srcs/Parser/Nodes.cpp
     srcs/Parser/ParserPrimary.cpp
     srcs/Parser/Parser.cpp
@@ -30,7 +29,6 @@ target_link_libraries(computorv2 PRIVATE readline)
 target_include_directories(computorv2
     PUBLIC
         includes
-        srcs/Types/
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
