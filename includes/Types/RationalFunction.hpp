@@ -138,6 +138,9 @@ public:
 
 	friend std::ostream&	operator<<( std::ostream& os, const RationalFunction& rf )
 	{
+		if (rf.m_denominator.degree() == 0 && rf.m_denominator.getCoef(0) == 1)
+			return os << rf.m_numerator;
+
 		if (rf.m_numerator.degree() > 0 && !rf.m_numerator.hasOnlyNullCoeffs())
 			os << "(" << rf.m_numerator << ")";
 		else
@@ -244,7 +247,8 @@ struct RationalFunction::Result
 
 inline RationalFunction::Result	RationalFunction::solve() const
 {
-	return { .reduced = *this, .numRes = m_numerator.solve(), .denomRes = m_denominator.solve() };
+	auto	denomRes = (m_denominator.degree() <= 2) ? m_denominator.solve() : Polynomial::Result{};
+	return { .reduced = *this, .numRes = m_numerator.solve(), .denomRes = denomRes };
 }
 
 namespace maths

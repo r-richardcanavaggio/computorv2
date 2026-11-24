@@ -1,8 +1,10 @@
-#include <cstdio>
-#include <readline/readline.h>
-#include <readline/history.h>
-#include <string>
+#include <iostream>
 #include <optional>
+#include <readline/history.h>
+#include <readline/readline.h>
+#include <string>
+#include <unistd.h>
+
 #include "Interpreter/Interpreter.hpp"
 
 namespace
@@ -10,6 +12,14 @@ namespace
 
 std::optional<std::string> readLine( std::string_view prompt )
 {
+	if (!isatty(STDIN_FILENO))
+	{
+		std::string line;
+		if (!std::getline(std::cin, line))
+			return std::nullopt;
+		return line;
+	}
+
 	char*	input = readline(prompt.data());
 
 	if (!input) // CTRL-D

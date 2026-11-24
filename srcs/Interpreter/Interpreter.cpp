@@ -166,7 +166,8 @@ bool	Interpreter::executeCommand( std::span<const Token> tokens )
 		if (tokens.size() > 2)
 			throw std::runtime_error("Usage: <Command> (argument).");
 
-		it->second(tokens.back());
+		Token	arg = (tokens.size() == 2) ? tokens[1] : Token{};
+		it->second(arg);
 		return true;
 	}
 	return false;

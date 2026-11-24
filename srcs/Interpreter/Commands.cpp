@@ -9,7 +9,7 @@ void	Interpreter::commandList( const Token& ) const
 		for (const auto& pair : ctx)
 		{
 			std::cout << pair.first << ": ";
-			std::visit([](auto& arg) { arg.type(); }, pair.second);
+			std::visit([]( const auto& arg ) { arg.type(); }, pair.second);
 			std::cout << " = " << pair.second << '\n';
 		}
 	}
@@ -30,14 +30,14 @@ void	Interpreter::commandDeg( const Token& )
 {
 	ctx.isDegreeMode = true;
 
-	std::cout << "Angle mode switched to: DEGREES" << std::endl;
+	std::cout << "Angle mode switched to: DEGREES\n";
 }
 
 void	Interpreter::commandRad( const Token& )
 {
 	ctx.isDegreeMode = false;
 
-	std::cout << "Angle mode switched to: RADIANS" << std::endl;
+	std::cout << "Angle mode switched to: RADIANS\n";
 }
 
 void	Interpreter::commandExit( const Token& )
@@ -72,7 +72,7 @@ void	Interpreter::commandClear( const Token& arg )
 	auto	it = ctx.find(arg.value);
 
 	if (it == ctx.end())
-		throw std::runtime_error("Error: '" + arg.value + "' is not defined.\n");
+		throw std::runtime_error("Error: '" + arg.value + "' is not defined.");
 
 	ctx.erase(it);
 	std::cout << "Variable/Function '" << arg.value << "' has been deleted.\n";

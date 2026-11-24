@@ -118,7 +118,7 @@ void Evaluator::assignFunction( const std::string& name, const std::string& para
 {
 	Context evalCtx = ctx;
 
-	evalCtx[name] = Polynomial::createSymbolicPolynomial(param);
+	evalCtx[param] = Polynomial::createSymbolicPolynomial(param);
 
 	Parser	parser(rhs);
 	VarType	result = parser.parse()->eval(evalCtx);

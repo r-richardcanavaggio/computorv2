@@ -42,15 +42,42 @@ struct Token
 		NONE
 	};
 
-	Type		type;
-	Operator	op;
-	std::string	value;
-	Arity		arity;
-
-	Token( Type t, Operator o = Operator::NONE, std::string sv = "", Arity a = Arity::CONSTANT )
-		: type(t), op(o), value(sv), arity(a) {}
+	Type		type = Type::UNKOWN;
+	Operator	op = Operator::NONE;
+	std::string	value{};
+	Arity		arity = Arity::CONSTANT;
 	
 	bool	operator==( const Token& other ) const = default;
+
+	std::string_view toString() const noexcept
+	{
+		switch (type)
+		{
+			case Type::IMAGINARY:            return "i";
+			case Type::EQUAL:                return "=";
+			case Type::BRACKET_OPEN:         return "(";
+			case Type::BRACKET_CLOSE:        return ")";
+			case Type::BRACKET_MATRIX_OPEN:  return "[";
+			case Type::BRACKET_MATRIX_CLOSE: return "]";
+			case Type::COMMA:                return ",";
+			case Type::SEMICOLON:            return ";";
+			case Type::QUERY:                return "?";
+			case Type::OPERATOR:
+				switch (op)
+				{
+					case Operator::ADD: return "+";
+					case Operator::SUB: return "-";
+					case Operator::MUL: return "*";
+					case Operator::DIV: return "/";
+					case Operator::MOD: return "%";
+					case Operator::POW: return "^";
+					case Operator::DOT: return "**";
+					default:            return "?";
+				}
+			default:
+				return value;
+		}
+	}
 	
 	friend std::ostream& operator<<( std::ostream& os, const Token& token )
 	{
@@ -83,7 +110,7 @@ struct Token
 			default: break;
 		}
 		if (!token.value.empty())
-			std::cout << "(\"" << token.value << "\")";
+			os << "(\"" << token.value << "\")";
 		os << '\n';
 		return os;
 	}

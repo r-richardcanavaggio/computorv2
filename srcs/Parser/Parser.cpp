@@ -23,7 +23,7 @@ NodePtr Parser::parsePrimary()
 		case Token::Type::BRACKET_MATRIX_OPEN:
 			return parseMatrix();
 		default:
-			throw std::runtime_error("Unexpected token: '" + stream.peek().value + "'");
+			throw std::runtime_error("Unexpected token: '" + std::string(stream.peek().toString()) + "'");
 	}
 }
 
@@ -77,6 +77,6 @@ NodePtr Parser::parse()
 	auto ast = parseExpression();
 
 	if (!stream.isAtEnd())
-		throw std::runtime_error("Unexpected token at end of expression: '" + stream.peek().value + "'");
+		throw std::runtime_error("Unexpected token at end of expression: '" + std::string(stream.peek().toString()) + "'");
 	return (ast);
 }

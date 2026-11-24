@@ -105,7 +105,7 @@ Complex cos( Complex z ) noexcept
 
 Complex sin( Complex z ) noexcept
 {
-    Complex iz(-z.imag, z.real), numerator = exp(iz) + exp(-iz);
+    Complex iz(-z.imag, z.real), numerator = exp(iz) - exp(-iz);
     return numerator / Complex(0, 2);
 }
 
@@ -116,8 +116,14 @@ Complex tan( Complex z )
 
 Complex pow( Complex z, int p )
 {
-    Real theta = arctan2(z.real, z.imag);
-    return Complex(cos(theta * p), sin(theta * p)) * pow(norm(z), p);
+    if (p == 0)
+        return Complex(1.);
+    if (p < 0)
+        return Complex(1.) / pow(z, -p);
+
+    Complex half = pow(z, p / 2);
+
+    return (p % 2 == 0) ? (half * half) : (half * half * z);
 }
 
 }
@@ -145,7 +151,7 @@ std::ostream& operator<<( std::ostream &os, Complex z )
     if (near(im, 1))
         return os << "+ i";
     else if (near(im, -1))
-        return os << " - i";
+        return os << "- i";
     else if (im > 0)
         return os << "+ " << im << "i";
     return os << "- " << -im << "i";
