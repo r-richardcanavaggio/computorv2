@@ -33,28 +33,29 @@ NodePtr Parser::parsePower()
 
 	if (stream.matchOp(Token::Operator::POW))
 	{
-		auto right = parseFactor();
+		auto right = parseUnary();
 		return (std::make_unique<BinaryOpNode>(Token::Operator::POW, std::move(left), std::move(right)));
 	}
 	return (left);
 }
 
-NodePtr Parser::parseFactor()
+NodePtr Parser::parseUnary()
 {
-	if (stream.matchOp(Token::Operator::ADD))
-		return (parseFactor());
-	if (stream.matchOp(Token::Operator::SUB))
-		return (std::make_unique<UnaryOpNode>(Token::Operator::SUB, parseFactor()));
-	return (parsePower());
+	if (auto op = stream.matchAnyOp({Token::Operator::ADD, Token::Operator::SUB}))
+	{
+		auto	right = parsePower();
+		return std::make_unique<UnaryOpNode>(*op, std::move(right));
+	}
+	return parsePower();
 }
 
 NodePtr Parser::parseTerm()
 {
-	auto left = parseFactor();
+	auto left = parseUnary();
 
 	while (auto op = stream.matchAnyOp({Token::Operator::MUL, Token::Operator::DIV, Token::Operator::MOD, Token::Operator::DOT}))
 	{
-		auto right = parseFactor();
+		auto right = parseUnary();
 		left = std::make_unique<BinaryOpNode>(*op, std::move(left), std::move(right));
 	}
 	return (left);

@@ -6,12 +6,12 @@
 
 VarType	UnaryOpNode::eval( Context& ctx ) const
 {
-	return std::visit( Visitor{ op }, child->eval( ctx ) );
+	return std::visit(Visitor{op}, child->eval(ctx));
 }
 
 VarType	BinaryOpNode::eval( Context& ctx ) const
 {
-	return std::visit( Visitor{ op }, left->eval( ctx ), right->eval( ctx ) );
+	return std::visit(Visitor{op}, left->eval(ctx), right->eval(ctx));
 }
 
 VarType	VariableNode::eval( Context& ctx ) const
@@ -21,7 +21,7 @@ VarType	VariableNode::eval( Context& ctx ) const
 	if (it != ctx.end())
 		return it->second;
 
-	return Polynomial::createSymbolicPolynomial( name );
+	return Polynomial::createSymbolicPolynomial(name);
 }
 
 VarType	FunctionCallNode::eval( Context& ctx ) const

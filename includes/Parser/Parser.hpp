@@ -8,7 +8,7 @@ class Parser
 		
 		NodePtr		parseExpression();
 		NodePtr		parseTerm();
-		NodePtr		parseFactor();
+		NodePtr		parseUnary();
 		NodePtr		parsePower();
 		NodePtr		parsePrimary();
 
