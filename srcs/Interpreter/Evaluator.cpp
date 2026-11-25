@@ -1,5 +1,3 @@
-#include <sstream>
-
 #include "Interpreter/Evaluator.hpp"
 #include "Parser/Parser.hpp"
 #include "Parser/FunctionVisitor.hpp"
@@ -73,18 +71,30 @@ void Evaluator::executeQuery() const
 {
 	if (rhs.empty())
 	{
+		if (lhs.size() == 4 && lhs[0].type == Token::Type::VARIABLE && lhs[1].type == Token::Type::BRACKET_OPEN && lhs[2].type == Token::Type::VARIABLE && lhs[3].type == Token::Type::BRACKET_CLOSE)
+		{
+			auto	funcIt = ctx.funcs.find(lhs[0].value);
+			auto	varIt = ctx.vars.find(lhs[2].value);
+
+			if (funcIt != ctx.funcs.end() && varIt == ctx.vars.end())
+			{
+				std::cout << funcIt->second << '\n';
+				return ;
+			}
+		}
+
 		Parser parser(lhs);
 
 		std::cout << parser.parse()->eval(ctx) << "\n";
 		return;
 	}
-
 	Evaluator::Target target = parseLHS();
+
 	if (!target.isFunction())
 		throw std::runtime_error("Error: Equation resolution expects a function on the left side (e.g. 'f(x) = 0 ?').");
 
-	auto    it = ctx.find(target.name);
-	if (it == ctx.end())
+	auto    it = ctx.funcs.find(target.name);
+	if (it == ctx.funcs.end())
 		throw std::runtime_error("Error: Unknown function: '" + target.name + "'");
 
 	Parser	parser(rhs);
@@ -95,41 +105,51 @@ void Evaluator::executeQuery() const
 	std::cout << std::visit(FunctionSolveVisitor{}, equation);
 }
 
-void Evaluator::saveResult( const std::string& name, const VarType& result )
-{
-	ctx[name] = result;
-
-	std::ostringstream oss;
-	oss << result;
-	history.push_back(rawLine + " -> " + oss.str());
-
-	std::cout << result << "\n";
-}
-
 void Evaluator::assignVariable( const std::string& name )
 {
 	Parser	parser(rhs);
 	VarType	result = parser.parse()->eval(ctx);
 
-	saveResult(name, result);
+	saveResult(ctx.vars, name, result);
+}
+
+struct SaveVisitor
+{
+	FuncType	operator()( Real v ) const { return Polynomial(v); }
+	FuncType	operator()( const Polynomial& p ) const { return Polynomial(p); }
+	FuncType	operator()( const RationalFunction& f ) const { return RationalFunction(f); }
+
+	template < typename T >
+	FuncType	operator()( const T& ) const { throw std::runtime_error("Error: wrong type."); }
+};
+
+std::ostream&	operator<<( std::ostream& os, const UserFunction& func )
+{
+	func.body->print(os, func.capturedVars);
+	return os;
 }
 
 void Evaluator::assignFunction( const std::string& name, const std::string& param )
 {
-	Context evalCtx = ctx;
-
-	evalCtx[param] = Polynomial::createSymbolicPolynomial(param);
-
 	Parser	parser(rhs);
-	VarType	result = parser.parse()->eval(evalCtx);
+	auto	ast = parser.parse();
+	Context	evalCtx = ctx;
 
-	if (const Real* value = std::get_if<Real>(&result))
-		result = Polynomial(*value);
+	evalCtx.vars[param] = Polynomial::createSymbolicPolynomial(param);
 
-	if (!std::holds_alternative<Polynomial>(result) &&
-		!std::holds_alternative<RationalFunction>(result))
-		throw std::runtime_error("Error: Function must evaluate to a Polynomial or Rational Function.");
-	saveResult(name, result);
+	try
+	{
+		VarType	result = ast->eval(evalCtx);
+
+		saveResult(ctx.funcs, name, std::visit(SaveVisitor{}, result));
+	}
+	catch ( const std::exception& )
+	{
+		UserFunction	fn{param, std::move(ast), ctx.vars};
+
+		fn.capturedVars.erase(param);
+		saveResult(ctx.funcs, name, fn);
+	}
 }
 
 void Evaluator::executeAssignment()

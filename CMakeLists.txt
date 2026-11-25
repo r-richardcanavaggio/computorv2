@@ -14,7 +14,6 @@ add_executable(computorv2
     srcs/main.cpp
     srcs/Types/Real.cpp
     srcs/Types/Complex.cpp
-    srcs/Parser/Nodes.cpp
     srcs/Parser/ParserPrimary.cpp
     srcs/Parser/Parser.cpp
     srcs/Parser/TokenStream.cpp

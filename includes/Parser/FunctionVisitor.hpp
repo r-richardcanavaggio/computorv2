@@ -12,6 +12,8 @@ inline std::ostream& operator<<( std::ostream& os, const SolveResult& res )
 
 struct FunctionEvalVisitor
 {
+    Context&    ctx;
+
     VarType operator()( const Polynomial& p, Real v ) const { return p.eval(v); }
     VarType operator()( const Polynomial& p, const Polynomial& other ) const { return p.eval(other); }
     VarType operator()( const Polynomial& p, const RationalFunction& f ) const { return compose(p, f); }
@@ -25,6 +27,14 @@ struct FunctionEvalVisitor
 
     template < real_complex K >
     VarType operator()( const RationalFunction& f, const Matrix<K>& m ) const { return f.eval(m); }
+
+    template < typename Arg >
+    VarType operator()( const UserFunction& f, const Arg& arg ) const
+    {
+        Context callCtx{ .vars = f.capturedVars, .funcs = ctx.funcs, .isDegreeMode = ctx.isDegreeMode };
+        callCtx.vars[f.param] = arg;
+        return f.body->eval(callCtx);
+    }
 
     template < typename Arg >
     VarType operator()( const Polynomial&, const Arg& ) const

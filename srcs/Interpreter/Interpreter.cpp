@@ -132,10 +132,10 @@ std::vector<Token> tokenize( std::string_view input )
 
 Interpreter::Interpreter() : running(true)
 {
-	ctx["pi"] = Real(maths::pi);
-	ctx["e"] = Real(maths::e);
-	ctx["sqrt2"] = Real(maths::sqrt2);
-	ctx["i"] = Complex(0, 1);
+	ctx.vars["pi"] = Real(maths::pi);
+	ctx.vars["e"] = Real(maths::e);
+	ctx.vars["sqrt2"] = Real(maths::sqrt2);
+	ctx.vars["i"] = Complex(0, 1);
 
 	commands = {
 		{"list",    [this]( const Token& arg ) { commandList(arg); }},

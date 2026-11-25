@@ -56,7 +56,7 @@ TESTS: List[TestCase] = [
         "Subject & Basics",
         "Subject function assignment and evaluation",
         ["funA(x) = 2*x^5 + 4x^2 - 5*x + 4", "funB(y) = 43 * y / (4 % 2 * y)", "funA(2) ?"],
-        expect_err=True,  # funB divides by 0 because 4 % 2 == 0
+        contains_out=["2x^5 + 4x^2 - 5x + 4", "74"],
     ),
     TestCase(
         "Subject & Basics",
@@ -147,7 +147,7 @@ TESTS: List[TestCase] = [
             "42",
             "myvar: Real = 42",
             "1: myvar = 42 -> 42",
-            "Variable/Function 'myvar' has been deleted.",
+            "Info: Variable 'myvar' has been deleted.",
             "myvar",  # after clear, 'myvar ?' evaluates as symbolic polynomial 'myvar'
             "Exiting ComputorV2, Goodbye!",
         ],
@@ -400,10 +400,10 @@ TESTS: List[TestCase] = [
     ),
     TestCase(
         "Rational Functions",
-        "Rational function with zero polynomial denominator throws",
-        ["f(x) = (x + 1) / (x - x)"],
+        "Rational function with zero polynomial denominator throws on evaluation",
+        ["f(x) = (x + 1) / (x - x)", "f(2)"],
         expect_err=True,
-        contains_err=["denominator can't be null"],
+        contains_err=["divide by zero"],
     ),
 
     # =========================================================================
@@ -425,10 +425,10 @@ TESTS: List[TestCase] = [
         expect_out=[
             "1",
             "1",
-            "Angle mode switched to: DEGREES",
+            "Info: Angle mode switched to: DEGREES",
             "1",
             "-1",
-            "Angle mode switched to: RADIANS",
+            "Info: Angle mode switched to: RADIANS",
             "7",
             "1",
         ],
@@ -616,6 +616,158 @@ TESTS: List[TestCase] = [
     TestCase("Unary Operators", "Chained unary inside parentheses '-(--2)' rejected", ["-(--2)"], expect_err=True),
     TestCase("Unary Operators", "Dangling unary '-' rejected", ["-"], expect_err=True),
     TestCase("Unary Operators", "Dangling unary '+' rejected", ["+"], expect_err=True),
+
+    # =========================================================================
+    # 12. UserFunction (AST / Deferred Functions)
+    # =========================================================================
+    TestCase(
+        "UserFunction",
+        "Correction test: f(z) = z * y with matrix y, query f(z) = ?, and evaluation",
+        [
+            "x = 2",
+            "y = x * [[4, 2]]",
+            "f(z) = z * y",
+            "f(z) = ?",
+            "f(3)",
+        ],
+        expect_out=[
+            "2",
+            "[8, 4]",
+            "z * [8, 4]",
+            "z * [8, 4]",
+            "[24, 12]",
+        ],
+    ),
+    TestCase(
+        "UserFunction",
+        "Captured variables are frozen at definition time",
+        [
+            "y = [1, 2]",
+            "f(z) = z * y",
+            "y = [10, 20]",
+            "f(z) = ?",
+            "f(2)",
+        ],
+        expect_out=[
+            "[1, 2]",
+            "z * [1, 2]",
+            "[10, 20]",
+            "z * [1, 2]",
+            "[2, 4]",
+        ],
+    ),
+    TestCase(
+        "UserFunction",
+        "Function parameter shadows existing variable in context",
+        [
+            "z = 99",
+            "y = [2, 3]",
+            "f(z) = z * y",
+            "f(2)",
+            "f(z) = ?",
+            "z ?",
+        ],
+        expect_out=[
+            "99",
+            "[2, 3]",
+            "z * [2, 3]",
+            "[4, 6]",
+            "[198, 297]",
+            "99",
+        ],
+    ),
+    TestCase(
+        "UserFunction",
+        "Querying f(a) = ? with defined variable 'a' evaluates instead of printing definition",
+        [
+            "y = [3, 4]",
+            "f(z) = z * y",
+            "a = 2",
+            "f(a) = ?",
+        ],
+        expect_out=[
+            "[3, 4]",
+            "z * [3, 4]",
+            "2",
+            "[6, 8]",
+        ],
+    ),
+    TestCase(
+        "UserFunction",
+        "Transcendental / builtin functions stored as UserFunction and respect deg/rad",
+        [
+            "f(x) = cos(x)",
+            "f(0)",
+            "f(pi)",
+            "g(x) = sin(x) + 1",
+            "deg",
+            "g(90)",
+        ],
+        expect_out=[
+            "cos(x)",
+            "1",
+            "-1",
+            "sin(x) + 1",
+            "Info: Angle mode switched to: DEGREES",
+            "2",
+        ],
+    ),
+    TestCase(
+        "UserFunction",
+        "Complex and 2D matrix UserFunctions",
+        [
+            "f(x) = x * i + 1",
+            "f(2)",
+            "M = [[1, 2]; [3, 4]]",
+            "g(x) = x * M + M",
+            "g(1)",
+        ],
+        expect_out=[
+            "x * i + 1",
+            "1 + 2i",
+            "[[1, 2]; [3, 4]]",
+            "x * [[1, 2]; [3, 4]] + [[1, 2]; [3, 4]]",
+            "[[2, 4]; [6, 8]]",
+        ],
+    ),
+    TestCase(
+        "UserFunction",
+        "Deferred division by zero throws when called: funB(y) = 43 * y / (4 % 2 * y)",
+        [
+            "funB(y) = 43 * y / (4 % 2 * y)",
+            "funB(2)",
+        ],
+        expect_err=True,
+        contains_err=["divide by zero"],
+    ),
+    TestCase(
+        "UserFunction",
+        "Redefining a UserFunction as a Polynomial and vice versa",
+        [
+            "y = [1, 2]",
+            "f(x) = x * y",
+            "f(2)",
+            "f(x) = 2 * x + 1",
+            "f(2)",
+        ],
+        expect_out=[
+            "[1, 2]",
+            "x * [1, 2]",
+            "[2, 4]",
+            "2x + 1",
+            "5",
+        ],
+    ),
+    TestCase(
+        "UserFunction",
+        "Solving equation on non-polynomial UserFunction throws cleanly",
+        [
+            "y = [1, 2]",
+            "f(z) = z * y",
+            "f(z) = 0 ?",
+        ],
+        expect_err=True,
+    ),
 ]
 
 

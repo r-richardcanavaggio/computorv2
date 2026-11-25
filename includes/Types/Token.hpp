@@ -78,6 +78,21 @@ struct Token
 				return value;
 		}
 	}
+
+	friend std::ostream&	operator<<( std::ostream& os, Token::Operator op )
+	{
+		switch (op)
+		{
+			case Token::Operator::ADD: return os << "+";
+			case Token::Operator::SUB: return os << "-";
+			case Token::Operator::MUL: return os << "*";
+			case Token::Operator::DIV: return os << "/";
+			case Token::Operator::MOD: return os << "%";
+			case Token::Operator::POW: return os << "^";
+			case Token::Operator::DOT: return os << "**";
+			default: return os;
+		}
+	}
 	
 	friend std::ostream& operator<<( std::ostream& os, const Token& token )
 	{

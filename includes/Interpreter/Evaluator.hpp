@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sstream>
+
 #include "RuntimeTypes.hpp"
 #include <vector>
 #include <string>
@@ -36,7 +38,18 @@ class Evaluator
 		Target						parseLHS() const;
 		void						assignVariable( const std::string& );
 		void						assignFunction( const std::string&, const std::string& );
-		void						saveResult( const std::string&, const VarType& );
+
+		template < typename MapValue, typename Value >
+		void						saveResult( std::map<std::string, MapValue>& target, const std::string& name, const Value& result )
+		{
+			target[name] = result;
+
+			std::ostringstream oss;
+			oss << result;
+			history.push_back(rawLine + " -> " + oss.str());
+
+			std::cout << result << "\n";
+		}
 
 		void						executeExpression() const;
 		void						executeQuery() const;

@@ -4,7 +4,7 @@
 
 struct Visitor
 {
-	Token::Operator							op = Token::Operator::NONE;
+	Token::Operator	op = Token::Operator::NONE;
 
 	// Unary +/-
 	VarType operator()( Real a ) const
@@ -149,6 +149,7 @@ struct Visitor
 				throw std::runtime_error("Error: Operation not supported between Matrix and Matrix types.");
 		}
 	}
+
 	template < real_complex K >
 	VarType operator()( Real scl, const Matrix<K>& m ) const
 	{
@@ -160,6 +161,7 @@ struct Visitor
 				throw std::runtime_error("Error: Operation not supported between Real and Matrix types.");
 		}
 	}
+
 	template < real_complex K >
 	VarType operator()( const Matrix<K>& m, Real scl ) const
 	{
@@ -177,6 +179,24 @@ struct Visitor
 				throw std::runtime_error("Error: Operation not supported between Matrix and Real types.");
 		}
 	}
+
+	// template < real_complex K >
+	// VarType	operator()( const Polynomial& p, const Matrix<K>& m ) const
+	// {
+	// 	switch (op)
+	// 	{
+	// 		case Token::Operator::ADD:
+	// 			return p + m;
+	// 		case Token::Operator::SUB:
+	// 			return p - m;
+	// 		case Token::Operator::MUL:
+	// 			return p * m;
+	// 		case Token::Operator::DIV:
+	// 			return p / m;
+	// 		default:
+	// 			throw std::runtime_error("Error: Operation not supported between Polynomial and Matrix types.");
+	// 	}
+	// }
 
 	VarType operator()( const Polynomial& a, const Polynomial& b ) const
 	{

@@ -142,7 +142,7 @@ public:
 			return *this;
 		}
 		std::size_t		  newSize = m_coeffs.size() + other.m_coeffs.size() - 1;
-		std::vector<Real> res( newSize, 0 );
+		std::vector<Real> res(newSize, 0);
 
 		for (std::size_t i = 0; i < m_coeffs.size(); ++i)
 		{

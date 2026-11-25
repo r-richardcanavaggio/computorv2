@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <variant>
+#include <memory>
 
 #include "Types/Complex.hpp"
 #include "Types/Matrix.hpp"
@@ -13,13 +14,49 @@
 
 using VarType = std::variant< Real, Complex, Polynomial, RationalFunction, Matrix< Real >, Matrix< Complex > >;
 
-struct Context : std::map< std::string, VarType >
+struct BaseNode;
+
+struct UserFunction
 {
-	bool	isDegreeMode = false;
+	std::string							param;
+	std::shared_ptr< const BaseNode >	body;
+	std::map< std::string, VarType >	capturedVars;
+	void	type() const noexcept
+	{
+		std::cout << "UserFunction";
+	}
 };
+
+std::ostream&	operator<<( std::ostream&, const UserFunction& );
+
+using FuncType = std::variant< Polynomial, RationalFunction, UserFunction >;
+
+struct Context
+{
+	std::map< std::string, VarType >	vars;
+	std::map< std::string, FuncType >	funcs;
+	bool								isDegreeMode = false;
+};
+
+using VarCtx = std::map<std::string, VarType>;
+
+struct BaseNode
+{
+    virtual ~BaseNode() = default;
+    virtual VarType eval( Context& ) const = 0;
+    virtual void    print( std::ostream& os, const VarCtx& vars ) const = 0;
+};
+
+using NodePtr = std::unique_ptr<BaseNode>;
 
 inline std::ostream&	operator<<( std::ostream& os, const VarType& v )
 {
 	std::visit([&os]( const auto& value ) { os << value; }, v);
 	return (os);
+}
+
+inline std::ostream&	operator<<( std::ostream& os, const FuncType& f )
+{
+	std::visit([&]( const auto& value ) { os << value; }, f);
+	return os;
 }
