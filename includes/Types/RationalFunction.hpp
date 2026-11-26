@@ -177,7 +177,7 @@ public:
 		return	compose(m_numerator, other) / compose(m_denominator, other);
 	}
 
-	template < real_complex K >
+	template < typename K >
 	Matrix<K>	eval( const Matrix<K>& m ) const
 	{
 		Matrix<K>	num = m_numerator.eval(m);

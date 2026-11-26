@@ -18,14 +18,14 @@ struct FunctionEvalVisitor
     VarType operator()( const Polynomial& p, const Polynomial& other ) const { return p.eval(other); }
     VarType operator()( const Polynomial& p, const RationalFunction& f ) const { return compose(p, f); }
 
-    template < real_complex K >
+    template < typename K >
     VarType operator()( const Polynomial& p, const Matrix<K>& m ) const { return p.eval(m); }
 
     VarType operator()( const RationalFunction& f, Real v ) const { return f.eval(v); }
     VarType operator()( const RationalFunction& f, const Polynomial& p ) const { return f.eval(p); }
     VarType operator()( const RationalFunction& f, const RationalFunction& other ) const { return f.eval(other); }
 
-    template < real_complex K >
+    template < typename K >
     VarType operator()( const RationalFunction& f, const Matrix<K>& m ) const { return f.eval(m); }
 
     template < typename Arg >
@@ -66,4 +66,14 @@ struct  FunctionSolveVisitor
     {
         throw std::runtime_error("Error: Equation cannot be solved.");
     }
+};
+
+struct SaveVisitor
+{
+	FuncType	operator()( Real v ) const { return Polynomial(v); }
+	FuncType	operator()( const Polynomial& p ) const { return Polynomial(p); }
+	FuncType	operator()( const RationalFunction& f ) const { return RationalFunction(f); }
+
+	template < typename T >
+	FuncType	operator()( const T& ) const { throw std::runtime_error("Error: wrong type."); }
 };

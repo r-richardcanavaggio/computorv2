@@ -11,7 +11,7 @@ using Root = std::variant<Real, Complex>;
 
 inline std::ostream&	operator<<( std::ostream& os, const Root& r )
 {
-	std::visit([&os]< real_complex K >( K val ) { os << val; }, r);
+	std::visit([&os]<typename K>( K val ) { os << val; }, r);
 	return os;
 }
 
@@ -332,7 +332,7 @@ public:
 		return result;
 	}
 
-	template < real_complex K >
+	template < typename K >
 	Matrix<K>	eval( const Matrix<K>& m ) const
 	{
 		if (m.getRows() != m.getCols())

@@ -8,7 +8,7 @@ private:
     Context&    ctx;
     std::string funcName;
 
-    template < real_complex K >
+    template < typename K >
 	K	toRadians( K x ) const
 	{
 		if (ctx.isDegreeMode)
@@ -43,7 +43,7 @@ public:
         throw std::runtime_error("Error: Unkown math function for Complex type.");
     }
 
-    template < real_complex K >
+    template < typename K >
     VarType operator()( const Matrix<K>& m ) const
     {
         if (funcName == "inv")

@@ -34,7 +34,7 @@ struct Visitor
 		return f;
 	}
 
-	template < real_complex K >
+	template < typename K >
 	VarType operator()( const Matrix<K>& m ) const
 	{
 		if (op == Token::Operator::SUB)
@@ -128,33 +128,49 @@ struct Visitor
 		return z;
 	}
 
-	template < real_complex K >
-	VarType operator()( const Matrix<K>& a, const Matrix<K>& b ) const
+	template < typename K1, typename K2 >
+	VarType operator()( const Matrix<K1>& a, const Matrix<K2>& b ) const
 	{
-		switch (op)
+		if constexpr (!std::same_as<K1, K2>)
 		{
-			case Token::Operator::ADD:
-				return a + b;
-			case Token::Operator::SUB:
-				return a - b;
-			case Token::Operator::MUL:
-				return a * b;
-			case Token::Operator::DOT:
-				if (a.getRows() == 1 && b.getRows() == 1 && a.getCols() == b.getCols())
-					return a.dot(b.transpose())(0, 0);
-				if (a.getCols() != b.getRows() && b.getRows() == 1 && a.getCols() == b.getCols())
-					return a.dot(b.transpose()).transpose();
-				return a.dot(b);
-			default:
-				throw std::runtime_error("Error: Operation not supported between Matrix and Matrix types.");
+			using R = std::common_type_t<K1, K2>;
+			return (*this)(Matrix<R>(a), Matrix<R>(b));
+		}
+		else
+		{
+			switch (op)
+			{
+				case Token::Operator::ADD:
+					return a + b;
+				case Token::Operator::SUB:
+					return a - b;
+				case Token::Operator::MUL:
+					return a * b;
+				case Token::Operator::DOT:
+					if (a.getRows() == 1 && b.getRows() == 1 && a.getCols() == b.getCols())
+						return a.dot(b.transpose())(0, 0);
+					if (a.getCols() != b.getRows() && b.getRows() == 1 && a.getCols() == b.getCols())
+						return a.dot(b.transpose()).transpose();
+					return a.dot(b);
+				default:
+					throw std::runtime_error("Error: Operation not supported between Matrix and Matrix types.");
+			}
 		}
 	}
 
-	template < real_complex K >
+	template < typename K >
 	VarType operator()( Real scl, const Matrix<K>& m ) const
 	{
 		switch (op)
 		{
+			case Token::Operator::ADD:
+				if (!m.isSquare())
+					throw std::runtime_error("Math Error: Matrix addition by a scalar requires a square matrix.");
+				return (Matrix<K>::identity(m.getRows()) * scl) + m;
+			case Token::Operator::SUB:
+				if (!m.isSquare())
+					throw std::runtime_error("Math Error: Matrix substraction by a scalar requires a square matrix.");
+				return (Matrix<K>::identity(m.getRows()) * scl) - m;
 			case Token::Operator::MUL:
 				return scl * m;
 			default:
@@ -162,11 +178,19 @@ struct Visitor
 		}
 	}
 
-	template < real_complex K >
+	template < typename K >
 	VarType operator()( const Matrix<K>& m, Real scl ) const
 	{
 		switch (op)
 		{
+			case Token::Operator::ADD:
+				if (!m.isSquare())
+					throw std::runtime_error("Math Error: Matrix addition by a scalar requires a square matrix.");
+				return m + Matrix<K>::identity(m.getRows()) * scl;
+			case Token::Operator::SUB:
+				if (!m.isSquare())
+					throw std::runtime_error("Math Error: Matrix substraction by a scalar requires a square matrix.");
+				return m - Matrix<K>::identity(m.getRows()) * scl;
 			case Token::Operator::MUL:
 				return m * scl;
 			case Token::Operator::POW:
@@ -180,23 +204,57 @@ struct Visitor
 		}
 	}
 
-	// template < real_complex K >
-	// VarType	operator()( const Polynomial& p, const Matrix<K>& m ) const
-	// {
-	// 	switch (op)
-	// 	{
-	// 		case Token::Operator::ADD:
-	// 			return p + m;
-	// 		case Token::Operator::SUB:
-	// 			return p - m;
-	// 		case Token::Operator::MUL:
-	// 			return p * m;
-	// 		case Token::Operator::DIV:
-	// 			return p / m;
-	// 		default:
-	// 			throw std::runtime_error("Error: Operation not supported between Polynomial and Matrix types.");
-	// 	}
-	// }
+	template <typename K>
+	VarType	operator()( const Matrix<K>& m, Complex z ) const
+	{
+		if constexpr (!std::same_as<K, Complex>)
+			return (*this)(Matrix<Complex>(m), z);
+		else
+		{
+			switch (op)
+			{
+				case Token::Operator::ADD:
+					if (!m.isSquare())
+						throw std::runtime_error("Math Error: Matrix addition by a complex number requires a square matrix.");
+					return m + (Matrix<K>::identity(m.getRows()) * z);
+				case Token::Operator::SUB:
+					if (!m.isSquare())
+						throw std::runtime_error("Math Error: Matrix substraction by a complex number requires a square matrix.");
+					return m - (Matrix<K>::identity(m.getRows()) * z);
+				case Token::Operator::MUL:
+					return m * z;
+				case Token::Operator::DIV:
+					return m / z;
+				default:
+					throw std::runtime_error("Error: Operator not supported between Matrix and Real types.");
+			}
+		}
+	}
+
+	template < typename K >
+	VarType operator()( Complex z, const Matrix<K>& m ) const
+	{
+		if constexpr (!std::same_as<K, Complex>)
+			return (*this)(z, Matrix<Complex>(m));
+		else
+		{
+			switch (op)
+			{
+				case Token::Operator::ADD:
+					if (!m.isSquare())
+						throw std::runtime_error("Math Error: Matrix addition by a scalar requires a square matrix.");
+					return (Matrix<K>::identity(m.getRows()) * z) + m;
+				case Token::Operator::SUB:
+					if (!m.isSquare())
+						throw std::runtime_error("Math Error: Matrix substraction by a scalar requires a square matrix.");
+					return (Matrix<K>::identity(m.getRows()) * z) - m;
+				case Token::Operator::MUL:
+					return z * m;
+				default:
+					throw std::runtime_error("Error: Operation not supported between Real and Matrix types.");
+			}
+		}
+	}
 
 	VarType operator()( const Polynomial& a, const Polynomial& b ) const
 	{
@@ -210,8 +268,6 @@ struct Visitor
 				return a * b;
 			case Token::Operator::DIV:
 				return RationalFunction(a, b);
-			// case Token::Operator::MOD:
-			//     return a % b;
 			default:
 				throw std::runtime_error("Error: Operation not supported between Polynomial and Polynomial types.");
 		}
@@ -237,6 +293,7 @@ struct Visitor
 				throw std::runtime_error("Error: Operation not supported between Polynomial and Real types.");
 		}
 	}
+
 	VarType operator()( Real scl, const Polynomial& p ) const
 	{
 		switch (op)

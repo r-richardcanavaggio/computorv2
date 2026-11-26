@@ -46,7 +46,22 @@ std::optional<std::size_t> Evaluator::findEqualIndex() const
 
 void Evaluator::executeExpression() const
 {
-	Parser	parser(tokens);
+	if (lhs.size() == 4 &&
+		lhs[0].type == Token::Type::VARIABLE &&
+		lhs[1].type == Token::Type::BRACKET_OPEN &&
+		lhs[2].type == Token::Type::VARIABLE &&
+		lhs[3].type == Token::Type::BRACKET_CLOSE)
+	{
+		auto	funcIt = ctx.funcs.find(lhs[0].value);
+		auto	varIt = ctx.vars.find(lhs[2].value);
+
+		if (funcIt != ctx.funcs.end() && varIt == ctx.vars.end())
+		{
+			std::cout << funcIt->second << '\n';
+			return ;
+		}
+	}
+	Parser	parser(lhs);
 	VarType	result = parser.parse()->eval(ctx);
 
 	std::cout << result << "\n";
@@ -70,24 +85,8 @@ Evaluator::Target Evaluator::parseLHS() const
 void Evaluator::executeQuery() const
 {
 	if (rhs.empty())
-	{
-		if (lhs.size() == 4 && lhs[0].type == Token::Type::VARIABLE && lhs[1].type == Token::Type::BRACKET_OPEN && lhs[2].type == Token::Type::VARIABLE && lhs[3].type == Token::Type::BRACKET_CLOSE)
-		{
-			auto	funcIt = ctx.funcs.find(lhs[0].value);
-			auto	varIt = ctx.vars.find(lhs[2].value);
+		return executeExpression();
 
-			if (funcIt != ctx.funcs.end() && varIt == ctx.vars.end())
-			{
-				std::cout << funcIt->second << '\n';
-				return ;
-			}
-		}
-
-		Parser parser(lhs);
-
-		std::cout << parser.parse()->eval(ctx) << "\n";
-		return;
-	}
 	Evaluator::Target target = parseLHS();
 
 	if (!target.isFunction())
@@ -111,22 +110,6 @@ void Evaluator::assignVariable( const std::string& name )
 	VarType	result = parser.parse()->eval(ctx);
 
 	saveResult(ctx.vars, name, result);
-}
-
-struct SaveVisitor
-{
-	FuncType	operator()( Real v ) const { return Polynomial(v); }
-	FuncType	operator()( const Polynomial& p ) const { return Polynomial(p); }
-	FuncType	operator()( const RationalFunction& f ) const { return RationalFunction(f); }
-
-	template < typename T >
-	FuncType	operator()( const T& ) const { throw std::runtime_error("Error: wrong type."); }
-};
-
-std::ostream&	operator<<( std::ostream& os, const UserFunction& func )
-{
-	func.body->print(os, func.capturedVars);
-	return os;
 }
 
 void	Evaluator::checkUserFunc( const std::string& name, const std::string& param ) const
@@ -173,7 +156,7 @@ void Evaluator::assignFunction( const std::string& name, const std::string& para
 	catch ( const std::exception& )
 	{
 		checkUserFunc(name, param);
-		UserFunction	fn{param, std::move(ast), ctx.vars};
+		UserFunction	fn{param, ctx.vars, std::move(ast)};
 
 		fn.capturedVars.erase(param);
 		saveResult(ctx.funcs, name, fn);

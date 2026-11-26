@@ -11,9 +11,6 @@
 #include "Types/Complex.hpp"
 
 template < typename K >
-concept real_complex = std::same_as< K, Real > || std::same_as< K, Complex >;
-
-template < real_complex K >
 class Matrix
 {
 private:
@@ -69,8 +66,15 @@ public:
 	Matrix( Matrix&& ) noexcept = default;
 	Matrix& operator=( Matrix&& ) noexcept = default;
 
+	template <typename U>
+	requires std::convertible_to<U, K>
+	explicit Matrix( const Matrix<U>& other )
+		: m_elements(other.getElements().begin(), other.getElements().end()), m_rows(other.getRows()), m_cols(other.getCols()) {}
+
 	std::size_t				getRows() const noexcept { return m_rows; }
  	std::size_t				getCols() const noexcept { return m_cols; }
+	const std::vector<K>&	getElements() const noexcept { return m_elements; }
+	bool					isSquare() const noexcept { return m_cols == m_rows; }
 
 	K&						at( std::size_t row, std::size_t col )
 	{
