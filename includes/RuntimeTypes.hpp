@@ -44,6 +44,15 @@ struct BaseNode
     virtual ~BaseNode() = default;
     virtual VarType eval( Context& ) const = 0;
     virtual void    print( std::ostream& os, const VarCtx& vars ) const = 0;
+	virtual int		precedence() const { return 100; }
+	void			printWrapped( std::ostream& os, const VarCtx& vars, bool wrap ) const
+	{
+		if (wrap)
+			os << "(";
+		print(os, vars);
+		if (wrap)
+			os << ")";
+	}
 };
 
 using NodePtr = std::unique_ptr<BaseNode>;

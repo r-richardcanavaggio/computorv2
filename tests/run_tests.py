@@ -913,6 +913,28 @@ TESTS: List[TestCase] = [
         ["h(x) = x + unknownVar"],
         expect_err=True,
     ),
+    TestCase(
+        "UserFunction",
+        "Pretty-printing preserves necessary parentheses without redundant ones",
+        [
+            "y = [2, 3]",
+            "g(x) = (x + 1) * y",
+            "h(x) = y * (x + 1)",
+            "k(x) = cos(x) - (sin(x) + 1)",
+            "funB(y) = 43 * y / (4 % 2 * y)",
+            "p(x) = cos(x) * 2 + 1",
+            "u(x) = -(cos(x) + 1)",
+        ],
+        expect_out=[
+            "[2, 3]",
+            "(x + 1) * [2, 3]",
+            "[2, 3] * (x + 1)",
+            "cos(x) - (sin(x) + 1)",
+            "43 * y / (4 % 2 * y)",
+            "cos(x) * 2 + 1",
+            "-(cos(x) + 1)",
+        ],
+    ),
 ]
 
 

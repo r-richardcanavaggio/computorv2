@@ -58,11 +58,13 @@ struct UnaryOpNode : public BaseNode
 
     UnaryOpNode(Token::Operator o, NodePtr c) : op(o), child(std::move(c)) {}
 
+    int precedence() const override { return 3; }
+
     VarType eval( Context& ctx ) const override { return std::visit(Visitor{op}, child->eval(ctx)); }
     void    print( std::ostream& os, const VarCtx& vars ) const override
     {
         os << op;
-        child->print(os, vars);
+        child->printWrapped(os, vars, child->precedence() < precedence());
     }
 };
 
@@ -73,12 +75,29 @@ struct BinaryOpNode : public BaseNode
 
     BinaryOpNode( Token::Operator o, NodePtr l, NodePtr r ) : op(o), left(std::move(l)), right(std::move(r)) {}
 
+    int precedence() const override
+    {
+        if (op == Token::Operator::ADD || op == Token::Operator::SUB)
+            return 1;
+        if (op == Token::Operator::MUL || op == Token::Operator::DIV || op == Token::Operator::MOD || op == Token::Operator::DOT)
+            return 2;
+        if (op == Token::Operator::POW)
+            return 4;
+        return 100;
+    }
+
     VarType eval( Context& ctx ) const override { return std::visit(Visitor{op}, left->eval(ctx), right->eval(ctx)); }
+
     void    print( std::ostream& os, const VarCtx& vars ) const override
     {
-        left->print(os, vars);
+        int     p = precedence();
+        bool    nonAssocRight = (op == Token::Operator::SUB || op == Token::Operator::DIV || op == Token::Operator::MOD);
+        bool    wrapLeft = left->precedence() < p || (op == Token::Operator::POW && left->precedence() == p);
+        bool    wrapRight = right->precedence() < p || (nonAssocRight && right->precedence() == p);
+
+        left->printWrapped(os, vars, wrapLeft);
         os << " " << op << " ";
-        right->print(os, vars);
+        right->printWrapped(os, vars, wrapRight);
     }
 };
 
