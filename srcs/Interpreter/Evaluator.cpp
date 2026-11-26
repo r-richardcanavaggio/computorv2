@@ -170,6 +170,14 @@ void Evaluator::executeAssignment()
 	if (Parser::isBuiltinFunction(target.name))
 		throw std::runtime_error("Forbidden: '" + target.name + "' is a built-in function and cannot be redefined.");
 
+	auto	it = ctx.vars.find(target.name);
+	auto	funcIt = ctx.funcs.find(target.name);
+
+	if (it != ctx.vars.end() && target.isFunction())
+		ctx.vars.erase(it);
+	else if (funcIt != ctx.funcs.end() && !target.isFunction())
+		ctx.funcs.erase(funcIt);
+
 	if (target.isFunction())
 		assignFunction(target.name, target.param);
 	else

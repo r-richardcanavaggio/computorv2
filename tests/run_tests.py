@@ -935,6 +935,32 @@ TESTS: List[TestCase] = [
             "-(cos(x) + 1)",
         ],
     ),
+    TestCase(
+        "UserFunction",
+        "Variable/Function name collision replaces previous entry cleanly",
+        [
+            "a = 5",
+            "a(x) = 2 * x",
+            "a(3)",
+            "clear a",
+            "a ?",
+            "b(x) = 3 * x",
+            "b = 7",
+            "b ?",
+            "clear b",
+        ],
+        expect_out=[
+            "5",
+            "2x",
+            "6",
+            "Info: Function 'a' has been deleted.",
+            "a",
+            "3x",
+            "7",
+            "7",
+            "Info: Variable 'b' has been deleted.",
+        ],
+    ),
 ]
 
 
