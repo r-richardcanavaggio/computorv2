@@ -129,6 +129,33 @@ std::ostream&	operator<<( std::ostream& os, const UserFunction& func )
 	return os;
 }
 
+void	Evaluator::checkUserFunc( const std::string& name, const std::string& param ) const
+{
+	for (std::size_t i = 0; i < rhs.size(); ++i)
+	{
+		if (rhs[i].type == Token::Type::VARIABLE &&
+			i < rhs.size() - 1 && rhs[i + 1].type == Token::Type::BRACKET_OPEN)
+		{
+			if (rhs[i].value == name)
+				throw std::runtime_error("Error: Recursive function definition is not allowed: '" + name + "'.");
+
+			auto	it = ctx.funcs.find(rhs[i].value);
+
+			if (!Parser::isBuiltinFunction(rhs[i].value) && it == ctx.funcs.end())
+				throw std::runtime_error("Error: Unknown function '" + rhs[i].value + "' in definition of '" + name + "'.");
+		}
+		else if (rhs[i].type == Token::Type::VARIABLE)
+		{
+			if (rhs[i].value != param)
+			{
+				auto	it = ctx.vars.find(rhs[i].value);
+				if (it == ctx.vars.end())
+					throw std::runtime_error("Error: Unknown variable '" + rhs[i].value + "' in definition of '" + name + "'.");
+			}
+		}
+	}
+}
+
 void Evaluator::assignFunction( const std::string& name, const std::string& param )
 {
 	Parser	parser(rhs);
@@ -145,6 +172,7 @@ void Evaluator::assignFunction( const std::string& name, const std::string& para
 	}
 	catch ( const std::exception& )
 	{
+		checkUserFunc(name, param);
 		UserFunction	fn{param, std::move(ast), ctx.vars};
 
 		fn.capturedVars.erase(param);

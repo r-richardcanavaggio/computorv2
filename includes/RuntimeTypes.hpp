@@ -12,15 +12,16 @@
 #include "Types/Polynomial.hpp"
 #include "Types/RationalFunction.hpp"
 
-using VarType = std::variant< Real, Complex, Polynomial, RationalFunction, Matrix< Real >, Matrix< Complex > >;
+using VarType = std::variant<Real, Complex, Polynomial, RationalFunction, Matrix<Real>, Matrix<Complex>>;
 
 struct BaseNode;
 
 struct UserFunction
 {
-	std::string							param;
-	std::shared_ptr< const BaseNode >	body;
-	std::map< std::string, VarType >	capturedVars;
+	std::string						param;
+	std::shared_ptr<const BaseNode>	body;
+	std::map<std::string, VarType>	capturedVars;
+
 	void	type() const noexcept
 	{
 		std::cout << "UserFunction";
@@ -29,13 +30,14 @@ struct UserFunction
 
 std::ostream&	operator<<( std::ostream&, const UserFunction& );
 
-using FuncType = std::variant< Polynomial, RationalFunction, UserFunction >;
+using FuncType = std::variant<Polynomial, RationalFunction, UserFunction>;
 
 struct Context
 {
-	std::map< std::string, VarType >	vars;
-	std::map< std::string, FuncType >	funcs;
-	bool								isDegreeMode = false;
+	std::map<std::string, VarType>	vars;
+	std::map<std::string, FuncType>	funcs;
+	bool							isDegreeMode = false;
+	int								callDepth = 0;
 };
 
 using VarCtx = std::map<std::string, VarType>;

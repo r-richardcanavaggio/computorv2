@@ -768,6 +768,35 @@ TESTS: List[TestCase] = [
         ],
         expect_err=True,
     ),
+    TestCase(
+        "UserFunction",
+        "Direct recursive function definition 'f(x) = f(x)' rejected",
+        ["f(x) = f(x)"],
+        expect_err=True,
+    ),
+    TestCase(
+        "UserFunction",
+        "Mutual recursion 'f -> g -> f' stops cleanly at call depth limit",
+        [
+            "f(x) = cos(x)",
+            "g(x) = f(x) + 1",
+            "f(x) = g(x) + 1",
+            "f(2)",
+        ],
+        expect_err=True,
+    ),
+    TestCase(
+        "UserFunction",
+        "Unknown function in UserFunction definition rejected",
+        ["f(x) = unknown_fn(x) + 1"],
+        expect_err=True,
+    ),
+    TestCase(
+        "UserFunction",
+        "Unknown variable in UserFunction definition rejected (including trailing token)",
+        ["h(x) = x + unknownVar"],
+        expect_err=True,
+    ),
 ]
 
 

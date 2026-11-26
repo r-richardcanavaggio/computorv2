@@ -31,7 +31,10 @@ struct FunctionEvalVisitor
     template < typename Arg >
     VarType operator()( const UserFunction& f, const Arg& arg ) const
     {
-        Context callCtx{ .vars = f.capturedVars, .funcs = ctx.funcs, .isDegreeMode = ctx.isDegreeMode };
+        if (ctx.callDepth > 64)
+            throw std::runtime_error("Error: Maximum recursion depth exceeded.");
+
+        Context callCtx{ f.capturedVars, ctx.funcs, ctx.isDegreeMode, ctx.callDepth + 1 };
         callCtx.vars[f.param] = arg;
         return f.body->eval(callCtx);
     }
