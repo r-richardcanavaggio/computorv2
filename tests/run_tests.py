@@ -3,18 +3,22 @@
 End-to-end test suite for ComputorV2.
 Usage:
     python3 tests/run_tests.py [path/to/computorv2]
+    python3 tests/run_tests.py --list
+    python3 tests/run_tests.py -t <index|keyword> [-v]
 """
 
+import argparse
 from dataclasses import dataclass, field
 from pathlib import Path
 import subprocess
 import sys
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 GREEN = "\033[0;32m"
 RED = "\033[0;31m"
 YELLOW = "\033[0;33m"
 CYAN = "\033[0;36m"
+DIM = "\033[2m"
 BOLD = "\033[1m"
 RESET = "\033[0m"
 
@@ -961,10 +965,30 @@ TESTS: List[TestCase] = [
             "Info: Variable 'b' has been deleted.",
         ],
     ),
+    TestCase(
+        "UserFunction",
+        "Querying f(t) = ? with a different free variable substitutes parameter name",
+        [
+            "y = [8, 4]",
+            "f(z) = z * y",
+            "f(t) = ?",
+            "f(t) ?",
+            "g(x) = 2 * x + 1",
+            "g(t) = ?",
+        ],
+        expect_out=[
+            "[8, 4]",
+            "z * [8, 4]",
+            "t * [8, 4]",
+            "t * [8, 4]",
+            "2x + 1",
+            "2t + 1",
+        ],
+    ),
 ]
 
 
-def run_case(binary: Path, tc: TestCase) -> Optional[str]:
+def run_case(binary: Path, tc: TestCase) -> Tuple[Optional[str], str, str]:
     payload = "\n".join(tc.inputs) + "\n"
     proc = subprocess.run(
         [str(binary)],
@@ -977,7 +1001,9 @@ def run_case(binary: Path, tc: TestCase) -> Optional[str]:
     if proc.returncode != 0:
         return (
             f"Non-zero exit code ({proc.returncode}) — possible crash / ASan / LSan failure:\n"
-            f"STDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
+            f"STDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}",
+            proc.stdout,
+            proc.stderr,
         )
 
     out_lines = [line for line in proc.stdout.splitlines()]
@@ -985,65 +1011,155 @@ def run_case(binary: Path, tc: TestCase) -> Optional[str]:
 
     if tc.expect_err:
         if not err_text:
-            return f"Expected an error on stderr, got none.\nSTDOUT:\n{proc.stdout}"
+            return f"Expected an error on stderr, got none.\nSTDOUT:\n{proc.stdout}", proc.stdout, proc.stderr
         for sub in tc.contains_err:
             if sub.lower() not in err_text.lower():
-                return f"Expected stderr to contain {sub!r}, got:\n{err_text}"
+                return f"Expected stderr to contain {sub!r}, got:\n{err_text}", proc.stdout, proc.stderr
     else:
         if err_text:
-            return f"Unexpected stderr:\n{err_text}\nSTDOUT:\n{proc.stdout}"
+            return f"Unexpected stderr:\n{err_text}\nSTDOUT:\n{proc.stdout}", proc.stdout, proc.stderr
 
     if tc.expect_out is not None and out_lines != tc.expect_out:
         return (
             f"Output mismatch:\n"
             f"  Expected: {tc.expect_out}\n"
-            f"  Actual:   {out_lines}"
+            f"  Actual:   {out_lines}",
+            proc.stdout,
+            proc.stderr,
         )
 
     for sub in tc.contains_out:
         if sub not in proc.stdout:
             return (
                 f"Expected stdout to contain:\n  {sub!r}\n"
-                f"Actual stdout:\n{proc.stdout}"
+                f"Actual stdout:\n{proc.stdout}",
+                proc.stdout,
+                proc.stderr,
             )
 
-    return None
+    return None, proc.stdout, proc.stderr
+
+
+def print_detailed_case(idx: int, tc: TestCase, err: Optional[str], stdout: str, stderr: str) -> None:
+    status = f"{GREEN}[PASS]{RESET}" if err is None else f"{RED}[FAIL]{RESET}"
+    print(f"{BOLD}{CYAN}=== #{idx} [{tc.category}] {tc.name} ==={RESET}")
+
+    out_lines = stdout.splitlines()
+    err_text = stderr.strip()
+
+    if not err_text and len(out_lines) == len(tc.inputs):
+        pad = max((len(inp) for inp in tc.inputs), default=0)
+        print(f"  {BOLD}Execution (input -> output):{RESET}")
+        for inp, out in zip(tc.inputs, out_lines):
+            print(f"    {DIM}>{RESET} {inp:<{pad}}  {CYAN}->{RESET}  {out}")
+    else:
+        print(f"  {BOLD}Inputs:{RESET}")
+        for inp in tc.inputs:
+            print(f"    {DIM}>{RESET} {inp}")
+        if out_lines:
+            print(f"  {BOLD}Stdout:{RESET}")
+            for line in out_lines:
+                print(f"    {line}")
+        if err_text:
+            print(f"  {BOLD}Stderr:{RESET}")
+            for line in err_text.splitlines():
+                print(f"    {YELLOW}{line}{RESET}")
+
+    if tc.expect_err:
+        detail = f" (containing: {', '.join(repr(s) for s in tc.contains_err)})" if tc.contains_err else ""
+        print(f"  {BOLD}Expectation:{RESET} error on stderr{detail}")
+    elif tc.expect_out is not None:
+        print(f"  {BOLD}Expectation:{RESET} exact stdout match ({len(tc.expect_out)} line(s))")
+    elif tc.contains_out:
+        print(f"  {BOLD}Expectation:{RESET} stdout contains {len(tc.contains_out)} expected snippet(s)")
+
+    print(f"  {BOLD}Result:{RESET} {status}")
+    if err is not None:
+        print(f"  {RED}{err}{RESET}")
+    print()
+
+
+def list_tests() -> None:
+    current_cat = None
+    for idx, tc in enumerate(TESTS, start=1):
+        if tc.category != current_cat:
+            current_cat = tc.category
+            print(f"{BOLD}{CYAN}== {current_cat} =={RESET}")
+        print(f"  {DIM}#{idx:<3}{RESET} {tc.name}")
+
+
+def select_tests(selector: Optional[str]) -> List[Tuple[int, TestCase]]:
+    indexed = list(enumerate(TESTS, start=1))
+    if not selector:
+        return indexed
+    if selector.isdigit():
+        idx = int(selector)
+        if 1 <= idx <= len(TESTS):
+            return [(idx, TESTS[idx - 1])]
+        return []
+    needle = selector.lower()
+    return [
+        (idx, tc)
+        for idx, tc in indexed
+        if needle in tc.name.lower() or needle in tc.category.lower()
+    ]
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="End-to-end test suite for ComputorV2.")
+    parser.add_argument("binary", nargs="?", help="Path to computorv2 binary (default: build/computorv2)")
+    parser.add_argument("-l", "--list", action="store_true", help="List all tests with their index and exit")
+    parser.add_argument("-t", "--test", dest="selector", help="Run only test #<index> or tests matching <keyword> (enables detailed view)")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Show detailed input/output for every executed test")
+    args = parser.parse_args()
+
+    if args.list:
+        list_tests()
+        return 0
+
     repo_root = Path(__file__).resolve().parent.parent
-    binary = (Path(sys.argv[1]) if len(sys.argv) > 1 else repo_root / "build" / "computorv2").resolve()
+    binary = (Path(args.binary) if args.binary else repo_root / "build" / "computorv2").resolve()
 
     if not binary.exists():
         print(f"{RED}Binary not found at {binary}{RESET}")
         return 2
 
-    print(f"{BOLD}Running {len(TESTS)} test suites against {CYAN}{binary}{RESET}\n")
+    selected = select_tests(args.selector)
+    if not selected:
+        print(f"{RED}No tests matched selector {args.selector!r}. Use --list to see available tests.{RESET}")
+        return 2
+
+    verbose = args.verbose or (args.selector is not None)
+    print(f"{BOLD}Running {len(selected)} test suite(s) against {CYAN}{binary}{RESET}\n")
 
     passed = 0
     failures = []
     current_cat = None
 
-    for tc in TESTS:
-        if tc.category != current_cat:
-            current_cat = tc.category
-            print(f"{BOLD}{CYAN}== {current_cat} =={RESET}")
-
-        err = run_case(binary, tc)
+    for idx, tc in selected:
+        err, stdout, stderr = run_case(binary, tc)
         if err is None:
             passed += 1
-            print(f"  {GREEN}[PASS]{RESET} {tc.name}")
         else:
-            failures.append((tc, err))
-            print(f"  {RED}[FAIL]{RESET} {tc.name}")
+            failures.append((idx, tc, err))
 
-    print(f"\n{BOLD}Summary:{RESET} {passed}/{len(TESTS)} passed", end="")
+        if verbose:
+            print_detailed_case(idx, tc, err, stdout, stderr)
+        else:
+            if tc.category != current_cat:
+                current_cat = tc.category
+                print(f"{BOLD}{CYAN}== {current_cat} =={RESET}")
+            tag = f"{GREEN}[PASS]{RESET}" if err is None else f"{RED}[FAIL]{RESET}"
+            print(f"  {DIM}#{idx:<3}{RESET} {tag} {tc.name}")
+
+    print(f"\n{BOLD}Summary:{RESET} {passed}/{len(selected)} passed", end="")
     if failures:
         print(f", {RED}{len(failures)} failed{RESET}\n")
-        for tc, err in failures:
-            print(f"{YELLOW}--- FAIL: [{tc.category}] {tc.name} ---{RESET}")
-            print(f"Inputs: {tc.inputs}")
-            print(f"{err}\n")
+        if not verbose:
+            for idx, tc, err in failures:
+                print(f"{YELLOW}--- FAIL: #{idx} [{tc.category}] {tc.name} ---{RESET}")
+                print(f"Inputs: {tc.inputs}")
+                print(f"{err}\n")
         return 1
 
     print(f" {GREEN}(all green!){RESET}")

@@ -57,8 +57,14 @@ void Evaluator::executeExpression() const
 
 		if (funcIt != ctx.funcs.end() && varIt == ctx.vars.end())
 		{
-			std::cout << funcIt->second << '\n';
-			return ;
+			if (const auto* fn = std::get_if<UserFunction>(&funcIt->second))
+			{
+				VarCtx	printVars = fn->capturedVars;
+				printVars[fn->param] = Polynomial::createSymbolicPolynomial(lhs[2].value);
+				fn->body->print(std::cout, printVars);
+				std::cout << '\n';
+				return ;
+			}
 		}
 	}
 	Parser	parser(lhs);
